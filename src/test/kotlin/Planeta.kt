@@ -36,4 +36,22 @@ class PlanetaTest : FunSpec({
         )
         planeta.gravedadSoportable() shouldBe true
     }
+
+    test("verificar que la gravedad no sea soportable cuando es menor a 3") {
+        val planeta = Planeta(
+            "Mercurio",
+            20.0,
+            2.5,
+            30,
+            false,
+            15,
+            5,
+            3000.0,
+            LocalDate.of(2020, 1, 1),
+            500.0,
+            false
+        )
+
+        planeta.gravedadSoportable() shouldBe false
+    }
 })
