@@ -2,7 +2,7 @@ import java.time.LocalDate
 import java.time.Period
 
 class Tripulante (val nombre: String, val apellido: String, val fechaNacimiento: LocalDate,
-                  val fechaInicioActividad: LocalDate )
+                  val fechaInicioActividad: LocalDate)
 {
     val misiones: MutableCollection<EstadoMision> = mutableListOf<EstadoMision>()
     fun agregarMision(estado: EstadoMision) {
