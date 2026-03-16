@@ -40,5 +40,5 @@ fun main() {
 
     println("Temperatura ideal: ${planeta.tieneTemperaturaIdeal()}")
     println("Gravedad soportable: ${planeta.gravedadSoportable()}")
-    println("Tiene agua líquida: ${planeta.tieneAguaLiquida()}")
+    //println("Tiene agua líquida: ${planeta.tieneAguaLiquida()}")
 }
