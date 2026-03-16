@@ -1,4 +1,6 @@
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
@@ -7,8 +9,8 @@ class TripulanteTest : FunSpec({
         val tripulante = Tripulante(
             "Juan",
             "Perez",
-            LocalDate.of(1990,5,10),
-            LocalDate.of(2015,3,1)
+            LocalDate.of(1990, 5, 10),
+            LocalDate.of(2015, 3, 1)
         )
         tripulante.agregarMision(EstadoMision.EXITOSA)
         tripulante.agregarMision(EstadoMision.EXITOSA)
@@ -23,8 +25,8 @@ class TripulanteTest : FunSpec({
         val tripulante = Tripulante(
             "Ana",
             "Gomez",
-            LocalDate.of(1992,4,15),
-            LocalDate.of(2020,1,1)
+            LocalDate.of(1992, 4, 15),
+            LocalDate.of(2020, 1, 1)
         )
         tripulante.agregarMision(EstadoMision.EXITOSA)
         tripulante.agregarMision(EstadoMision.FRACASADA)
@@ -33,5 +35,15 @@ class TripulanteTest : FunSpec({
 
         val experiencia = tripulante.calcularExperiencia()
         experiencia shouldBe 7.75
+    }
+
+    test("Agregar mision") {
+        val tripulante = Tripulante("Nicolas", "Diez", LocalDate.of(2002, 8, 11), LocalDate.of(2026, 3, 16));
+        val misionesActuales = tripulante.misiones.size
+        tripulante.agregarMision(EstadoMision.EXITOSA)
+
+        misionesActuales shouldBeLessThan tripulante.misiones.size
+        tripulante.misiones.last() shouldBe EstadoMision.EXITOSA
+
     }
 })
