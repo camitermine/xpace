@@ -1,5 +1,3 @@
-import java.time.LocalDate
-
 fun main() {
 
     println("=== PRUEBA DE TRIPULANTE ===")
