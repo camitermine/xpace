@@ -23,7 +23,7 @@ class Planeta (val nombre: String,
     fun gravedadSoportable(): Boolean {
         return gravedad >= 3 && gravedad <= 15
     }
-    fun tieneAguaLiquida(): Boolean {
+    /*fun tieneAguaLiquida(): Boolean {
         return hayAguaLiquida
-    }
+    }*/
 }
