@@ -12,10 +12,11 @@ class Planeta (val nombre: String,
                val distanciaATierra: Double,
                var fueAterrizado: Boolean)
 {
-    //forzamos los valores para que esten entre 0 y 100
-    val nivelRadiacion = nivelRadiacion.coerceIn(0,100)
-    val toxicidadAtmosferica = toxicidadAtmosferica.coerceIn(0,100)
-    val actividadTectonica = actividadTectonica.coerceIn(0,100)
+    init {
+        require(nivelRadiacion in 0..100) {"El valor debe estar entre cero y cien"}
+        require(toxicidadAtmosferica in 0..100) {"El valor debe estar entre cero y cien"}
+        require(actividadTectonica in 0..100) {"El valor debe estar entre cero y cien"}
+    }
 
     fun tieneTemperaturaIdeal(): Boolean {
         return temperaturaMedia >= 0 && temperaturaMedia <= 40

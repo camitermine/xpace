@@ -1,3 +1,4 @@
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
@@ -71,8 +72,9 @@ class PlanetaTest : FunSpec({
         planeta.gravedadSoportable() shouldBe false
     }
 
-    test("verificar que un valor de toxicidad, radiacion y actividad tectonica quede forzado al menor valor posible") {
-        val planeta = Planeta(
+    test("verificar que un valor de toxicidad, radiacion y actividad tectonica no pueda tener un valor imposible") {
+        shouldThrow<IllegalArgumentException> {
+            Planeta(
             "Krypton",
             18.0,
             45.0,
@@ -81,32 +83,12 @@ class PlanetaTest : FunSpec({
             -5,
             -5,
             9556.5,
-            LocalDate.of(1938,6,18),
+            LocalDate.of(1938, 6, 18),
             27.1,
             true
-        )
-        planeta.nivelRadiacion shouldBe 0
-        planeta.toxicidadAtmosferica shouldBe 0
-        planeta.actividadTectonica shouldBe 0
+            )
+        }
     }
 
-    test("verificar que un valor de toxicidad, radiacion y actividad tectonica quede forzado al mayor valor posible") {
-        val planeta = Planeta(
-            "Krypton",
-            18.0,
-            45.0,
-            105,
-            true,
-            105,
-            105,
-            9556.5,
-            LocalDate.of(1938,6,18),
-            27.1,
-            true
-        )
-        planeta.nivelRadiacion shouldBe 100
-        planeta.toxicidadAtmosferica shouldBe 100
-        planeta.actividadTectonica shouldBe 100
-    }
 
 })
