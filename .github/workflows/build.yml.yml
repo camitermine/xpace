@@ -8,9 +8,9 @@ name: build
 # Para pull_request: solo en PRs que apunten a main, master, develop o development.
 on:
   push:
-    branches: [master, main, develop, development]
+    branches: [master, main, develop, development, dev]
   pull_request:
-    branches: [master, main, develop, development]
+    branches: [master, main, develop, development, dev]
 
 jobs:
   gradle-plus-coverage:
