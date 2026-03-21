@@ -1,3 +1,5 @@
+import mision.EstadoMision
+
 fun main() {
 
     println("=== PRUEBA DE TRIPULANTE ===")
