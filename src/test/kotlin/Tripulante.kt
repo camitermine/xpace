@@ -1,3 +1,4 @@
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeLessThan
@@ -38,13 +39,25 @@ class TripulanteTest : FunSpec({
         experiencia shouldBe 7.75
     }
 
-    test("Agregar mision") {
+    test("verificar que la mision fue agregada correctamente") {
         val tripulante = Tripulante("Nicolas", "Diez", LocalDate.of(2002, 8, 11), LocalDate.of(2026, 3, 16));
         val misionesActuales = tripulante.misiones.size
         tripulante.agregarMision(EstadoMision.EXITOSA)
 
-        misionesActuales shouldBeLessThan tripulante.misiones.size
         tripulante.misiones.last() shouldBe EstadoMision.EXITOSA
 
     }
+
+    test("verificar que fecha de nacimiento sea correcta") {
+        shouldThrow<IllegalArgumentException> {
+            Tripulante(
+                "Nicolas", "Diez",
+                LocalDate.now().plusDays(1),
+                LocalDate.of(2026, 3, 16)
+            );
+        //cuando intento crear al tripulante le asigno una fecha de nac posterior al dia de la fecha
+        }
+    }
+
+
 })

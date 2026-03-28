@@ -2,10 +2,19 @@ import mision.EstadoMision
 import java.time.LocalDate
 import java.time.Period
 
-class Tripulante (val nombre: String, val apellido: String, val fechaNacimiento: LocalDate,
+class Tripulante (val nombre: String,
+                  val apellido: String,
+                  val fechaNacimiento: LocalDate,
                   val fechaInicioActividad: LocalDate)
 {
-    protected val misiones: MutableCollection<EstadoMision> = mutableListOf<EstadoMision>()
+    init {
+        require(fechaNacimiento.isBefore(LocalDate.now()))
+        {"La fecha de nacimiento debe ser anterior a hoy"}
+    }
+
+
+
+    val misiones: MutableCollection<EstadoMision> = mutableListOf<EstadoMision>()
     fun agregarMision(estado: EstadoMision) {
         misiones.add(estado)
     }

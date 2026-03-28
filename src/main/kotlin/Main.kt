@@ -1,5 +1,7 @@
 import mision.EstadoMision
 
+import java.time.LocalDate
+
 fun main() {
 
     println("=== PRUEBA DE TRIPULANTE ===")
@@ -40,5 +42,4 @@ fun main() {
 
     println("Temperatura ideal: ${planeta.tieneTemperaturaIdeal()}")
     println("Gravedad soportable: ${planeta.gravedadSoportable()}")
-    //println("Tiene agua líquida: ${planeta.tieneAguaLiquida()}")
 }
