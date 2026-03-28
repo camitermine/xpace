@@ -1,0 +1,69 @@
+import java.time.LocalDate
+import java.time.Period
+
+abstract class Nave(val nombre: String, val codIdentif: Int, val fechaFabricacion: LocalDate,
+                    val consumoBase: Double, val autonomia: Int, val velPromedio: Double) {
+
+    init {
+        require(nombre.isNotBlank()) { "El nombre no puede estar vacío" }
+        require(codIdentif > 0) { "El código debe ser mayor a 0" }
+        require(consumoBase > 0) { "El consumo base debe ser mayor a 0" }
+        require(autonomia > 0) { "La autonomía debe ser mayor a 0" }
+        require(velPromedio > 0) { "La velocidad promedio debe ser mayor a 0" }
+    }
+    fun antiguedad(): Int =
+        Period.between(fechaFabricacion, LocalDate.now()).years
+    abstract fun consumoPorAnioLuz(): Double
+    fun consumoTotal(distancia: Double): Double = consumoPorAnioLuz() * distancia
+    fun puedeAlcanzar(distancia: Double): Boolean {
+        val tiempoViaje = (distancia * 365) / velPromedio * 2
+        return tiempoViaje <= autonomia
+    }
+}
+class Sonda(nombre: String, codIdentif: Int, fechaFabricacion: LocalDate, consumoBase: Double, autonomia: Int,
+            velPromedio: Double) : Nave
+    (nombre, codIdentif, fechaFabricacion, consumoBase, autonomia, velPromedio) {
+
+    override fun consumoPorAnioLuz(): Double = consumoBase
+}
+class Transbordador(nombre: String, codIdentif: Int, fechaFabricacion: LocalDate, consumoBase: Double,
+                    autonomia: Int, velPromedio: Double, val tripulantes: Int) : Nave
+    (nombre, codIdentif, fechaFabricacion, consumoBase, autonomia, velPromedio) {
+
+    init {
+        require(tripulantes >= 0) { "La cantidad de tripulantes no puede ser negativa" }
+    }
+    override fun consumoPorAnioLuz(): Double =
+        consumoBase + (consumoBase * 0.10 * tripulantes)
+}
+class Carguero(nombre: String, codIdentif: Int, fechaFabricacion: LocalDate, consumoBase: Double,
+               autonomia: Int, velPromedio: Double, val capacidadTn: Double) : Nave
+    (nombre, codIdentif, fechaFabricacion, consumoBase, autonomia, velPromedio) {
+
+    init {
+        require(capacidadTn >= 0) { "La capacidad de carga no puede ser negativa" }
+    }
+    fun esAntigua(): Boolean = antiguedad() > 10
+    fun consumoPorCarga(): Double =
+        consumoBase + (consumoBase * 0.05 * capacidadTn)
+    fun factorAntiguedad(): Double =
+        if (esAntigua()) 1.20 else 1.0
+    override fun consumoPorAnioLuz(): Double {
+        val consumo = consumoPorCarga()
+        return consumo * factorAntiguedad()
+    }
+    //override fun consumoPorAnioLuz(): Double {
+    //val base = consumoBase + (consumoBase * 0.05 * capacidadTn)
+    //val factor = if (esAntigua()) 1.20 else 1.0
+    //return base * factor
+    //}
+    //override fun consumoPorAnioLuz(): Double {
+    // var consumo = consumoBase + (consumoBase * 0.05 * capacidadTn)
+
+    //if (esAntigua()) {
+    //  consumo *= 1.20
+    //}
+
+    //return consumo
+    //}
+}
