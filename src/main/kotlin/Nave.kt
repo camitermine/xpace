@@ -9,7 +9,8 @@ abstract class Nave(
 ) {
 
     abstract val capacidadTripulantes: Int
-    private var misionAsignada: Mision? = null
+    var misionAsignada: Mision? = null
+        private set
 
 
     init {
