@@ -1,8 +1,8 @@
 package mision
 
+import Nave
 import Planeta
 import Tripulante
-import java.util.Optional
 
 const val IDA_Y_VUELTA = 2
 const val DURACION_DE_ALTO_RIESGO = 500
@@ -12,7 +12,7 @@ class Mision {
     private val nombre: String
     private val descripción: String
     private val fecha_lanzamiento: String
-    private val nave: String
+    private val nave: Nave
     private val destino: Planeta
     private var estado: EstadoMision = EstadoMision.BORRADOR
     private var tripulantes: List<Tripulante>
@@ -21,7 +21,7 @@ class Mision {
         nombre: String,
         descripción: String,
         fecha_lanzamiento: String,
-        nave: String,
+        nave: Nave,
         destino: Planeta,
         tripulantes: List<Tripulante>?
     ) {
@@ -33,7 +33,7 @@ class Mision {
         this.tripulantes = tripulantes ?: emptyList()
     }
 
-    fun duracion(): Double = destino.radioKm * 365 /*/ this.nave.velocidadPromedio */ * IDA_Y_VUELTA
+    fun duracion(): Double = destino.radioKm * 365 / this.nave.velPromedio * IDA_Y_VUELTA
     fun altoRiesgo(): Boolean =/*!destino.habitable() && */ duracion() > DURACION_DE_ALTO_RIESGO
 
     fun cancelar() {
@@ -58,7 +58,7 @@ class Mision {
         try {
 
             if (this.estado !== EstadoMision.BORRADOR) {
-                throw Exception("La mision ya fue lanzada")
+                throw ErrorDeMision("La mision ya fue lanzada")
             }
 
             prepararNave()
@@ -66,8 +66,10 @@ class Mision {
 
             this.estado = EstadoMision.EN_CURSO
 
+        } catch (e: ErrorDeMision) {
+            println("Fallo en el lanzamiento: ${e.message}")
         } catch (e: Exception) {
-
+            println("Error inesperado: ${e.message}")
         }
     }
 
@@ -77,6 +79,8 @@ class Mision {
     }
 
     private fun prepararNave() {
+        if(!this.nave.puedeAlcanzar(this.destino.distanciaATierra)) throw ErrorDeMision("Nave")
+        if(this.tripulantes.size > this.nave.capacidadTripulantes) throw ErrorDeMision("Nave")
     }
 
     private fun prepararTripulantes() {
