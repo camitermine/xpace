@@ -1,3 +1,4 @@
+import mision.Mision
 import java.time.LocalDate
 import java.time.Period
 
@@ -8,6 +9,8 @@ abstract class Nave(
 ) {
 
     abstract val capacidadTripulantes: Int
+    private var misionAsignada: Mision? = null
+
 
     init {
         require(nombre.isNotBlank()) { "El nombre no puede estar vacío" }
@@ -17,10 +20,16 @@ abstract class Nave(
         require(velPromedio > 0) { "La velocidad promedio debe ser mayor a 0" }
     }
 
-    fun antiguedad(): Int =
-        Period.between(fechaFabricacion, LocalDate.now()).years
-
     abstract fun consumoPorAnioLuz(): Double
+    fun asignar(mision: Mision) {
+        this.misionAsignada = mision
+    }
+
+    fun liberar() {
+        this.misionAsignada = null
+    }
+
+    fun antiguedad(): Int = Period.between(fechaFabricacion, LocalDate.now()).years
     fun consumoTotal(distancia: Double): Double = consumoPorAnioLuz() * distancia
     fun puedeAlcanzar(distancia: Double): Boolean {
         val tiempoViaje = (distancia * 365) / velPromedio * 2

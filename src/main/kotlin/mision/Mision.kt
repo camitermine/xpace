@@ -69,18 +69,19 @@ class Mision {
         } catch (e: ErrorDeMision) {
             println("Fallo en el lanzamiento: ${e.message}")
         } catch (e: Exception) {
-            println("Error inesperado: ${e.message}")
+            println("Error inesperado durante el lanzamiento: ${e.message}")
         }
     }
 
     private fun misionFinalizada(estado: EstadoMision) {
         this.estado = estado
-        //nave.liberar()
+        nave.liberar()
     }
 
     private fun prepararNave() {
-        if(!this.nave.puedeAlcanzar(this.destino.distanciaATierra)) throw ErrorDeMision("Nave")
-        if(this.tripulantes.size > this.nave.capacidadTripulantes) throw ErrorDeMision("Nave")
+        if(!this.nave.puedeAlcanzar(this.destino.distanciaATierra)) throw ErrorDeMision("La nave no es capaz de alcanzar el destino de la mision")
+        if(this.tripulantes.size > this.nave.capacidadTripulantes) throw ErrorDeMision("La nave no soporta " + this.tripulantes.size +  " tripulantes")
+        nave.asignar(this)
     }
 
     private fun prepararTripulantes() {
