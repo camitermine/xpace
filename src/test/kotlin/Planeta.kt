@@ -75,17 +75,17 @@ class PlanetaTest : FunSpec({
     test("verificar que un valor de toxicidad, radiacion y actividad tectonica no pueda tener un valor imposible") {
         shouldThrow<IllegalArgumentException> {
             Planeta(
-            "Krypton",
-            18.0,
-            45.0,
-            -5,
-            true,
-            -5,
-            -5,
-            9556.5,
-            LocalDate.of(1938, 6, 18),
-            27.1,
-            true
+                "Krypton",
+                18.0,
+                45.0,
+                -5,
+                true,
+                -5,
+                -5,
+                9556.5,
+                LocalDate.of(1938, 6, 18),
+                27.1,
+                true
             )
         }
     }

@@ -1,5 +1,3 @@
-import mision.EstadoMisionTripulante
-
 import java.time.LocalDate
 
 fun main() {

@@ -1,9 +1,3 @@
-package mision
-
-import Nave
-import Planeta
-import Tripulante
-import java.sql.Date
 import java.time.LocalDate
 
 const val IDA_Y_VUELTA = 2

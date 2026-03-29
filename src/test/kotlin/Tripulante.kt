@@ -1,9 +1,6 @@
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.comparables.shouldBeGreaterThan
-import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.shouldBe
-import mision.EstadoMisionTripulante
 import java.time.LocalDate
 
 class TripulanteTest : FunSpec({

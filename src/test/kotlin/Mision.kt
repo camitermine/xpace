@@ -1,10 +1,6 @@
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import mision.ErrorDeMision
-import mision.EstadoMision
-import mision.EstadoMisionTripulante
-import mision.Mision
 import java.time.LocalDate
 
 class MisionSpec : DescribeSpec({
@@ -27,7 +23,6 @@ class MisionSpec : DescribeSpec({
             100.0,
             1000000000,
             100.0,
-            tripulantes = 1
         )
 
         fun crearPlanetaHabitable() = Planeta(

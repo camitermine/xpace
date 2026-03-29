@@ -1,5 +1,3 @@
-package mision
-
 enum class EstadoMision {
     BORRADOR,
     COMPLETADA,
