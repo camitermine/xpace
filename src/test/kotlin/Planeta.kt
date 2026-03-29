@@ -90,5 +90,74 @@ class PlanetaTest : FunSpec({
         }
     }
 
+    test("verificar que el campo nombre no este vacío") {
+        shouldThrow<IllegalArgumentException> {
+            Planeta(
+                "",
+                18.0,
+                45.0,
+                25,
+                true,
+                25,
+                25,
+                9556.5,
+                LocalDate.of(1938, 6, 18),
+                27.1,
+                true
+            )
+        }
+    }
+
+    test("verificar que NO es habitable") {
+        val planeta = Planeta(
+            "Mercurio",
+            46.0,
+            1.5,
+            45,
+            false,
+            45,
+            5,
+            3000.0,
+            LocalDate.of(2020, 1, 1),
+            500.0,
+            false
+        )
+        planeta.esHabitable() shouldBe false
+    }
+
+    test("calcular corretamente indiceDePeligrosidad ") {
+        val planeta = Planeta(
+            "Mercurio",
+            20.0,
+            2.5,
+            10,
+            false,
+            10,
+            10,
+            3000.0,
+            LocalDate.of(2020, 1, 1),
+            500.0,
+            false
+        )
+        planeta.indiceDePeligrosidad() shouldBe 10
+    }
+
+    test("verificar que esExplorable ") {
+        val planeta = Planeta(
+            "Mercurio",
+            45.0,
+            2.5,
+            10,
+            false,
+            10,
+            90,
+            3000.0,
+            LocalDate.of(2020, 1, 1),
+            500.0,
+            false
+        )
+        planeta.esExplorable() shouldBe true
+    }
+
 
 })
