@@ -11,14 +11,14 @@ fun main() {
         LocalDate.of(2015, 3, 1)
     )
 
-    tripulante.agregarMision(EstadoMision.EXITOSA)
-    tripulante.agregarMision(EstadoMision.EXITOSA)
-    tripulante.agregarMision(EstadoMision.FRACASADA)
+    tripulante.agregarMision(EstadoMision.COMPLETADA)
+    tripulante.agregarMision(EstadoMision.COMPLETADA)
+    tripulante.agregarMision(EstadoMision.FALLIDA)
     tripulante.agregarMision(EstadoMision.PARCIALMENTE_EXITOSA)
 
     println("Edad: ${tripulante.calcularEdad()}")
     println("Años activo: ${tripulante.calcularAniosActivo()}")
-    println("Misiones exitosas: ${tripulante.cantidadMisiones(EstadoMision.EXITOSA)}")
+    println("Misiones exitosas: ${tripulante.cantidadMisiones(EstadoMision.COMPLETADA)}")
     println("Experiencia: ${tripulante.calcularExperiencia()}")
 
     println()

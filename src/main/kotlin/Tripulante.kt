@@ -27,9 +27,9 @@ class Tripulante (val nombre: String,
         return misiones.count { it == estado }
     }
     fun calcularExperiencia(): Double {
-        val exitosas = cantidadMisiones(EstadoMision.EXITOSA)
+        val exitosas = cantidadMisiones(EstadoMision.COMPLETADA)
         val parciales = cantidadMisiones(EstadoMision.PARCIALMENTE_EXITOSA)
-        val fracasadas = cantidadMisiones(EstadoMision.FRACASADA)
+        val fracasadas = cantidadMisiones(EstadoMision.FALLIDA)
 
         return  calcularAniosActivo() +
                 (exitosas / 2.0) +
