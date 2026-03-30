@@ -40,7 +40,7 @@ class Tripulante(
     fun calcularExperiencia(): Double {
         val exitosas = cantidadMisiones(EstadoMision.COMPLETADA)
         val parciales = historialMisiones.count {
-            it.estado == EstadoMision.CANCELADA && it.esDeAltoRiesgo
+            it.estado == EstadoMision.CANCELADA && it.altoRiesgo()
         }
         val fracasadas = cantidadMisiones(EstadoMision.FALLIDA)
 
@@ -82,31 +82,31 @@ class Conformista : PerfilAptitud {
 
 class Prudente : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean {
-        return mision.planeta.temperaturaIdeal && mision.planeta.gravedadSoportable
+        return mision.destino.tieneTemperaturaIdeal() && mision.destino.gravedadSoportable()
     }
 }
 
 class Explorador : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean {
-        return !mision.planeta.fueAterrizado
+        return !mision.destino.fueAterrizado
     }
 }
 
 class Veterano(val maxDiasPermitidos: Int) : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean {
-        return mision.duracionDias <= maxDiasPermitidos
+        return mision.duracion() <= maxDiasPermitidos
     }
 }
 
 class Cauteloso(val umbralRadiacionMaximo: Double) : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean {
-        return mision.planeta.nivelRadiacion < umbralRadiacionMaximo
+        return mision.destino.nivelRadiacion < umbralRadiacionMaximo
     }
 }
 
 class Exigente : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean {
-        return mision.nave.esModerna
+        return mision.nave.antiguedad() < 5
     }
 }
 
@@ -129,11 +129,11 @@ class Piloto : Rol {
 
 class Ingeniero : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
-        // Filtramos para mirar solo el historial de las que salieron bien
         val ultimaCompletada = tripulante.historialMisiones
             .lastOrNull { it.estado == EstadoMision.COMPLETADA }
 
-        return if (ultimaCompletada != null && ultimaCompletada.nave.esCarguero) {
+        // En Kotlin usamos 'is' para saber si una clase hereda de otra
+        return if (ultimaCompletada != null && ultimaCompletada.nave is Carguero) {
             tripulante.salarioBase * 0.40
         } else {
             tripulante.salarioBase * 0.20
@@ -144,8 +144,8 @@ class Ingeniero : Rol {
 class Cientifico : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
         val cantidadPlanetasAterrizados = tripulante.historialMisiones
-            .filter { it.estado == EstadoMision.COMPLETADA } // Solo cuenta si la misión fue un éxito
-            .map { it.planeta }
+            .filter { it.estado == EstadoMision.COMPLETADA }
+            .map { it.destino } // En Mision se llama destino
             .distinct()
             .count()
 

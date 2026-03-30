@@ -1,7 +1,7 @@
 # 🚀 Xpace
 
 
-![image](./images/imagen1.png)
+![image](./images/Imagen1.png)
 
 
 Modelo inicial del sistema de gestión de expediciones de la agencia espacial **Xpace**.

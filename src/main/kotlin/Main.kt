@@ -11,14 +11,14 @@ fun main() {
         LocalDate.of(2015, 3, 1)
     )
 
-    tripulante.agregarMision(EstadoMision.EXITOSA)
-    tripulante.agregarMision(EstadoMision.EXITOSA)
-    tripulante.agregarMision(EstadoMision.FRACASADA)
-    tripulante.agregarMision(EstadoMision.PARCIALMENTE_EXITOSA)
+    tripulante.agregarMision(EstadoMisionTripulante.EXITOSA)
+    tripulante.agregarMision(EstadoMisionTripulante.EXITOSA)
+    tripulante.agregarMision(EstadoMisionTripulante.FRACASADA)
+    tripulante.agregarMision(EstadoMisionTripulante.PARCIALMENTE_EXITOSA)
 
     println("Edad: ${tripulante.calcularEdad()}")
     println("Años activo: ${tripulante.calcularAniosActivo()}")
-    println("Misiones exitosas: ${tripulante.cantidadMisiones(EstadoMision.EXITOSA)}")
+    println("Misiones exitosas: ${tripulante.cantidadMisiones(EstadoMisionTripulante.EXITOSA)}")
     println("Experiencia: ${tripulante.calcularExperiencia()}")
 
     println()
@@ -40,5 +40,4 @@ fun main() {
 
     println("Temperatura ideal: ${planeta.tieneTemperaturaIdeal()}")
     println("Gravedad soportable: ${planeta.gravedadSoportable()}")
-    println("Tiene agua líquida: ${planeta.tieneAguaLiquida()}")
 }
