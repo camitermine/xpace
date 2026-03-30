@@ -1,6 +1,6 @@
+import java.awt.geom.Point2D
 import java.time.LocalDate
 import java.time.Period
-import org.uqbar.geodds.Point
 
 class Tripulante(
     val nombre: String,
@@ -11,7 +11,7 @@ class Tripulante(
     var rol: Rol,
     var perfilAptitud: PerfilAptitud,
     var baseLanzamiento: BaseLanzamiento,
-    val ubicacionGeografica: Point
+    val ubicacionGeografica: Point2D.Double
 ) {
     val historialMisiones: MutableCollection<Mision> = mutableListOf()
 
@@ -66,9 +66,9 @@ class Tripulante(
         return salarioBase + rol.calcularBonus(this)
     }
 
-    fun consideraBaseCercana(base: BaseLanzamiento, kmMaximos: Double): Boolean {
+    fun consideraBaseCercana(base: BaseLanzamiento, distanciaMaxima: Double): Boolean {
         val distancia = this.ubicacionGeografica.distance(base.ubicacionGeografica)
-        return distancia <= kmMaximos
+        return distancia <= distanciaMaxima
     }
 }
 

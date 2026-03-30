@@ -1,11 +1,24 @@
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import java.awt.geom.Point2D
 import java.time.LocalDate
 
 class MisionSpec : DescribeSpec({
 
     describe("estados de la misión") {
+
+        fun crearBase() = BaseLanzamiento(
+            nombre = "Base Test",
+            direccion = Direccion(
+                pais = "Argentina",
+                ciudad = "Buenos Aires",
+                calle = "Calle Falsa",
+                altura = "123",
+                ubicacion = Point2D.Double(0.0, 0.0)
+            ),
+            capacidadMaximaNaves = 5
+        )
 
         fun crearSonda() = Sonda(
             "Voyager",
@@ -108,12 +121,18 @@ class MisionSpec : DescribeSpec({
             mision.altoRiesgo() shouldBe true
         }
 
-        it("agrega misión parcialmente exitosa al tripulante si se cancela una de alto riesgo") {
+        it("agrega misión al historial del tripulante si se cancela una de alto riesgo") {
+            val base = crearBase()
             val johnCena = Tripulante(
-                "John",
-                "Cena",
-                LocalDate.now().minusDays(15),
-                LocalDate.now()
+                nombre = "John",
+                apellido = "Cena",
+                fechaNacimiento = LocalDate.now().minusDays(15),
+                fechaInicioActividad = LocalDate.now(),
+                salarioBase = 100000.0,
+                rol = Piloto(),
+                perfilAptitud = Conformista(),
+                baseLanzamiento = base,
+                ubicacionGeografica = Point2D.Double(0.0, 0.0)
             )
 
             val nave = crearTransbordador()
@@ -123,7 +142,7 @@ class MisionSpec : DescribeSpec({
             mision.lanzar()
             mision.cancelar()
 
-            johnCena.misiones.last() shouldBe EstadoMisionTripulante.PARCIALMENTE_EXITOSA
+            johnCena.historialMisiones.last().estado shouldBe EstadoMision.CANCELADA
         }
     }
 })
