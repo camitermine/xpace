@@ -1,11 +1,11 @@
-import java.awt.geom.Point2D
+import org.uqbar.geodds.Point
 
 data class Direccion(
     val pais: String,
     val ciudad: String,
     val calle: String,
     val altura: String,
-    val ubicacion: Point2D.Double
+    val ubicacion: Point
 )
 
 class BaseLanzamiento(
@@ -15,7 +15,7 @@ class BaseLanzamiento(
 ) {
     val navesEstacionadas: MutableList<Nave> = mutableListOf()
 
-    val ubicacionGeografica: Point2D.Double
+    val ubicacionGeografica: Point
         get() = direccion.ubicacion
 
     fun estacionar(nave: Nave) {

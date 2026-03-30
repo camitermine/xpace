@@ -17,6 +17,8 @@ class Planeta (val nombre: String,
         require(nivelRadiacion in 0..100) {"El valor debe estar entre cero y cien"}
         require(toxicidadAtmosferica in 0..100) {"El valor debe estar entre cero y cien"}
         require(actividadTectonica in 0..100) {"El valor debe estar entre cero y cien"}
+        require(gravedad > 0) { "La gravedad debe ser mayor a 0" }
+        require(radioKm > 0) { "El tamaño (radio) debe ser mayor a 0" }
     }
 
     fun tieneTemperaturaIdeal(): Boolean {

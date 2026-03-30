@@ -1,7 +1,7 @@
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import java.awt.geom.Point2D
+import org.uqbar.geodds.Point
 import java.time.LocalDate
 
 class BaseLanzamientoTest : DescribeSpec({
@@ -13,7 +13,7 @@ class BaseLanzamientoTest : DescribeSpec({
             ciudad = "Buenos Aires",
             calle = "Av. Siempreviva",
             altura = "742",
-            ubicacion = Point2D.Double(x.toDouble(), y.toDouble())
+            ubicacion = Point(x.toDouble(), y.toDouble())
         ),
         capacidadMaximaNaves = capacidad
     )
@@ -36,7 +36,7 @@ class BaseLanzamientoTest : DescribeSpec({
         rol = Piloto(),
         perfilAptitud = Conformista(),
         baseLanzamiento = base,
-        ubicacionGeografica = Point2D.Double(x.toDouble(), y.toDouble())
+        ubicacionGeografica = Point(x.toDouble(), y.toDouble())
     )
 
     describe("naves estacionadas") {
