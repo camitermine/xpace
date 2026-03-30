@@ -6,7 +6,8 @@ abstract class Nave(
     val consumoBase: Double, val autonomia: Int, val velPromedio: Double) {
 
     abstract val capacidadTripulantes: Int
-    private var misionAsignada: Mision? = null
+    var misionAsignada: Mision? = null
+        private set
 
     init {
         require(nombre.isNotBlank()) { "El nombre no puede estar vacío" }

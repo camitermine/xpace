@@ -13,8 +13,8 @@ class Tripulante (val nombre: String,
 
 
 
-    val misiones: MutableCollection<EstadoMision> = mutableListOf<EstadoMision>()
-    fun agregarMision(estado: EstadoMision) {
+    val misiones: MutableCollection<EstadoMisionTripulante> = mutableListOf<EstadoMisionTripulante>()
+    fun agregarMision(estado: EstadoMisionTripulante) {
         misiones.add(estado)
     }
     fun calcularEdad(): Int {
@@ -23,13 +23,13 @@ class Tripulante (val nombre: String,
     fun calcularAniosActivo(): Int {
         return Period.between(fechaInicioActividad, LocalDate.now()).years
     }
-    fun cantidadMisiones(estado: EstadoMision): Int {
+    fun cantidadMisiones(estado: EstadoMisionTripulante): Int {
         return misiones.count { it == estado }
     }
     fun calcularExperiencia(): Double {
-        val exitosas = cantidadMisiones(EstadoMision.COMPLETADA)
-        val parciales = cantidadMisiones(EstadoMision.PARCIALMENTE_EXITOSA)
-        val fracasadas = cantidadMisiones(EstadoMision.FALLIDA)
+        val exitosas = cantidadMisiones(EstadoMisionTripulante.EXITOSA)
+        val parciales = cantidadMisiones(EstadoMisionTripulante.PARCIALMENTE_EXITOSA)
+        val fracasadas = cantidadMisiones(EstadoMisionTripulante.FRACASADA)
 
         return  calcularAniosActivo() +
                 (exitosas / 2.0) +
