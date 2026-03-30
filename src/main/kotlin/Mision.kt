@@ -12,8 +12,8 @@ class Mision(
     private val nombre: String,
     private val descripcion: String,
     private val fechaLanzamiento: LocalDate,
-    private val nave: Nave,
-    private val destino: Planeta,
+    val nave: Nave,
+    val destino: Planeta,
     private var tripulantes: List<Tripulante> = emptyList()
 ) {
 
@@ -50,11 +50,9 @@ class Mision(
     }
 
     private fun agregarMisionATripulante(estado: EstadoMision) {
-        val estadoTripulante = MAPA_DE_ESTADOS[estado]
-            ?: throw ErrorDeMision("No se agrego el estado al tripulante. Estado de tripulante desconocido.")
         val canceladaDeAltoRiesgo = estado == EstadoMision.CANCELADA && altoRiesgo()
         if (canceladaDeAltoRiesgo || estado != EstadoMision.CANCELADA) {
-            tripulantes.forEach { tripulante -> tripulante.agregarMision(estadoTripulante) }
+            tripulantes.forEach { tripulante -> tripulante.agregarMision(this) }
         }
     }
 
