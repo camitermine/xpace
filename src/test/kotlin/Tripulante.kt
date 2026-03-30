@@ -1,7 +1,7 @@
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import java.awt.geom.Point2D
+import org.uqbar.geodds.Point
 import java.time.LocalDate
 
 class TripulanteTest : FunSpec({
@@ -13,7 +13,7 @@ class TripulanteTest : FunSpec({
             ciudad = "Buenos Aires",
             calle = "Calle Falsa",
             altura = "123",
-            ubicacion = Point2D.Double(0.0, 0.0)
+            ubicacion = Point(0.0, 0.0)
         ),
         capacidadMaximaNaves = 5
     )
@@ -32,7 +32,7 @@ class TripulanteTest : FunSpec({
         rol = Piloto(),
         perfilAptitud = Conformista(),
         baseLanzamiento = crearBase(),
-        ubicacionGeografica = Point2D.Double(0.0, 0.0)
+        ubicacionGeografica = Point(0.0, 0.0)
     )
 
     test("lanza error si la fecha de nacimiento es posterior a hoy") {

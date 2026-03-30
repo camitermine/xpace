@@ -24,7 +24,10 @@ abstract class Nave(
         this.misionAsignada = null
     }
     fun antiguedad(): Int = Period.between(fechaFabricacion, LocalDate.now()).years
-    //fun consumoTotal(distancia: Double): Double = consumoPorAnioLuz(cantTripulantes =1 ) * distancia
+    fun esModerna(): Boolean = antiguedad() < 5
+    fun consumoTotal(distancia: Double, cantTripulantes: Int): Double {
+        return consumoPorAnioLuz(cantTripulantes) * distancia
+    }
     fun puedeAlcanzar(distancia: Double): Boolean {
         val tiempoViaje = (distancia * 365) / velPromedio * 2
         return tiempoViaje <= autonomia

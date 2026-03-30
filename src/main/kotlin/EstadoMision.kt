@@ -6,9 +6,3 @@ enum class EstadoMision {
     FALLIDA,
 }
 
-enum class EstadoMisionTripulante {
-    EXITOSA,
-    PARCIALMENTE_EXITOSA,
-    FRACASADA
-}
-

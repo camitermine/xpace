@@ -1,7 +1,7 @@
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import java.awt.geom.Point2D
+import org.uqbar.geodds.Point
 import java.time.LocalDate
 
 class MisionSpec : DescribeSpec({
@@ -15,7 +15,7 @@ class MisionSpec : DescribeSpec({
                 ciudad = "Buenos Aires",
                 calle = "Calle Falsa",
                 altura = "123",
-                ubicacion = Point2D.Double(0.0, 0.0)
+                ubicacion = Point(0.0, 0.0)
             ),
             capacidadMaximaNaves = 5
         )
@@ -126,16 +126,17 @@ class MisionSpec : DescribeSpec({
             val johnCena = Tripulante(
                 nombre = "John",
                 apellido = "Cena",
-                fechaNacimiento = LocalDate.now().minusDays(15),
-                fechaInicioActividad = LocalDate.now(),
+                fechaNacimiento = LocalDate.now().minusYears(30),
+                fechaInicioActividad = LocalDate.now().minusYears(10),
                 salarioBase = 100000.0,
                 rol = Piloto(),
                 perfilAptitud = Conformista(),
                 baseLanzamiento = base,
-                ubicacionGeografica = Point2D.Double(0.0, 0.0)
+                ubicacionGeografica = Point(0.0, 0.0)
             )
 
             val nave = crearTransbordador()
+            base.estacionar(nave)
             val planeta = crearPlanetaNoHabitable()
             val mision = crearMision(nave, planeta, listOf(johnCena))
 

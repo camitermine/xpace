@@ -1,4 +1,4 @@
-import java.awt.geom.Point2D
+import org.uqbar.geodds.Point
 import java.time.LocalDate
 import java.time.Period
 
@@ -11,7 +11,7 @@ class Tripulante(
     var rol: Rol,
     var perfilAptitud: PerfilAptitud,
     var baseLanzamiento: BaseLanzamiento,
-    val ubicacionGeografica: Point2D.Double
+    val ubicacionGeografica: Point
 ) {
     val historialMisiones: MutableCollection<Mision> = mutableListOf()
 
@@ -106,7 +106,7 @@ class Cauteloso(val umbralRadiacionMaximo: Double) : PerfilAptitud {
 
 class Exigente : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean {
-        return mision.nave.antiguedad() < 5
+        return mision.nave.esModerna()
     }
 }
 

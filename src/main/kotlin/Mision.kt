@@ -2,11 +2,6 @@ import java.time.LocalDate
 
 const val IDA_Y_VUELTA = 2
 const val DURACION_DE_ALTO_RIESGO = 500
-val MAPA_DE_ESTADOS = mapOf<EstadoMision, EstadoMisionTripulante>(
-    EstadoMision.FALLIDA to EstadoMisionTripulante.FRACASADA,
-    EstadoMision.COMPLETADA to EstadoMisionTripulante.EXITOSA,
-    EstadoMision.CANCELADA to EstadoMisionTripulante.PARCIALMENTE_EXITOSA,
-)
 
 class Mision(
     private val nombre: String,
@@ -50,9 +45,10 @@ class Mision(
     }
 
     private fun agregarMisionATripulante(estado: EstadoMision) {
-        val canceladaDeAltoRiesgo = estado == EstadoMision.CANCELADA && altoRiesgo()
-        if (canceladaDeAltoRiesgo || estado != EstadoMision.CANCELADA) {
-            tripulantes.forEach { tripulante -> tripulante.agregarMision(this) }
+        val esCancelacionSinRiesgo = estado == EstadoMision.CANCELADA && !altoRiesgo()
+
+        if (!esCancelacionSinRiesgo) {
+            tripulantes.forEach { it.agregarMision(this) }
         }
     }
 
@@ -72,6 +68,25 @@ class Mision(
     }
 
     private fun prepararTripulantes() {
+        if (!tripulantes.all { it.esAptoParaMision(this) }) {
+            throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
+        }
+
+        if (nave is Sonda && tripulantes.isNotEmpty()) {
+            throw ErrorDeMision("Una sonda no puede llevar tripulantes")
+        }
+
+        if (tripulantes.isNotEmpty()) {
+            val baseReferencia = tripulantes.first().baseLanzamiento
+
+            if (!tripulantes.all { it.baseLanzamiento == baseReferencia }) {
+                throw ErrorDeMision("Todos los tripulantes deben pertenecer a la misma base")
+            }
+
+            if (!baseReferencia.tieneNaveEstacionada(nave)) {
+                throw ErrorDeMision("La nave no está estacionada en la base de los tripulantes")
+            }
+        }
     }
 
 
