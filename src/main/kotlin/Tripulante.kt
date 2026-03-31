@@ -1,161 +1,39 @@
-import org.uqbar.geodds.Point
 import java.time.LocalDate
 import java.time.Period
 
-class Tripulante(
-    val nombre: String,
-    val apellido: String,
-    val fechaNacimiento: LocalDate,
-    val fechaInicioActividad: LocalDate,
-    var salarioBase: Double,
-    var rol: Rol,
-    var perfilAptitud: PerfilAptitud,
-    var baseLanzamiento: BaseLanzamiento,
-    val ubicacionGeografica: Point
-) {
-    val historialMisiones: MutableCollection<Mision> = mutableListOf()
-
+class Tripulante (val nombre: String,
+                  val apellido: String,
+                  val fechaNacimiento: LocalDate,
+                  val fechaInicioActividad: LocalDate)
+{
     init {
-        require(nombre.isNotBlank()) { "El nombre no debe estar vacío" }
-        require(apellido.isNotBlank()) { "El apellido no debe estar vacío" }
-        require(fechaNacimiento.isBefore(LocalDate.now())) { "La fecha de nacimiento debe ser anterior a hoy" }
-    }
-    fun agregarMision(mision: Mision) {
-        historialMisiones.add(mision)
+        require(fechaNacimiento.isBefore(LocalDate.now()))
+        {"La fecha de nacimiento debe ser anterior a hoy"}
     }
 
+
+
+    val misiones: MutableCollection<EstadoMision> = mutableListOf<EstadoMision>()
+    fun agregarMision(estado: EstadoMision) {
+        misiones.add(estado)
+    }
     fun calcularEdad(): Int {
         return Period.between(fechaNacimiento, LocalDate.now()).years
     }
-
     fun calcularAniosActivo(): Int {
         return Period.between(fechaInicioActividad, LocalDate.now()).years
     }
-
     fun cantidadMisiones(estado: EstadoMision): Int {
-        // Filtramos las misiones basándonos en el estado que tenga cada objeto Mision
-        return historialMisiones.count { it.estado == estado }
+        return misiones.count { it == estado }
     }
-
     fun calcularExperiencia(): Double {
-        val exitosas = cantidadMisiones(EstadoMision.COMPLETADA)
-        val parciales = historialMisiones.count {
-            it.estado == EstadoMision.CANCELADA && it.altoRiesgo()
-        }
-        val fracasadas = cantidadMisiones(EstadoMision.FALLIDA)
+        val exitosas = cantidadMisiones(EstadoMision.EXITOSA)
+        val parciales = cantidadMisiones(EstadoMision.PARCIALMENTE_EXITOSA)
+        val fracasadas = cantidadMisiones(EstadoMision.FRACASADA)
 
-        return calcularAniosActivo() +
+        return  calcularAniosActivo() +
                 (exitosas / 2.0) +
                 (fracasadas / 2.0) +
                 (parciales / 4.0)
-    }
-
-    private fun cumpleCondicionesBase(): Boolean {
-        val experienciaSuficiente = calcularExperiencia() >= 3.0
-        val sinMisionEnCurso = historialMisiones.none { it.estado == EstadoMision.EN_CURSO }
-
-        return experienciaSuficiente && sinMisionEnCurso
-    }
-
-    fun esAptoParaMision(mision: Mision): Boolean {
-        return cumpleCondicionesBase() && perfilAptitud.aceptaMision(mision)
-    }
-
-
-    fun calcularSalarioTotal(): Double {
-        return salarioBase + rol.calcularBonus(this)
-    }
-
-    fun consideraBaseCercana(base: BaseLanzamiento, distanciaMaxima: Double): Boolean {
-        val distancia = this.ubicacionGeografica.distance(base.ubicacionGeografica)
-        return distancia <= distanciaMaxima
-    }
-}
-
-interface PerfilAptitud {
-    fun aceptaMision(mision: Mision): Boolean
-}
-
-class Conformista : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean = true
-}
-
-class Prudente : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean {
-        return mision.destino.tieneTemperaturaIdeal() && mision.destino.gravedadSoportable()
-    }
-}
-
-class Explorador : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean {
-        return !mision.destino.fueAterrizado
-    }
-}
-
-class Veterano(val maxDiasPermitidos: Int) : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean {
-        return mision.duracion() <= maxDiasPermitidos
-    }
-}
-
-class Cauteloso(val umbralRadiacionMaximo: Double) : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean {
-        return mision.destino.nivelRadiacion < umbralRadiacionMaximo
-    }
-}
-
-class Exigente : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean {
-        return mision.nave.esModerna()
-    }
-}
-
-interface Rol {
-    fun calcularBonus(tripulante: Tripulante): Double
-}
-
-class Comandante : Rol {
-    override fun calcularBonus(tripulante: Tripulante): Double {
-        val misionesExitosas = tripulante.cantidadMisiones(EstadoMision.COMPLETADA)
-        return (tripulante.salarioBase * 0.50) + (tripulante.salarioBase * 0.05 * misionesExitosas)
-    }
-}
-
-class Piloto : Rol {
-    override fun calcularBonus(tripulante: Tripulante): Double {
-        return tripulante.salarioBase * 0.30
-    }
-}
-
-class Ingeniero : Rol {
-    override fun calcularBonus(tripulante: Tripulante): Double {
-        val ultimaCompletada = tripulante.historialMisiones
-            .lastOrNull { it.estado == EstadoMision.COMPLETADA }
-
-        // En Kotlin usamos 'is' para saber si una clase hereda de otra
-        return if (ultimaCompletada != null && ultimaCompletada.nave is Carguero) {
-            tripulante.salarioBase * 0.40
-        } else {
-            tripulante.salarioBase * 0.20
-        }
-    }
-}
-
-class Cientifico : Rol {
-    override fun calcularBonus(tripulante: Tripulante): Double {
-        val cantidadPlanetasAterrizados = tripulante.historialMisiones
-            .filter { it.estado == EstadoMision.COMPLETADA }
-            .map { it.destino } // En Mision se llama destino
-            .distinct()
-            .count()
-
-        return tripulante.salarioBase * (0.10 * cantidadPlanetasAterrizados)
-    }
-}
-
-class Medico : Rol {
-    override fun calcularBonus(tripulante: Tripulante): Double {
-        val misionesFallidas = tripulante.cantidadMisiones(EstadoMision.FALLIDA)
-        return (tripulante.salarioBase * 0.25) + (tripulante.salarioBase * 0.02 * misionesFallidas)
     }
 }
