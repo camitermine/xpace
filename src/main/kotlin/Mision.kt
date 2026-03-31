@@ -53,12 +53,9 @@ class Mision(
     }
 
     private fun misionFinalizada(estado: EstadoMision) {
-        try {
-            agregarMisionATripulante(estado)
-        } finally {
-            this.estado = estado
-            nave.liberar()
-        }
+        agregarMisionATripulante(estado)
+        this.estado = estado
+        nave.liberar()
     }
 
     private fun prepararNave() {
@@ -68,26 +65,17 @@ class Mision(
     }
 
     private fun prepararTripulantes() {
-        if (!tripulantes.all { it.esAptoParaMision(this) }) {
-            throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
+        if (tripulantes.isEmpty()) return
+
+        val base = tripulantes.first().baseLanzamiento
+
+        tripulantes.forEach {
+            if (!it.esAptoParaMision(this)) throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
+            if (it.baseLanzamiento != base) throw ErrorDeMision("Todos los tripulantes deben pertenecer a la misma base")
         }
 
-        if (nave is Sonda && tripulantes.isNotEmpty()) {
-            throw ErrorDeMision("Una sonda no puede llevar tripulantes")
-        }
+        if (!base.tieneNaveEstacionada(nave)) throw ErrorDeMision("La nave debe estar estacionada en la base de los tripulantes")
 
-        if (tripulantes.isNotEmpty()) {
-            val baseReferencia = tripulantes.first().baseLanzamiento
-
-            if (!tripulantes.all { it.baseLanzamiento == baseReferencia }) {
-                throw ErrorDeMision("Todos los tripulantes deben pertenecer a la misma base")
-            }
-
-            if (!baseReferencia.tieneNaveEstacionada(nave)) {
-                throw ErrorDeMision("La nave no está estacionada en la base de los tripulantes")
-            }
-        }
     }
-
 
 }
