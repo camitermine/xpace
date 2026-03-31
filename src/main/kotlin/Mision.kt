@@ -53,12 +53,9 @@ class Mision(
     }
 
     private fun misionFinalizada(estado: EstadoMision) {
-        try {
-            agregarMisionATripulante(estado)
-        } finally {
-            this.estado = estado
-            nave.liberar()
-        }
+        agregarMisionATripulante(estado)
+        this.estado = estado
+        nave.liberar()
     }
 
     private fun prepararNave() {
