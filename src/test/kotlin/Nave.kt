@@ -1,9 +1,12 @@
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.assertions.throwables.shouldThrow
 import java.time.LocalDate
 
 class NaveTest : DescribeSpec({
+
+    isolationMode = IsolationMode.InstancePerTest
 
     describe("Sonda") {
 
@@ -49,13 +52,13 @@ class NaveTest : DescribeSpec({
             nave.consumoPorAnioLuz(4) shouldBe 1400.0
         }
 
-        it("falla si supera capacidad") {
+        it("falla si supera capacidad de tripulantes") {
             shouldThrow<IllegalArgumentException> {
                 nave.consumoPorAnioLuz(25)
             }
         }
 
-        it("funciona en el límite de capacidad") {
+        it("funciona en el límite de capacidad de tripulantes") {
             nave.consumoPorAnioLuz(20) shouldBe 3000.0
         }
     }
@@ -144,6 +147,20 @@ class NaveTest : DescribeSpec({
                     -100.0,
                     300,
                     5.0
+                )
+            }
+        }
+
+        it("no permite capacidad de carga negativa") {
+            shouldThrow<IllegalArgumentException> {
+                Carguero(
+                    "Error",
+                    7,
+                    LocalDate.of(2022, 1, 1),
+                    1000.0,
+                    300,
+                    5.0,
+                    -10.0
                 )
             }
         }
