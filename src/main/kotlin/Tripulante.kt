@@ -13,15 +13,33 @@ class Tripulante(
     var baseLanzamiento: BaseLanzamiento,
     val ubicacionGeografica: Point
 ) {
-    val historialMisiones: MutableCollection<Mision> = mutableListOf()
+    private val _historialMisiones: MutableList<Mision> = mutableListOf()
+    val historialMisiones: List<Mision> get() = _historialMisiones
 
     init {
+        validar()
+    }
+
+    private fun validarNombre() {
         require(nombre.isNotBlank()) { "El nombre no debe estar vacío" }
+    }
+
+    private fun validarApellido() {
         require(apellido.isNotBlank()) { "El apellido no debe estar vacío" }
+    }
+
+    private fun validarFechaNacimiento() {
         require(fechaNacimiento.isBefore(LocalDate.now())) { "La fecha de nacimiento debe ser anterior a hoy" }
     }
+
+    private fun validar() {
+        validarNombre()
+        validarApellido()
+        validarFechaNacimiento()
+    }
+
     fun agregarMision(mision: Mision) {
-        historialMisiones.add(mision)
+        _historialMisiones.add(mision)
     }
 
     fun calcularEdad(): Int {
@@ -33,7 +51,6 @@ class Tripulante(
     }
 
     fun cantidadMisiones(estado: EstadoMision): Int {
-        // Filtramos las misiones basándonos en el estado que tenga cada objeto Mision
         return historialMisiones.count { it.estado == estado }
     }
 
@@ -60,7 +77,6 @@ class Tripulante(
     fun esAptoParaMision(mision: Mision): Boolean {
         return cumpleCondicionesBase() && perfilAptitud.aceptaMision(mision)
     }
-
 
     fun calcularSalarioTotal(): Double {
         return salarioBase + rol.calcularBonus(this)
@@ -132,7 +148,6 @@ class Ingeniero : Rol {
         val ultimaCompletada = tripulante.historialMisiones
             .lastOrNull { it.estado == EstadoMision.COMPLETADA }
 
-        // En Kotlin usamos 'is' para saber si una clase hereda de otra
         return if (ultimaCompletada != null && ultimaCompletada.nave is Carguero) {
             tripulante.salarioBase * 0.40
         } else {
@@ -145,7 +160,7 @@ class Cientifico : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
         val cantidadPlanetasAterrizados = tripulante.historialMisiones
             .filter { it.estado == EstadoMision.COMPLETADA }
-            .map { it.destino } // En Mision se llama destino
+            .map { it.destino }
             .distinct()
             .count()
 

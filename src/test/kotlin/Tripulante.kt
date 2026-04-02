@@ -122,25 +122,36 @@ class TripulanteTest : DescribeSpec({
         }
 
         it("la experiencia se compone de años activos contados como base y fracciona las misiones terminadas") {
-            val tripulante = listOf<Tripulante>(crearTripulante(fechaInicioActividad = LocalDate.now().minusYears(2)))
+            val tripulante = crearTripulante(fechaInicioActividad = LocalDate.now().minusYears(2))
 
-            crearMisionConTransbordador(tripulante).apply { completar() }
-            crearMisionConTransbordador(tripulante).apply { completar() }
+            // 2 misiones exitosas (sin tripulantes, se pueden lanzar con sonda sin base)
+            repeat(2) {
+                val misionExitosa = crearMision(nave = crearSonda())
+                misionExitosa.lanzar()
+                misionExitosa.completar()
+                tripulante.agregarMision(misionExitosa)
+            }
 
-            crearMisionConTransbordador(tripulante).apply { fallo() }
-            crearMisionConTransbordador(tripulante).apply { fallo() }
+            // 2 misiones fallidas (sin tripulantes)
+            repeat(2) {
+                val misionFallida = crearMision(nave = crearSonda())
+                misionFallida.lanzar()
+                misionFallida.fallo()
+                tripulante.agregarMision(misionFallida)
+            }
 
-            val planetaAltoRiesgo = crearPlaneta(hayAguaLiquida = false, distanciaATierra = 100.0)
+            // 4 misiones canceladas de alto riesgo → se cuentan como parcialmente exitosas
+            val planetaDeAltoRiesgo = crearPlaneta(hayAguaLiquida = false, distanciaATierra = 100.0)
             val naveLenta = crearTransbordador(velProm = 1.0)
             baseLanzamientoTest.estacionar(naveLenta)
 
             repeat(4) {
-                val misionAltoRiesgo = crearMision(planetaAltoRiesgo, naveLenta, tripulante)
-                misionAltoRiesgo.lanzar()
-                misionAltoRiesgo.cancelar()
+                val misionDeAltoRiesgo = crearMision(planetaDeAltoRiesgo, naveLenta, listOf(tripulante))
+                misionDeAltoRiesgo.lanzar()
+                misionDeAltoRiesgo.cancelar()
             }
 
-            tripulante.forEach { it.calcularExperiencia() shouldBe 5.0 }
+            tripulante.calcularExperiencia() shouldBe 5.0
         }
     }
 
@@ -242,9 +253,15 @@ class TripulanteTest : DescribeSpec({
 
             comandante.calcularSalarioTotal() shouldBe 150000.0
 
-            val misionOk = crearMision().apply { completar() }
-            comandante.agregarMision(misionOk)
-            comandante.agregarMision(misionOk)
+            val misionOk1 = crearMision(nave = crearSonda())
+            misionOk1.lanzar()
+            misionOk1.completar()
+            comandante.agregarMision(misionOk1)
+
+            val misionOk2 = crearMision(nave = crearSonda())
+            misionOk2.lanzar()
+            misionOk2.completar()
+            comandante.agregarMision(misionOk2)
 
             comandante.calcularSalarioTotal() shouldBe 160000.0
         }
@@ -266,13 +283,15 @@ class TripulanteTest : DescribeSpec({
                 codIdentif = 1,
                 fechaFabricacion = LocalDate.now(),
                 consumoBase = 10.0,
-                autonomia = 1000,
+                autonomia = 100000,
                 velPromedio = 10.0,
                 capacidadTn = 50.0
             )
+            baseLanzamientoTest.estacionar(carguero)
 
-            val misionCargueroOk = crearMision(nave = carguero).apply { completar() }
-            ingeniero.agregarMision(misionCargueroOk)
+            val misionCargueroOk = crearMision(nave = carguero, tripulantes = listOf(ingeniero))
+            misionCargueroOk.lanzar()
+            misionCargueroOk.completar()
             ingeniero.calcularSalarioTotal() shouldBe 140000.0
         }
 
@@ -283,10 +302,14 @@ class TripulanteTest : DescribeSpec({
             val planetaA = crearPlaneta(nombre = "Planeta A")
             val planetaB = crearPlaneta(nombre = "Planeta B")
 
-            val misionA = crearMision(planeta = planetaA).apply { completar() }
-            val misionB = crearMision(planeta = planetaB).apply { completar() }
-
+            val misionA = crearMision(planeta = planetaA, nave = crearSonda())
+            misionA.lanzar()
+            misionA.completar()
             cientifico.agregarMision(misionA)
+
+            val misionB = crearMision(planeta = planetaB, nave = crearSonda())
+            misionB.lanzar()
+            misionB.completar()
             cientifico.agregarMision(misionB)
 
             cientifico.calcularSalarioTotal() shouldBe 120000.0
@@ -298,9 +321,15 @@ class TripulanteTest : DescribeSpec({
 
             medico.calcularSalarioTotal() shouldBe 125000.0
 
-            val misionFallo = crearMision().apply { fallo() }
-            medico.agregarMision(misionFallo)
-            medico.agregarMision(misionFallo)
+            val misionFallo1 = crearMision(nave = crearSonda())
+            misionFallo1.lanzar()
+            misionFallo1.fallo()
+            medico.agregarMision(misionFallo1)
+
+            val misionFallo2 = crearMision(nave = crearSonda())
+            misionFallo2.lanzar()
+            misionFallo2.fallo()
+            medico.agregarMision(misionFallo2)
 
             medico.calcularSalarioTotal() shouldBe 129000.0
         }

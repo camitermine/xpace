@@ -16,22 +16,39 @@ class Mision(
         private set
 
     init {
+        validar()
+    }
+
+    private fun validarNombre() {
         require(nombre.isNotBlank()) { "El nombre no puede estar vacío" }
+    }
+
+    private fun validarFechaLanzamiento() {
         require(fechaLanzamiento.isAfter(LocalDate.now())) {
             "La fecha de lanzamiento debe ser posterior a hoy"
         }
     }
 
+    private fun validar() {
+        validarNombre()
+        validarFechaLanzamiento()
+    }
 
     fun duracion(): Double = destino.distanciaATierra * 365 / this.nave.velPromedio * IDA_Y_VUELTA
     fun altoRiesgo(): Boolean = !destino.esHabitable() && duracion() > DURACION_DE_ALTO_RIESGO
-    fun fallo() = misionFinalizada(EstadoMision.FALLIDA)
+
+    fun fallo() {
+        if (this.estado !== EstadoMision.EN_CURSO) throw ErrorDeMision("La mision no esta en curso")
+        misionFinalizada(EstadoMision.FALLIDA)
+    }
+
     fun cancelar() {
         if (this.estado !== EstadoMision.EN_CURSO) throw ErrorDeMision("La mision no esta en curso")
         misionFinalizada(EstadoMision.CANCELADA)
     }
 
     fun completar() {
+        if (this.estado !== EstadoMision.EN_CURSO) throw ErrorDeMision("La mision no esta en curso")
         destino.fueAterrizado = true
         misionFinalizada(EstadoMision.COMPLETADA)
     }
@@ -41,7 +58,6 @@ class Mision(
         prepararNave()
         prepararTripulantes()
         this.estado = EstadoMision.EN_CURSO
-
     }
 
     private fun agregarMisionATripulante(estado: EstadoMision) {
@@ -71,7 +87,5 @@ class Mision(
         }
 
         if (!base.tieneNaveEstacionada(nave)) throw ErrorDeMision("La nave debe estar estacionada en la base de los tripulantes")
-
     }
-
 }
