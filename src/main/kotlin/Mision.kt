@@ -46,10 +46,7 @@ class Mision(
 
     private fun agregarMisionATripulante(estado: EstadoMision) {
         val esCancelacionSinRiesgo = estado == EstadoMision.CANCELADA && !altoRiesgo()
-
-        if (!esCancelacionSinRiesgo) {
-            tripulantes.forEach { it.agregarMision(this) }
-        }
+        if (!esCancelacionSinRiesgo) tripulantes.forEach { it.agregarMision(this) }
     }
 
     private fun misionFinalizada(estado: EstadoMision) {
@@ -60,7 +57,7 @@ class Mision(
 
     private fun prepararNave() {
         if (!this.nave.puedeAlcanzar(this.destino.distanciaATierra)) throw ErrorDeMision("La nave no es capaz de alcanzar el destino de la mision")
-        if (this.tripulantes.size > this.nave.capacidadTripulantes) throw ErrorDeMision("La nave no soporta " + this.tripulantes.size + " tripulantes")
+        if (!nave.puedeTransportar(this.tripulantes.size)) throw ErrorDeMision("La nave " + nave.nombre + " no soporta " + this.tripulantes.size + " tripulantes")
         nave.asignar(this)
     }
 
@@ -68,7 +65,6 @@ class Mision(
         if (tripulantes.isEmpty()) return
 
         val base = tripulantes.first().baseLanzamiento
-
         tripulantes.forEach {
             if (!it.esAptoParaMision(this)) throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
             if (it.baseLanzamiento != base) throw ErrorDeMision("Todos los tripulantes deben pertenecer a la misma base")

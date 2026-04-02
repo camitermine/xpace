@@ -61,16 +61,39 @@ class TripulanteTest : DescribeSpec({
         velPromedio = velProm
     )
 
+    fun crearSonda(fechaFab: LocalDate = LocalDate.now().minusYears(2), velProm: Double = 100.0) = Sonda(
+        nombre = "Sonda I",
+        codIdentif = 1,
+        fechaFabricacion = fechaFab,
+        consumoBase = 100.0,
+        autonomia = 100000, // Alto para que nunca falle el chequeo de lanzamiento
+        velPromedio = velProm
+    )
+
     fun crearMision(
         planeta: Planeta = crearPlaneta(),
-        nave: Nave = crearTransbordador()
+        nave: Nave = crearTransbordador(),
+        tripulantes: List<Tripulante> = emptyList()
     ) = Mision(
         nombre = "Mision X",
         descripcion = "Desc",
         fechaLanzamiento = LocalDate.now().plusDays(10),
         nave = nave,
-        destino = planeta
+        destino = planeta,
+        tripulantes = tripulantes
     )
+    fun crearMisionConTransbordador(
+        tripulantes: List<Tripulante> = emptyList()
+    ) = Mision(
+        nombre = "Mision X",
+        descripcion = "Desc",
+        fechaLanzamiento = LocalDate.now().plusDays(10),
+        nave = crearTransbordador(),
+        destino = crearPlaneta(),
+        tripulantes = tripulantes
+    )
+
+
 
     describe("Validaciones iniciales de Tripulante") {
         it("lanza error si la fecha de nacimiento es posterior a hoy") {
@@ -99,35 +122,25 @@ class TripulanteTest : DescribeSpec({
         }
 
         it("la experiencia se compone de años activos contados como base y fracciona las misiones terminadas") {
-            val tripulante = crearTripulante(fechaInicioActividad = LocalDate.now().minusYears(2))
+            val tripulante = listOf<Tripulante>(crearTripulante(fechaInicioActividad = LocalDate.now().minusYears(2)))
 
-            // Misión Completada
-            val misionExitosa1 = crearMision().apply { completar() }
-            val misionExitosa2 = crearMision().apply { completar() }
-            
-            // Misión Fallida
-            val misionFallida1 = crearMision().apply { fallo() }
-            val misionFallida2 = crearMision().apply { fallo() }
-            
-            // Misión Cancelada de Alto Riesgo
-            // Para ser de alto riesgo: planeta no habitable (ej. sin agua) y duración > 500
-            val planetaAR = crearPlaneta(hayAguaLiquida = false, distanciaATierra = 100.0)
-            val naveLenta = crearTransbordador(velProm = 1.0) // duración = 100 * 365 / 1.0 * 2 = 73000 dias (>500)
-            
-            tripulante.agregarMision(misionExitosa1)
-            tripulante.agregarMision(misionExitosa2)
-            tripulante.agregarMision(misionFallida1)
-            tripulante.agregarMision(misionFallida2)
-            
+            crearMisionConTransbordador(tripulante).apply { completar() }
+            crearMisionConTransbordador(tripulante).apply { completar() }
+
+            crearMisionConTransbordador(tripulante).apply { fallo() }
+            crearMisionConTransbordador(tripulante).apply { fallo() }
+
+            val planetaAltoRiesgo = crearPlaneta(hayAguaLiquida = false, distanciaATierra = 100.0)
+            val naveLenta = crearTransbordador(velProm = 1.0)
+            baseLanzamientoTest.estacionar(naveLenta)
+
             repeat(4) {
-                // Al ser cancelada, primero debe ser lanzada.
-                val misionCanceladaAR = crearMision(planetaAR, naveLenta)
-                misionCanceladaAR.lanzar()
-                misionCanceladaAR.cancelar()
-                tripulante.agregarMision(misionCanceladaAR)
+                val misionAltoRiesgo = crearMision(planetaAltoRiesgo, naveLenta, tripulante)
+                misionAltoRiesgo.lanzar()
+                misionAltoRiesgo.cancelar()
             }
 
-            tripulante.calcularExperiencia() shouldBe 5.0
+            tripulante.forEach { it.calcularExperiencia() shouldBe 5.0 }
         }
     }
 
@@ -140,7 +153,7 @@ class TripulanteTest : DescribeSpec({
 
         it("no es apto si ya tiene una mision EN CURSO") {
             val experto = crearTripulante(fechaInicioActividad = LocalDate.now().minusYears(5))
-            val misionEnCurso = crearMision()
+            val misionEnCurso = crearMision(crearPlaneta(), crearSonda())
             misionEnCurso.lanzar()
             experto.agregarMision(misionEnCurso)
 
@@ -159,7 +172,7 @@ class TripulanteTest : DescribeSpec({
 
         it("Prudente es apto si la temperatura es ideal y la gravedad soportable del destino") {
             experto.perfilAptitud = Prudente()
-            
+
             val planetaIdeal = crearPlaneta(temperaturaMedia = 20.0, gravedad = 9.8)
             val misionIdeal = crearMision(planeta = planetaIdeal)
             experto.esAptoParaMision(misionIdeal) shouldBe true
@@ -171,11 +184,11 @@ class TripulanteTest : DescribeSpec({
 
         it("Explorador solo acepta misiones donde el destino no fue aterrizado") {
             experto.perfilAptitud = Explorador()
-            
+
             val planetaNuevo = crearPlaneta(fueAterrizado = false)
             val misionExploracion = crearMision(planeta = planetaNuevo)
             experto.esAptoParaMision(misionExploracion) shouldBe true
-            
+
             val planetaViejo = crearPlaneta(fueAterrizado = true)
             val misionVieja = crearMision(planeta = planetaViejo)
             experto.esAptoParaMision(misionVieja) shouldBe false
@@ -183,9 +196,9 @@ class TripulanteTest : DescribeSpec({
 
         it("Veterano acepta si duración de misión no supera su máximo impuesto") {
             experto.perfilAptitud = Veterano(maxDiasPermitidos = 100)
-            
+
             val naveFija = crearTransbordador(velProm = 365.0)
-            
+
             // Distancia = 10 -> Duración = 10 * 365 / 365 * 2 = 20 días
             val planetaCerca = crearPlaneta(distanciaATierra = 10.0)
             val misionCorta = crearMision(planeta = planetaCerca, nave = naveFija)
@@ -199,7 +212,7 @@ class TripulanteTest : DescribeSpec({
 
         it("Cauteloso acepta si la radiación de destino es menor a su umbral") {
             experto.perfilAptitud = Cauteloso(umbralRadiacionMaximo = 50.0)
-            
+
             val planetaSeguro = crearPlaneta(nivelRadiacion = 40)
             val misionSegura = crearMision(planeta = planetaSeguro)
             experto.esAptoParaMision(misionSegura) shouldBe true
@@ -211,7 +224,7 @@ class TripulanteTest : DescribeSpec({
 
         it("Exigente acepta misiones unicamente si la nave dispuesta es moderna") {
             experto.perfilAptitud = Exigente()
-            
+
             val naveModerna = crearTransbordador(fechaFab = LocalDate.now().minusYears(2))
             val misionModerna = crearMision(nave = naveModerna)
             experto.esAptoParaMision(misionModerna) shouldBe true
@@ -296,13 +309,13 @@ class TripulanteTest : DescribeSpec({
     describe("Verificación de distancia a Base de Lanzamiento") {
         it("detecta correctamente si una base se considera cercana respecto a su distancia real geo-lineal") {
             val tripulante = crearTripulante(ubicacion = Point(0.0, 0.0))
-            
+
             val baseLejos = BaseLanzamiento(
                 nombre = "Base Lejos",
                 direccion = Direccion("X", "Y", "Z", "1", Point(1.0, 1.0)),
                 capacidadMaximaNaves = 10
             )
-            
+
             val distanciaRealACalcular = Point(0.0, 0.0).distance(Point(1.0, 1.0))
 
             tripulante.consideraBaseCercana(baseLejos, distanciaMaxima = distanciaRealACalcular - 1) shouldBe false
