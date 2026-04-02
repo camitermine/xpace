@@ -60,15 +60,14 @@ class Mision(
 
     private fun prepararNave() {
         if (!this.nave.puedeAlcanzar(this.destino.distanciaATierra)) throw ErrorDeMision("La nave no es capaz de alcanzar el destino de la mision")
-        if (this.tripulantes.size > this.nave.capacidadTripulantes) throw ErrorDeMision("La nave no soporta " + this.tripulantes.size + " tripulantes")
+        if (nave.puedeTransportar(tripulantes.size)) throw ErrorDeMision("La nave " + nave.nombre + " no soporta " + this.tripulantes.size + " tripulantes")
         nave.asignar(this)
     }
 
     private fun prepararTripulantes() {
-        if (tripulantes.isEmpty()) return
+        if (tripulantes.isNotEmpty()) return
 
         val base = tripulantes.first().baseLanzamiento
-
         tripulantes.forEach {
             if (!it.esAptoParaMision(this)) throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
             if (it.baseLanzamiento != base) throw ErrorDeMision("Todos los tripulantes deben pertenecer a la misma base")
