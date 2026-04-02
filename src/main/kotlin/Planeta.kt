@@ -13,12 +13,40 @@ class Planeta (val nombre: String,
                var fueAterrizado: Boolean)
 {
     init {
+        validar()
+    }
+
+    private fun validarNombre() {
         require(nombre.isNotBlank()) { "El nombre no debe estar vacío" }
-        require(nivelRadiacion in 0..100) {"El valor debe estar entre cero y cien"}
-        require(toxicidadAtmosferica in 0..100) {"El valor debe estar entre cero y cien"}
-        require(actividadTectonica in 0..100) {"El valor debe estar entre cero y cien"}
+    }
+
+    private fun validarNivelRadiacion() {
+        require(nivelRadiacion in 0..100) { "El nivel de radiación debe estar entre 0 y 100" }
+    }
+
+    private fun validarToxicidad() {
+        require(toxicidadAtmosferica in 0..100) { "La toxicidad atmosférica debe estar entre 0 y 100" }
+    }
+
+    private fun validarActividadTectonica() {
+        require(actividadTectonica in 0..100) { "La actividad tectónica debe estar entre 0 y 100" }
+    }
+
+    private fun validarGravedad() {
         require(gravedad > 0) { "La gravedad debe ser mayor a 0" }
+    }
+
+    private fun validarRadio() {
         require(radioKm > 0) { "El tamaño (radio) debe ser mayor a 0" }
+    }
+
+    private fun validar() {
+        validarNombre()
+        validarNivelRadiacion()
+        validarToxicidad()
+        validarActividadTectonica()
+        validarGravedad()
+        validarRadio()
     }
 
     fun tieneTemperaturaIdeal(): Boolean {
@@ -30,7 +58,7 @@ class Planeta (val nombre: String,
     }
 
     fun indiceDePeligrosidad(): Double {
-        return (nivelRadiacion + toxicidadAtmosferica + actividadTectonica).toDouble() /3
+        return (nivelRadiacion + toxicidadAtmosferica + actividadTectonica).toDouble() / 3
     }
 
     fun esHabitable(): Boolean {
@@ -40,5 +68,4 @@ class Planeta (val nombre: String,
     fun esExplorable(): Boolean {
         return !esHabitable() && indiceDePeligrosidad() < 60.0
     }
-
 }

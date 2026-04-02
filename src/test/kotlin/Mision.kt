@@ -81,8 +81,8 @@ class MisionSpec : DescribeSpec({
 
         it("no permite lanzar una misión ya finalizada") {
             val nave = crearSonda()
-            val planeta = crearPlanetaHabitable()
-            val mision = crearMision(nave, planeta)
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(nave, planetaHabitable)
 
             mision.lanzar()
             mision.cancelar()
@@ -92,10 +92,10 @@ class MisionSpec : DescribeSpec({
             }
         }
 
-        it("cancela una misión") {
+        it("cancela una misión en curso correctamente") {
             val nave = crearSonda()
-            val planeta = crearPlanetaHabitable()
-            val mision = crearMision(nave, planeta)
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(nave, planetaHabitable)
 
             mision.lanzar()
             mision.cancelar()
@@ -103,10 +103,62 @@ class MisionSpec : DescribeSpec({
             mision.estado shouldBe EstadoMision.CANCELADA
         }
 
+        it("no permite cancelar una misión que no está en curso") {
+            val nave = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val misionEnBorrador = crearMision(nave, planetaHabitable)
+
+            shouldThrow<ErrorDeMision> {
+                misionEnBorrador.cancelar()
+            }
+        }
+
+        it("completa una misión en curso correctamente") {
+            val nave = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(nave, planetaHabitable)
+
+            mision.lanzar()
+            mision.completar()
+
+            mision.estado shouldBe EstadoMision.COMPLETADA
+        }
+
+        it("no permite completar una misión que no está en curso") {
+            val nave = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val misionEnBorrador = crearMision(nave, planetaHabitable)
+
+            shouldThrow<ErrorDeMision> {
+                misionEnBorrador.completar()
+            }
+        }
+
+        it("registra fallo de una misión en curso correctamente") {
+            val nave = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(nave, planetaHabitable)
+
+            mision.lanzar()
+            mision.fallo()
+
+            mision.estado shouldBe EstadoMision.FALLIDA
+        }
+
+        it("no permite registrar fallo de una misión que no está en curso") {
+            val nave = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val misionEnBorrador = crearMision(nave, planetaHabitable)
+
+            shouldThrow<ErrorDeMision> {
+                misionEnBorrador.fallo()
+            }
+        }
+
         it("asigna la nave a la misión al lanzarla") {
             val nave = crearSonda()
-            val planeta = crearPlanetaHabitable()
-            val mision = crearMision(nave, planeta)
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(nave, planetaHabitable)
 
             mision.lanzar()
 
@@ -115,8 +167,8 @@ class MisionSpec : DescribeSpec({
 
         it("detecta misión de alto riesgo") {
             val nave = crearTransbordador()
-            val planeta = crearPlanetaNoHabitable()
-            val mision = crearMision(nave, planeta)
+            val planetaNoHabitable = crearPlanetaNoHabitable()
+            val mision = crearMision(nave, planetaNoHabitable)
 
             mision.altoRiesgo() shouldBe true
         }
@@ -137,8 +189,8 @@ class MisionSpec : DescribeSpec({
 
             val nave = crearTransbordador()
             base.estacionar(nave)
-            val planeta = crearPlanetaNoHabitable()
-            val mision = crearMision(nave, planeta, listOf(johnCena))
+            val planetaNoHabitable = crearPlanetaNoHabitable()
+            val mision = crearMision(nave, planetaNoHabitable, listOf(johnCena))
 
             mision.lanzar()
             mision.cancelar()
