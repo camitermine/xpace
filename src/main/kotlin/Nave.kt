@@ -65,10 +65,7 @@ class Carguero(
         consumoBase + (consumoBase * 0.05 * capacidadTn)
     fun factorAntiguedad(): Double =
         if (esAntigua()) 1.20 else 1.0
-
     override fun consumoPorAnioLuz(cantTripulantes: Int): Double {
-        val consumo = consumoBase + (consumoBase * 0.05 * capacidadTn)
-        val factor = if (antiguedad() > 10) 1.20 else 1.0
-        return consumo * factor
+        return consumoPorCarga() * factorAntiguedad()
     }
 }
