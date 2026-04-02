@@ -54,19 +54,14 @@ abstract class Nave(
 
     fun antiguedad(): Int = Period.between(fechaFabricacion, LocalDate.now()).years
     fun esModerna(): Boolean = antiguedad() < 5
-    fun consumoTotal(distancia: Double, cantTripulantes: Int): Double {
-        return consumoPorAnioLuz(cantTripulantes) * distancia
-    }
+
 
     fun puedeAlcanzar(distancia: Double): Boolean {
         val tiempoViaje = (distancia * 365) / velPromedio * 2
         return tiempoViaje <= autonomia
     }
-
-    fun puedeTransportar(tripulacion: Int): Boolean {
-        if(capacidadTripulantes != 0) return tripulacion in 1..capacidadTripulantes
-        return tripulacion == capacidadTripulantes
-    }
+    open fun puedeTransportar(tripulacion: Int): Boolean =
+        tripulacion in 1..capacidadTripulantes
 }
 
 class Sonda(
@@ -75,6 +70,7 @@ class Sonda(
 ) : Nave
     (nombre, codIdentif, fechaFabricacion, consumoBase, autonomia, velPromedio) {
     override val capacidadTripulantes: Int = 0
+    override fun puedeTransportar(tripulacion: Int) = tripulacion == 0
     override fun consumoPorAnioLuz(cantTripulantes: Int): Double = consumoBase
 }
 
