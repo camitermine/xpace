@@ -72,7 +72,7 @@ class Transbordador(
 ) : Nave(nombre, codIdentif, fechaFabricacion, consumoBase, autonomia, velPromedio) {
     override val capacidadTripulantes: Int = 20
     override fun consumoPorAnioLuz(cantTripulantes: Int): Double {
-        validarReglaDeNegocio(
+        Validaciones.validarReglaNegocio(
             cantTripulantes <= capacidadTripulantes,
             "Excede la capacidad de la nave"
         )
