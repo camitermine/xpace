@@ -1,4 +1,4 @@
-inline fun requireAttribute(condicion: Boolean, mensaje: String) {
+inline fun validarAtributo(condicion: Boolean, mensaje: String) {
     try {
         require(condicion)
     } catch (e: IllegalArgumentException) {
@@ -6,7 +6,7 @@ inline fun requireAttribute(condicion: Boolean, mensaje: String) {
     }
 }
 
-inline fun requireBusiness(condicion: Boolean, mensaje: String) {
+inline fun validarReglaDeNegocio(condicion: Boolean, mensaje: String) {
     try {
         require(condicion)
     } catch (e: IllegalArgumentException) {

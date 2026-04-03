@@ -14,19 +14,19 @@ abstract class Nave(
         validar()
     }
     private fun validarNombre() {
-        requireAttribute(nombre.isNotBlank(), "El nombre no puede estar vacío")
+        validarAtributo(nombre.isNotBlank(), "El nombre no puede estar vacío")
     }
     private fun validarCodIdentif() {
-        requireAttribute(codIdentif > 0, "El código debe ser mayor a 0")
+        validarAtributo(codIdentif > 0, "El código debe ser mayor a 0")
     }
     private fun validarConsumoBase() {
-        requireAttribute(consumoBase > 0, "El consumo base debe ser mayor a 0")
+        validarAtributo(consumoBase > 0, "El consumo base debe ser mayor a 0")
     }
     private fun validarAutonomia() {
-        requireAttribute(autonomia > 0, "La autonomía debe ser mayor a 0")
+        validarAtributo(autonomia > 0, "La autonomía debe ser mayor a 0")
     }
     private fun validarVelocidad() {
-        requireAttribute(velPromedio > 0, "La velocidad promedio debe ser mayor a 0")
+        validarAtributo(velPromedio > 0, "La velocidad promedio debe ser mayor a 0")
     }
     private fun validar() {
         validarNombre()
@@ -75,7 +75,7 @@ class Transbordador(
 ) : Nave(nombre, codIdentif, fechaFabricacion, consumoBase, autonomia, velPromedio) {
     override val capacidadTripulantes: Int = 20
     override fun consumoPorAnioLuz(cantTripulantes: Int): Double {
-        requireBusiness(
+        validarReglaDeNegocio(
             cantTripulantes <= capacidadTripulantes,
             "Excede la capacidad de la nave"
         )
@@ -93,7 +93,7 @@ class Carguero(
         validarCapacidadCarga()
     }
     private fun validarCapacidadCarga() {
-        requireAttribute(capacidadTn >= 0, "La capacidad de carga no puede ser negativa")
+        validarAtributo(capacidadTn >= 0, "La capacidad de carga no puede ser negativa")
     }
     fun esAntigua(): Boolean = antiguedad() > 10
     fun consumoPorCarga(): Double =
