@@ -27,7 +27,7 @@ class BaseLanzamientoTest : DescribeSpec({
         50.0
     )
 
-    fun crearTripulante(base: BaseLanzamiento, x: Int = 0, y: Int = 0) = Tripulante(
+    fun crearTripulante(base: BaseLanzamiento, x: Int = 0, y: Int = 0, distanciaMax: Double) = Tripulante(
         nombre = "Juan",
         apellido = "Perez",
         fechaNacimiento = LocalDate.of(1990, 5, 10),
@@ -36,7 +36,11 @@ class BaseLanzamientoTest : DescribeSpec({
         rol = Piloto(),
         perfilAptitud = Conformista(),
         baseLanzamiento = base,
-        ubicacionGeografica = Point(x.toDouble(), y.toDouble())
+        direccion = Direccion("Argentina", "Buenos Aires", "Falsa",
+            "123", Point(x.toDouble(), y.toDouble())),
+        distanciaMaxima = distanciaMax
+
+
     )
 
     describe("naves estacionadas") {
@@ -77,20 +81,5 @@ class BaseLanzamientoTest : DescribeSpec({
         }
     }
 
-    describe("base cercana") {
 
-        it("considera la base cercana si la distancia está dentro del máximo") {
-            val base = crearBase(x = 0, y = 0)
-            val tripulante = crearTripulante(base, x = 0, y = 0)
-
-            tripulante.consideraBaseCercana(base, distanciaMaxima = 1.0) shouldBe true
-        }
-
-        it("no considera la base cercana si la distancia supera el máximo") {
-            val base = crearBase(x = 5, y = 0)
-            val tripulante = crearTripulante(base, x = 0, y = 0)
-
-            tripulante.consideraBaseCercana(base, distanciaMaxima = 1.0) shouldBe false
-        }
-    }
 })

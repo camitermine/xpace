@@ -1,12 +1,5 @@
 import org.uqbar.geodds.Point
 
-data class Direccion(
-    val pais: String,
-    val ciudad: String,
-    val calle: String,
-    val altura: String,
-    val ubicacion: Point
-)
 
 class BaseLanzamiento(
     val nombre: String,

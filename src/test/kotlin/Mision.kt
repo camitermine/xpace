@@ -184,7 +184,9 @@ class MisionSpec : DescribeSpec({
                 rol = Piloto(),
                 perfilAptitud = Conformista(),
                 baseLanzamiento = base,
-                ubicacionGeografica = Point(0.0, 0.0)
+                distanciaMaxima = 0.1,
+                direccion = Direccion("Argentina", "Buenos Aires", "Falsa",
+                    "123", Point(0.0, 0.0))
             )
 
             val nave = crearTransbordador()
