@@ -11,7 +11,8 @@ class Tripulante(
     var rol: Rol,
     var perfilAptitud: PerfilAptitud,
     var baseLanzamiento: BaseLanzamiento,
-    val ubicacionGeografica: Point
+    val direccion: Direccion,
+    val distanciaMaxima: Double
 ) {
     private val _historialMisiones: MutableList<Mision> = mutableListOf()
     val historialMisiones: List<Mision> get() = _historialMisiones
@@ -83,9 +84,9 @@ class Tripulante(
         return salarioBase + rol.calcularBonus(this)
     }
 
-    fun consideraBaseCercana(base: BaseLanzamiento, distanciaMaxima: Double): Boolean {
-        val distancia = this.ubicacionGeografica.distance(base.ubicacionGeografica)
-        return distancia <= distanciaMaxima
+    fun consideraUbicacionCercana(ubicacionDeOtraDireccion: Point): Boolean {
+        return this.distanciaMaxima >= this.direccion.calcularDistancia(ubicacionDeOtraDireccion)
+
     }
 }
 
