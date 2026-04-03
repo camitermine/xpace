@@ -21,15 +21,16 @@ class Tripulante(
     }
 
     private fun validarNombre() {
-        require(nombre.isNotBlank()) { "El nombre no debe estar vacío" }
+        validarAtributo(nombre.isNotBlank(),  "El nombre no debe estar vacío")
     }
 
     private fun validarApellido() {
-        require(apellido.isNotBlank()) { "El apellido no debe estar vacío" }
+        validarAtributo(apellido.isNotBlank(), "El apellido no debe estar vacío")
     }
-
     private fun validarFechaNacimiento() {
-        require(fechaNacimiento.isBefore(LocalDate.now())) { "La fecha de nacimiento debe ser anterior a hoy" }
+        validarAtributo(fechaNacimiento.isBefore(LocalDate.now()),
+            "La fecha de nacimiento debe ser anterior a hoy"
+        )
     }
 
     private fun validar() {

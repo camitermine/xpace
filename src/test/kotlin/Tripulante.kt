@@ -119,17 +119,17 @@ class TripulanteTest :
 
             describe("Validaciones iniciales de Tripulante") {
                 it("lanza error si la fecha de nacimiento es posterior a hoy") {
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<AttributeException>{
                         crearTripulante(fechaNacimiento = LocalDate.now().plusDays(1))
                     }
                 }
 
                 it("lanza error si el nombre está vacío") {
-                    shouldThrow<IllegalArgumentException> { crearTripulante(nombre = "   ") }
+                    shouldThrow<AttributeException> { crearTripulante(nombre = "   ") }
                 }
 
                 it("lanza error si el apellido está vacío") {
-                    shouldThrow<IllegalArgumentException> { crearTripulante(apellido = "") }
+                    shouldThrow<AttributeException> { crearTripulante(apellido = "") }
                 }
             }
 

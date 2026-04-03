@@ -20,15 +20,13 @@ class Mision(
     }
 
     private fun validarNombre() {
-        require(nombre.isNotBlank()) { "El nombre no puede estar vacío" }
+        validarAtributo(nombre.isNotBlank(), "El nombre no puede estar vacío")
     }
 
     private fun validarFechaLanzamiento() {
-        require(fechaLanzamiento.isAfter(LocalDate.now())) {
-            "La fecha de lanzamiento debe ser posterior a hoy"
-        }
+        validarAtributo(fechaLanzamiento.isAfter(LocalDate.now()),
+            "La fecha de Lanzamiento debe ser posterior a hoy")
     }
-
     private fun validar() {
         validarNombre()
         validarFechaLanzamiento()
