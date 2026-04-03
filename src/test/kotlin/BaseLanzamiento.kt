@@ -54,7 +54,7 @@ class BaseLanzamientoTest : DescribeSpec({
             val base = crearBase(capacidad = 1)
             base.estacionar(crearSonda())
 
-            shouldThrow<IllegalArgumentException> {
+            shouldThrow<BusinessException> {
                 base.estacionar(crearSonda())
             }
         }

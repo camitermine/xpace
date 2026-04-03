@@ -19,7 +19,10 @@ class BaseLanzamiento(
         get() = direccion.ubicacion
 
     fun estacionar(nave: Nave) {
-        validarReglaDeNegocio(navesEstacionadas.size < capacidadMaximaNaves, "La base no tiene capacidad para más naves")
+        validarReglaDeNegocio(
+            navesEstacionadas.size < capacidadMaximaNaves,
+            "La base no tiene capacidad para más naves"
+        )
         navesEstacionadas.add(nave)
     }
 
