@@ -8,6 +8,18 @@ class MisionSpec : DescribeSpec({
 
     describe("estados de la misión") {
 
+        fun crearPilotoJohnCena(base: BaseLanzamiento) = Tripulante(
+            nombre = "John",
+            apellido = "Cena",
+            fechaNacimiento = LocalDate.now().minusYears(30),
+            fechaInicioActividad = LocalDate.now().minusYears(10),
+            salarioBase = 100000.0,
+            rol = Piloto(),
+            perfilAptitud = Conformista(),
+            baseLanzamiento = base,
+            ubicacionGeografica = Point(0.0, 0.0)
+        )
+
         fun crearBase() = BaseLanzamiento(
             nombre = "Base Test",
             direccion = Direccion(
@@ -70,14 +82,29 @@ class MisionSpec : DescribeSpec({
             nave: Nave,
             planeta: Planeta,
             tripulantes: List<Tripulante> = emptyList()
-        ) = Mision(
-            "MISION 001",
-            "",
-            LocalDate.now().plusDays(1),
-            nave,
-            planeta,
-            tripulantes
-        )
+        ): Mision {
+            val m = Mision(
+                "MISION 001",
+                "",
+                LocalDate.now().plusDays(1),
+                nave,
+                planeta,
+            )
+            if (tripulantes.isNotEmpty()) m.sumarTripulacion(tripulantes)
+            return m;
+        }
+
+        it("no permite lanzar con tripulacion inadecuada") {
+            val sonda = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(sonda, planetaHabitable)
+            val tripulacion = listOf<Tripulante>(crearPilotoJohnCena(crearBase()))
+
+            shouldThrow<ErrorDeMision> {
+                mision.sumarTripulacion(tripulacion)
+                mision.lanzar()
+            }
+        }
 
         it("no permite lanzar una misión ya finalizada") {
             val nave = crearSonda()
