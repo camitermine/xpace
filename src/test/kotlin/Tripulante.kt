@@ -19,7 +19,6 @@ class TripulanteTest :
                     ),
                 capacidadMaximaNaves = 5
             )
-
         fun crearTripulante(
             nombre: String = "Juan",
             apellido: String = "Perez",
@@ -27,7 +26,9 @@ class TripulanteTest :
             fechaInicioActividad: LocalDate = LocalDate.now().minusYears(6),
             rol: Rol = Piloto(),
             perfilAptitud: PerfilAptitud = Conformista(),
-            ubicacion: Point = Point(0.0, 0.0)
+            distanciaMax: Double = 1.0,
+            direccion : Direccion = Direccion("Argentina", "Buenos Aires", "Falsa",
+                "123", Point(0.0, 0.0))
         ) =
             Tripulante(
                 nombre = nombre,
@@ -38,7 +39,8 @@ class TripulanteTest :
                 rol = rol,
                 perfilAptitud = perfilAptitud,
                 baseLanzamiento = baseLanzamientoTest,
-                ubicacionGeografica = ubicacion
+                direccion = direccion,
+                distanciaMaxima = distanciaMax
             )
 
         fun crearPlaneta(
@@ -360,31 +362,23 @@ class TripulanteTest :
                 medico.calcularSalarioTotal() shouldBe 129000.0
             }
         }
+        describe("distancia cercana") {
 
-        describe("Verificación de distancia a Base de Lanzamiento") {
-            it(
-                "detecta correctamente si una base se considera cercana respecto a su distancia real geo-lineal"
-            ) {
-                val tripulante = crearTripulante(ubicacion = Point(0.0, 0.0))
+            it("considera si un tripulante está cerca de una ubicación") {
+                val ubicacion = Point(0.0, 0.0)
+                val tripulante = crearTripulante()
 
-                val baseLejos =
-                    BaseLanzamiento(
-                        nombre = "Base Lejos",
-                        direccion = Direccion("X", "Y", "Z", "1", Point(1.0, 1.0)),
-                        capacidadMaximaNaves = 10
-                    )
+                tripulante.consideraUbicacionCercana(ubicacion) shouldBe true
 
-                val distanciaRealACalcular = Point(0.0, 0.0).distance(Point(1.0, 1.0))
+            }
 
-                tripulante.consideraBaseCercana(
-                    baseLejos,
-                    distanciaMaxima = distanciaRealACalcular - 1
-                ) shouldBe false
+            it("considera si un tripulante está lejos de una ubicación") {
+                val ubicacion = Point(5.2, 5.2)
+                val tripulante = crearTripulante()
 
-                tripulante.consideraBaseCercana(
-                    baseLejos,
-                    distanciaMaxima = distanciaRealACalcular + 1
-                ) shouldBe true
+                tripulante.consideraUbicacionCercana(ubicacion) shouldBe false
             }
         }
+
+
     })
