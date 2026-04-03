@@ -5,35 +5,29 @@ abstract class Nave(
     val nombre: String, val codIdentif: Int, val fechaFabricacion: LocalDate,
     val consumoBase: Double, val autonomia: Int, val velPromedio: Double
 ) {
-
     abstract val capacidadTripulantes: Int
+
     var misionAsignada: Mision? = null
         private set
 
     init {
         validar()
     }
-
     private fun validarNombre() {
-        require(nombre.isNotBlank()) { "El nombre no puede estar vacío" }
+        validarAtributo(nombre.isNotBlank(), "El nombre no puede estar vacío")
     }
-
     private fun validarCodIdentif() {
-        require(codIdentif > 0) { "El código debe ser mayor a 0" }
+        validarAtributo(codIdentif > 0, "El código debe ser mayor a 0")
     }
-
     private fun validarConsumoBase() {
-        require(consumoBase > 0) { "El consumo base debe ser mayor a 0" }
+        validarAtributo(consumoBase > 0, "El consumo base debe ser mayor a 0")
     }
-
     private fun validarAutonomia() {
-        require(autonomia > 0) { "La autonomía debe ser mayor a 0" }
+        validarAtributo(autonomia > 0, "La autonomía debe ser mayor a 0")
     }
-
     private fun validarVelocidad() {
-        require(velPromedio > 0) { "La velocidad promedio debe ser mayor a 0" }
+        validarAtributo(velPromedio > 0, "La velocidad promedio debe ser mayor a 0")
     }
-
     private fun validar() {
         validarNombre()
         validarCodIdentif()
@@ -53,17 +47,19 @@ abstract class Nave(
     }
 
     fun antiguedad(): Int = Period.between(fechaFabricacion, LocalDate.now()).years
+
     fun esModerna(): Boolean = antiguedad() < 5
 
-
-    fun puedeAlcanzar(distancia: Double): Boolean {
-        val tiempoViaje = (distancia * 365) / velPromedio * 2
-        return tiempoViaje <= autonomia
+    fun tiempoDeViaje(distancia: Double): Double {
+        return (distancia * 365) / velPromedio * 2
     }
+    fun puedeAlcanzar(distancia: Double): Boolean {
+        return tiempoDeViaje(distancia) <= autonomia
+    }
+
     open fun puedeTransportar(tripulacion: Int): Boolean =
         tripulacion in 1..capacidadTripulantes
 }
-
 class Sonda(
     nombre: String, codIdentif: Int, fechaFabricacion: LocalDate, consumoBase: Double, autonomia: Int,
     velPromedio: Double
@@ -73,18 +69,19 @@ class Sonda(
     override fun puedeTransportar(tripulacion: Int) = tripulacion == 0
     override fun consumoPorAnioLuz(cantTripulantes: Int): Double = consumoBase
 }
-
 class Transbordador(
     nombre: String, codIdentif: Int, fechaFabricacion: LocalDate, consumoBase: Double,
     autonomia: Int, velPromedio: Double
 ) : Nave(nombre, codIdentif, fechaFabricacion, consumoBase, autonomia, velPromedio) {
     override val capacidadTripulantes: Int = 20
     override fun consumoPorAnioLuz(cantTripulantes: Int): Double {
-        require(cantTripulantes <= capacidadTripulantes) { "Excede la capacidad" }
+        validarReglaDeNegocio(
+            cantTripulantes <= capacidadTripulantes,
+            "Excede la capacidad de la nave"
+        )
         return consumoBase + (consumoBase * 0.10 * cantTripulantes)
     }
 }
-
 class Carguero(
     nombre: String, codIdentif: Int, fechaFabricacion: LocalDate, consumoBase: Double,
     autonomia: Int, velPromedio: Double, val capacidadTn: Double
@@ -95,11 +92,9 @@ class Carguero(
     init {
         validarCapacidadCarga()
     }
-
     private fun validarCapacidadCarga() {
-        require(capacidadTn >= 0) { "La capacidad de carga no puede ser negativa" }
+        validarAtributo(capacidadTn >= 0, "La capacidad de carga no puede ser negativa")
     }
-
     fun esAntigua(): Boolean = antiguedad() > 10
     fun consumoPorCarga(): Double =
         consumoBase + (consumoBase * 0.05 * capacidadTn)
