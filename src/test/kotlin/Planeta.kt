@@ -40,7 +40,7 @@ class PlanetaTest : FunSpec({
     }
 
     test("no se puede crear un planeta con niveles de radiación, toxicidad o actividad tectónica fuera del rango 0-100") {
-        shouldThrow<BusinessException>{
+        shouldThrow<AttributeException>{
             crearPlanetaBase(
                 nombre = "Krypton",
                 gravedad = 45.0,

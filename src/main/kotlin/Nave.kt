@@ -1,6 +1,15 @@
 import java.time.LocalDate
 import java.time.Period
 
+private enum class MensajesDeErrorNave(val mensaje: String) {
+
+    NOMBRE_INVALIDO("El nombre no puede estar vacío"),
+    COD_IDENTIFICACION_INVALIDO("El código debe ser mayor a 0"),
+    CONSUMO_BASE_INVALIDO("El consumo base debe ser mayor a 0"),
+    AUTONOMIA_INVALIDA("La autonomía debe ser mayor a 0"),
+    VEL_PROMEDIO_INVALIDA("La velocidad promedio debe ser mayor a 0")
+}
+
 abstract class Nave(
     val nombre: String, val codIdentif: Int, val fechaFabricacion: LocalDate,
     val consumoBase: Double, val autonomia: Int, val velPromedio: Double
@@ -10,30 +19,18 @@ abstract class Nave(
     var misionAsignada: Mision? = null
         private set
 
+    private fun validarConstruccion() {
+
+        Validaciones.validarNoVacio(nombre, MensajesDeErrorNave.NOMBRE_INVALIDO.mensaje)
+        Validaciones.validarMayorACero( codIdentif,MensajesDeErrorNave.COD_IDENTIFICACION_INVALIDO.mensaje )
+        Validaciones.validarMayorACero(consumoBase,MensajesDeErrorNave.CONSUMO_BASE_INVALIDO.mensaje)
+        Validaciones.validarMayorACero(autonomia,MensajesDeErrorNave.AUTONOMIA_INVALIDA.mensaje)
+        Validaciones.validarMayorACero(velPromedio,MensajesDeErrorNave.VEL_PROMEDIO_INVALIDA.mensaje)
+
+    }
+
     init {
-        validar()
-    }
-    private fun validarNombre() {
-        validarAtributo(nombre.isNotBlank(), "El nombre no puede estar vacío")
-    }
-    private fun validarCodIdentif() {
-        validarAtributo(codIdentif > 0, "El código debe ser mayor a 0")
-    }
-    private fun validarConsumoBase() {
-        validarAtributo(consumoBase > 0, "El consumo base debe ser mayor a 0")
-    }
-    private fun validarAutonomia() {
-        validarAtributo(autonomia > 0, "La autonomía debe ser mayor a 0")
-    }
-    private fun validarVelocidad() {
-        validarAtributo(velPromedio > 0, "La velocidad promedio debe ser mayor a 0")
-    }
-    private fun validar() {
-        validarNombre()
-        validarCodIdentif()
-        validarConsumoBase()
-        validarAutonomia()
-        validarVelocidad()
+        validarConstruccion()
     }
 
     abstract fun consumoPorAnioLuz(cantTripulantes: Int): Double
@@ -93,7 +90,8 @@ class Carguero(
         validarCapacidadCarga()
     }
     private fun validarCapacidadCarga() {
-        validarAtributo(capacidadTn >= 0, "La capacidad de carga no puede ser negativa")
+        Validaciones.validarMayorACero(capacidadTn, "La capacidad de carga no puede ser negativa")
+        //validarAtributo(capacidadTn >= 0, "La capacidad de carga no puede ser negativa")
     }
     fun esAntigua(): Boolean = antiguedad() > 10
     fun consumoPorCarga(): Double =

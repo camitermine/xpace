@@ -19,30 +19,29 @@ class TripulanteTest :
                     ),
                 capacidadMaximaNaves = 5
             )
-
-            fun crearTripulante(
-                    nombre: String = "Juan",
-                    apellido: String = "Perez",
-                    fechaNacimiento: LocalDate = LocalDate.of(1990, 5, 10),
-                    fechaInicioActividad: LocalDate = LocalDate.now().minusYears(6),
-                    rol: Rol = Piloto(),
-                    perfilAptitud: PerfilAptitud = Conformista(),
-                    distanciaMax: Double = 1.0,
-                    direccion : Direccion = Direccion("Argentina", "Buenos Aires", "Falsa",
-                        "123", Point(0.0, 0.0))
-            ) =
-                    Tripulante(
-                            nombre = nombre,
-                            apellido = apellido,
-                            fechaNacimiento = fechaNacimiento,
-                            fechaInicioActividad = fechaInicioActividad,
-                            salarioBase = 100000.0,
-                            rol = rol,
-                            perfilAptitud = perfilAptitud,
-                            baseLanzamiento = baseLanzamientoTest,
-                            direccion = direccion,
-                            distanciaMaxima = distanciaMax
-                    )
+        fun crearTripulante(
+            nombre: String = "Juan",
+            apellido: String = "Perez",
+            fechaNacimiento: LocalDate = LocalDate.of(1990, 5, 10),
+            fechaInicioActividad: LocalDate = LocalDate.now().minusYears(6),
+            rol: Rol = Piloto(),
+            perfilAptitud: PerfilAptitud = Conformista(),
+            distanciaMax: Double = 1.0,
+            direccion : Direccion = Direccion("Argentina", "Buenos Aires", "Falsa",
+                "123", Point(0.0, 0.0))
+        ) =
+            Tripulante(
+                nombre = nombre,
+                apellido = apellido,
+                fechaNacimiento = fechaNacimiento,
+                fechaInicioActividad = fechaInicioActividad,
+                salarioBase = 100000.0,
+                rol = rol,
+                perfilAptitud = perfilAptitud,
+                baseLanzamiento = baseLanzamientoTest,
+                direccion = direccion,
+                distanciaMaxima = distanciaMax
+            )
 
         fun crearPlaneta(
             nombre: String = "Tierra",
@@ -363,25 +362,23 @@ class TripulanteTest :
                 medico.calcularSalarioTotal() shouldBe 129000.0
             }
         }
+        describe("distancia cercana") {
 
+            it("considera si un tripulante está cerca de una ubicación") {
+                val ubicacion = Point(0.0, 0.0)
+                val tripulante = crearTripulante()
 
-            describe("distancia cercana") {
+                tripulante.consideraUbicacionCercana(ubicacion) shouldBe true
 
-                it("considera si un tripulante está cerca de una ubicación") {
-                    val ubicacion = Point(0.0, 0.0)
-                    val tripulante = crearTripulante()
-
-                    tripulante.consideraUbicacionCercana(ubicacion) shouldBe true
-
-                }
-
-                it("considera si un tripulante está lejos de una ubicación") {
-                    val ubicacion = Point(5.2, 5.2)
-                    val tripulante = crearTripulante()
-
-                    tripulante.consideraUbicacionCercana(ubicacion) shouldBe false
-                }
             }
 
+            it("considera si un tripulante está lejos de una ubicación") {
+                val ubicacion = Point(5.2, 5.2)
+                val tripulante = crearTripulante()
 
-        })
+                tripulante.consideraUbicacionCercana(ubicacion) shouldBe false
+            }
+        }
+
+
+    })

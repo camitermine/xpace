@@ -1,6 +1,5 @@
 import org.uqbar.geodds.Point
 
-
 class BaseLanzamiento(
     val nombre: String,
     val direccion: Direccion,
@@ -12,7 +11,10 @@ class BaseLanzamiento(
         get() = direccion.ubicacion
 
     fun estacionar(nave: Nave) {
-        require(navesEstacionadas.size < capacidadMaximaNaves) { "La base no tiene capacidad para más naves" }
+        validarReglaDeNegocio(
+            navesEstacionadas.size < capacidadMaximaNaves,
+            "La base no tiene capacidad para más naves"
+        )
         navesEstacionadas.add(nave)
     }
 

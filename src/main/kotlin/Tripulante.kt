@@ -2,6 +2,13 @@ import org.uqbar.geodds.Point
 import java.time.LocalDate
 import java.time.Period
 
+private enum class MensajesDeErrorTripulante(val mensaje: String) {
+
+    NOMBRE_INVALIDO("El nombre no puede estar vacío"),
+    APELLIDO_INVALIDO("El apellido no puede estar vacio"),
+    FECHA_NACIMIENTO_INVALIDA("La fecha de nacimiento debe ser anterior a hoy")
+}
+
 class Tripulante(
     val nombre: String,
     val apellido: String,
@@ -17,27 +24,15 @@ class Tripulante(
     private val _historialMisiones: MutableList<Mision> = mutableListOf()
     val historialMisiones: List<Mision> get() = _historialMisiones
 
+    private fun validarConstruccion() {
+
+        Validaciones.validarNoVacio(nombre, MensajesDeErrorTripulante.NOMBRE_INVALIDO.mensaje)
+        Validaciones.validarNoVacio(apellido,MensajesDeErrorTripulante.APELLIDO_INVALIDO.mensaje)
+        Validaciones.validarFechaAnteriorAHoy(fechaNacimiento, MensajesDeErrorTripulante.FECHA_NACIMIENTO_INVALIDA.mensaje)
+    }
+
     init {
-        validar()
-    }
-
-    private fun validarNombre() {
-        validarAtributo(nombre.isNotBlank(),  "El nombre no debe estar vacío")
-    }
-
-    private fun validarApellido() {
-        validarAtributo(apellido.isNotBlank(), "El apellido no debe estar vacío")
-    }
-    private fun validarFechaNacimiento() {
-        validarAtributo(fechaNacimiento.isBefore(LocalDate.now()),
-            "La fecha de nacimiento debe ser anterior a hoy"
-        )
-    }
-
-    private fun validar() {
-        validarNombre()
-        validarApellido()
-        validarFechaNacimiento()
+        validarConstruccion()
     }
 
     fun agregarMision(mision: Mision) {

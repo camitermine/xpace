@@ -26,7 +26,6 @@ class BaseLanzamientoTest : DescribeSpec({
         1000,
         50.0
     )
-
     fun crearTripulante(base: BaseLanzamiento, x: Int = 0, y: Int = 0, distanciaMax: Double) = Tripulante(
         nombre = "Juan",
         apellido = "Perez",
@@ -43,6 +42,7 @@ class BaseLanzamientoTest : DescribeSpec({
 
     )
 
+
     describe("naves estacionadas") {
 
         it("puede estacionar una nave en la base") {
@@ -58,7 +58,7 @@ class BaseLanzamientoTest : DescribeSpec({
             val base = crearBase(capacidad = 1)
             base.estacionar(crearSonda())
 
-            shouldThrow<IllegalArgumentException> {
+            shouldThrow<BusinessException> {
                 base.estacionar(crearSonda())
             }
         }
@@ -80,6 +80,4 @@ class BaseLanzamientoTest : DescribeSpec({
             base.tieneNaveEstacionada(nave) shouldBe false
         }
     }
-
-
 })

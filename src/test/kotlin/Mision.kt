@@ -7,7 +7,6 @@ import java.time.LocalDate
 class MisionSpec : DescribeSpec({
 
     describe("estados de la misión") {
-
         fun crearPilotoJohnCena(base: BaseLanzamiento) = Tripulante(
             nombre = "John",
             apellido = "Cena",
@@ -19,7 +18,7 @@ class MisionSpec : DescribeSpec({
             baseLanzamiento = base,
             distanciaMaxima = 1.0,
             direccion  = Direccion("Argentina", "Buenos Aires", "Falsa",
-        "123", Point(0.0, 0.0))
+                "123", Point(0.0, 0.0))
 
         )
 
@@ -202,7 +201,6 @@ class MisionSpec : DescribeSpec({
 
             mision.altoRiesgo() shouldBe true
         }
-
         it("agrega misión al historial del tripulante si se cancela una de alto riesgo") {
             val base = crearBase()
             val johnCena = Tripulante(

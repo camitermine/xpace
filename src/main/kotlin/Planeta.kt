@@ -1,5 +1,14 @@
 import java.time.LocalDate
 
+private enum class MensajesDeErrorPlaneta(val mensaje: String) {
+    NOMBRE_INVALIDO("El nombre no puede estar vacío"),
+    NIVEL_RADIACION_INVALIDA("El nivel de radiación debe estar entre 0 y 100"),
+    TOXICIDAD_ATMOSFERICA_INVALIDA("La toxicidad atmosférica debe estar entre 0 y 100"),
+    ACTIVIDAD_TECTONICA_INVALIDA("La actividad tectónica debe estar entre 0 y 100"),
+    GRAVEDAD_INVALIDA("La gravedad debe ser mayor a "),
+    RADIO_KM_INVALIDO("El tamaño (radio) debe ser mayor a 0")
+}
+
 class Planeta (val nombre: String,
                val temperaturaMedia: Double,
                val gravedad: Double,
@@ -12,41 +21,19 @@ class Planeta (val nombre: String,
                val distanciaATierra: Double,
                var fueAterrizado: Boolean)
 {
+    private fun validarConstruccion() {
+
+        Validaciones.validarNoVacio(nombre, MensajesDeErrorPlaneta.NOMBRE_INVALIDO.mensaje)
+        Validaciones.validarEntre0y100(nivelRadiacion,MensajesDeErrorPlaneta.NIVEL_RADIACION_INVALIDA.mensaje)
+        Validaciones.validarEntre0y100(toxicidadAtmosferica,MensajesDeErrorPlaneta.TOXICIDAD_ATMOSFERICA_INVALIDA.mensaje)
+        Validaciones.validarEntre0y100(actividadTectonica,MensajesDeErrorPlaneta.ACTIVIDAD_TECTONICA_INVALIDA.mensaje)
+        Validaciones.validarMayorACero( gravedad,MensajesDeErrorPlaneta.GRAVEDAD_INVALIDA.mensaje )
+        Validaciones.validarMayorACero(radioKm,MensajesDeErrorPlaneta.RADIO_KM_INVALIDO.mensaje)
+
+    }
+
     init {
-        validar()
-    }
-
-    private fun validarNombre() {
-        validarAtributo(nombre.isNotBlank(), "El nombre no puede estar vacío")
-    }
-    private fun validarNivelRadiacion() {
-        validarReglaDeNegocio(nivelRadiacion in 0..100,"El nivel de radiación debe estar entre 0 y 100")
-    }
-
-    private fun validarToxicidad() {
-        validarReglaDeNegocio(toxicidadAtmosferica in 0..100,"La toxicidad atmosférica debe estar entre 0 y 100")
-    }
-
-    private fun validarActividadTectonica() {
-        validarReglaDeNegocio(actividadTectonica in 0..100, "La actividad tectónica debe estar entre 0 y 100")
-    }
-
-    private fun validarGravedad() {
-        validarReglaDeNegocio(gravedad > 0, "La gravedad debe ser mayor a 0")
-    }
-
-    private fun validarRadio() {
-        validarReglaDeNegocio(radioKm > 0, "El tamaño (radio) debe ser mayor a 0")
-    }
-
-
-    private fun validar() {
-        validarNombre()
-        validarNivelRadiacion()
-        validarToxicidad()
-        validarActividadTectonica()
-        validarGravedad()
-        validarRadio()
+        validarConstruccion()
     }
 
     fun tieneTemperaturaIdeal(): Boolean {
