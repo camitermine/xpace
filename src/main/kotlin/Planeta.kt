@@ -17,28 +17,28 @@ class Planeta (val nombre: String,
     }
 
     private fun validarNombre() {
-        require(nombre.isNotBlank()) { "El nombre no debe estar vacío" }
+        validarAtributo(nombre.isNotBlank(), "El nombre no puede estar vacío")
     }
-
     private fun validarNivelRadiacion() {
-        require(nivelRadiacion in 0..100) { "El nivel de radiación debe estar entre 0 y 100" }
+        validarReglaDeNegocio(nivelRadiacion in 0..100,"El nivel de radiación debe estar entre 0 y 100")
     }
 
     private fun validarToxicidad() {
-        require(toxicidadAtmosferica in 0..100) { "La toxicidad atmosférica debe estar entre 0 y 100" }
+        validarReglaDeNegocio(toxicidadAtmosferica in 0..100,"La toxicidad atmosférica debe estar entre 0 y 100")
     }
 
     private fun validarActividadTectonica() {
-        require(actividadTectonica in 0..100) { "La actividad tectónica debe estar entre 0 y 100" }
+        validarReglaDeNegocio(actividadTectonica in 0..100, "La actividad tectónica debe estar entre 0 y 100")
     }
 
     private fun validarGravedad() {
-        require(gravedad > 0) { "La gravedad debe ser mayor a 0" }
+        validarReglaDeNegocio(gravedad > 0, "La gravedad debe ser mayor a 0")
     }
 
     private fun validarRadio() {
-        require(radioKm > 0) { "El tamaño (radio) debe ser mayor a 0" }
+        validarReglaDeNegocio(radioKm > 0, "El tamaño (radio) debe ser mayor a 0")
     }
+
 
     private fun validar() {
         validarNombre()
