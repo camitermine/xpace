@@ -60,14 +60,16 @@ class NaveTest : DescribeSpec({
         }
 
         it("falla si supera capacidad de tripulantes") {
-            shouldThrow<BusinessException> {
+            val exception =shouldThrow<BusinessException> {
                 nave.consumoPorAnioLuz(25)
             }
+            exception.message shouldBe "Excede la capacidad de la nave"
         }
 
         it("funciona en el límite de capacidad de tripulantes") {
             nave.consumoPorAnioLuz(20) shouldBe 3000.0
         }
+
     }
 
     describe("Carguero") {
@@ -133,6 +135,23 @@ class NaveTest : DescribeSpec({
             )
 
             nave.puedeAlcanzar(2.0) shouldBe false
+        }
+    }
+    describe("Validaciones de transporte en Nave") {
+
+        val nave = Transbordador(
+            "Endeavour",
+            2,
+            LocalDate.of(2018, 1, 1),
+            1000.0,
+            400,
+            5.0
+        )
+
+        it("no permite tripulación negativa") {
+            shouldThrow<AttributeException> {
+                nave.puedeTransportar(-1)
+            }
         }
     }
 
