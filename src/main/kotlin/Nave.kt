@@ -53,9 +53,13 @@ abstract class Nave(
     fun puedeAlcanzar(distancia: Double): Boolean {
         return tiempoDeViaje(distancia) <= autonomia
     }
-
-    open fun puedeTransportar(tripulacion: Int): Boolean =
-        tripulacion in 1..capacidadTripulantes
+    open fun puedeTransportar(tripulacion: Int): Boolean {
+        Validaciones.validarMayorOIgualACero(
+            tripulacion,
+            "La tripulación no puede ser negativa"
+        )
+        return tripulacion in 1..capacidadTripulantes
+    }
 }
 class Sonda(
     nombre: String, codIdentif: Int, fechaFabricacion: LocalDate, consumoBase: Double, autonomia: Int,
@@ -63,7 +67,13 @@ class Sonda(
 ) : Nave
     (nombre, codIdentif, fechaFabricacion, consumoBase, autonomia, velPromedio) {
     override val capacidadTripulantes: Int = 0
-    override fun puedeTransportar(tripulacion: Int) = tripulacion == 0
+    override fun puedeTransportar(tripulacion: Int): Boolean {
+        Validaciones.validarMayorOIgualACero(
+            tripulacion,
+            "La tripulación no puede ser negativa"
+        )
+        return tripulacion == 0
+    }
     override fun consumoPorAnioLuz(cantTripulantes: Int): Double = consumoBase
 }
 class Transbordador(
@@ -91,7 +101,6 @@ class Carguero(
     }
     private fun validarCapacidadCarga() {
         Validaciones.validarMayorACero(capacidadTn, "La capacidad de carga no puede ser negativa")
-        //validarAtributo(capacidadTn >= 0, "La capacidad de carga no puede ser negativa")
     }
     fun esAntigua(): Boolean = antiguedad() > 10
     fun consumoPorCarga(): Double =
