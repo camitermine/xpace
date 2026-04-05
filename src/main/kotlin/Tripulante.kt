@@ -15,8 +15,8 @@ class Tripulante(
     val fechaNacimiento: LocalDate,
     val fechaInicioActividad: LocalDate = LocalDate.now(),
     var salarioBase: Double = 0.0,
-    var rol: Rol = Piloto(),
-    var perfilAptitud: PerfilAptitud = Conformista(),
+    var rol: Rol = Piloto,
+    var perfilAptitud: PerfilAptitud = Conformista,
     var baseLanzamiento: BaseLanzamiento,
     val direccion: Direccion,
     val distanciaMaxima: Double = 0.0
@@ -89,17 +89,17 @@ interface PerfilAptitud {
     fun aceptaMision(mision: Mision): Boolean
 }
 
-class Conformista : PerfilAptitud {
+object Conformista : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean = true
 }
 
-class Prudente : PerfilAptitud {
+object Prudente : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean {
         return mision.destino.tieneTemperaturaIdeal() && mision.destino.gravedadSoportable()
     }
 }
 
-class Explorador : PerfilAptitud {
+object Explorador : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean {
         return !mision.destino.fueAterrizado
     }
@@ -117,7 +117,7 @@ class Cauteloso(val umbralRadiacionMaximo: Double) : PerfilAptitud {
     }
 }
 
-class Exigente : PerfilAptitud {
+object Exigente : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean {
         return mision.nave.esModerna()
     }
@@ -127,20 +127,20 @@ interface Rol {
     fun calcularBonus(tripulante: Tripulante): Double
 }
 
-class Comandante : Rol {
+object Comandante : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
         val misionesExitosas = tripulante.cantidadMisionesPor(EstadoMision.COMPLETADA)
         return (tripulante.salarioBase * 0.50) + (tripulante.salarioBase * 0.05 * misionesExitosas)
     }
 }
 
-class Piloto : Rol {
+object Piloto : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
         return tripulante.salarioBase * 0.30
     }
 }
 
-class Ingeniero : Rol {
+object Ingeniero : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
         val ultimaCompletada = tripulante.historialMisiones
             .lastOrNull { it.estado == EstadoMision.COMPLETADA }
@@ -153,7 +153,7 @@ class Ingeniero : Rol {
     }
 }
 
-class Cientifico : Rol {
+object Cientifico : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
         val cantidadPlanetasAterrizados = tripulante.historialMisiones
             .filter { it.estado == EstadoMision.COMPLETADA }
@@ -165,7 +165,7 @@ class Cientifico : Rol {
     }
 }
 
-class Medico : Rol {
+object Medico : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
         val misionesFallidas = tripulante.cantidadMisionesPor(EstadoMision.FALLIDA)
         return (tripulante.salarioBase * 0.25) + (tripulante.salarioBase * 0.02 * misionesFallidas)

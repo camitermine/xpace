@@ -24,8 +24,8 @@ class TripulanteTest :
             apellido: String = "Perez",
             fechaNacimiento: LocalDate = LocalDate.of(1990, 5, 10),
             fechaInicioActividad: LocalDate = LocalDate.now().minusYears(6),
-            rol: Rol = Piloto(),
-            perfilAptitud: PerfilAptitud = Conformista(),
+            rol: Rol = Piloto,
+            perfilAptitud: PerfilAptitud = Conformista,
             distanciaMax: Double = 1.0,
             direccion: Direccion = Direccion("Argentina", "Buenos Aires", "Falsa", "123", Point(0.0, 0.0))
         ) = Tripulante(
@@ -103,7 +103,7 @@ class TripulanteTest :
             )
 
             if (tripulantes.isNotEmpty()) m.sumarTripulacion(tripulantes)
-            return m;
+            return m
         }
 
             describe("Validaciones iniciales de Tripulante") {
@@ -189,14 +189,14 @@ class TripulanteTest :
             val experto = crearTripulante(fechaInicioActividad = LocalDate.now().minusYears(5))
 
             it("Conformista es apto siempre que cumpla condiciones base") {
-                experto.perfilAptitud = Conformista()
+                experto.perfilAptitud = Conformista
                 experto.esAptoParaMision(crearMision()) shouldBe true
             }
 
             it(
                 "Prudente es apto si la temperatura es ideal y la gravedad soportable del destino"
             ) {
-                experto.perfilAptitud = Prudente()
+                experto.perfilAptitud = Prudente
 
                 val planetaIdeal = crearPlaneta(temperaturaMedia = 20.0, gravedad = 9.8)
                 val misionIdeal = crearMision(planeta = planetaIdeal)
@@ -208,7 +208,7 @@ class TripulanteTest :
             }
 
             it("Explorador solo acepta misiones donde el destino no fue aterrizado") {
-                experto.perfilAptitud = Explorador()
+                experto.perfilAptitud = Explorador
 
                 val planetaNuevo = crearPlaneta(fueAterrizado = false)
                 val misionExploracion = crearMision(planeta = planetaNuevo)
@@ -246,7 +246,7 @@ class TripulanteTest :
             }
 
             it("Exigente acepta misiones unicamente si la nave dispuesta es moderna") {
-                experto.perfilAptitud = Exigente()
+                experto.perfilAptitud = Exigente
 
                 val naveModerna = crearTransbordador(fechaFab = LocalDate.now().minusYears(2))
                 val misionModerna = crearMision(nave = naveModerna)
@@ -262,7 +262,7 @@ class TripulanteTest :
             it(
                 "Comandante gana 50% extra base y ademas suma 5% extra por cada misión exitosa"
             ) {
-                val comandante = crearTripulante(rol = Comandante())
+                val comandante = crearTripulante(rol = Comandante)
                 comandante.salarioBase = 100000.0
 
                 comandante.calcularSalarioTotal() shouldBe 150000.0
@@ -281,7 +281,7 @@ class TripulanteTest :
             }
 
             it("Piloto gana siempre un 30% extra base y no recibe mas bonus") {
-                val piloto = crearTripulante(rol = Piloto())
+                val piloto = crearTripulante(rol = Piloto)
                 piloto.salarioBase = 100000.0
                 piloto.calcularSalarioTotal() shouldBe 130000.0
             }
@@ -289,7 +289,7 @@ class TripulanteTest :
             it(
                 "Ingeniero gana 40% si su última mision fue un Carguero, o 20% si fue otra/no tuvo"
             ) {
-                val ingeniero = crearTripulante(rol = Ingeniero())
+                val ingeniero = crearTripulante(rol = Ingeniero)
                 ingeniero.salarioBase = 100000.0
 
                 ingeniero.calcularSalarioTotal() shouldBe 120000.0
@@ -316,7 +316,7 @@ class TripulanteTest :
             it(
                 "Científico gana un 10% extra por cada planeta diferente aterrizado en el historial"
             ) {
-                val cientifico = crearTripulante(rol = Cientifico())
+                val cientifico = crearTripulante(rol = Cientifico)
                 cientifico.salarioBase = 100000.0
 
                 val planetaA = crearPlaneta(nombre = "Planeta A")
@@ -336,7 +336,7 @@ class TripulanteTest :
             }
 
             it("Médico gana el 25% de base más 2% por estrés por cada misión fallida") {
-                val medico = crearTripulante(rol = Medico())
+                val medico = crearTripulante(rol = Medico)
                 medico.salarioBase = 100000.0
 
                 medico.calcularSalarioTotal() shouldBe 125000.0
