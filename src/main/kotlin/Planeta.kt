@@ -10,16 +10,16 @@ private enum class MensajesDeErrorPlaneta(val mensaje: String) {
 }
 
 class Planeta (val nombre: String,
-               val temperaturaMedia: Double,
-               val gravedad: Double,
-               val nivelRadiacion: Int,
-               val hayAguaLiquida: Boolean,
-               val toxicidadAtmosferica: Int,
-               val actividadTectonica: Int,
-               val radioKm: Double,
-               val fechaDescubrimiento: LocalDate,
-               val distanciaATierra: Double,
-               var fueAterrizado: Boolean)
+               val temperaturaMedia: Double = 20.0,
+               val gravedad: Double = 9.8,
+               val nivelRadiacion: Int = 0,
+               val hayAguaLiquida: Boolean = false,
+               val toxicidadAtmosferica: Int = 0,
+               val actividadTectonica: Int = 0,
+               val radioKm: Double = 6371.0,
+               val fechaDescubrimiento: LocalDate = LocalDate.now(),
+               val distanciaATierra: Double = 0.0,
+               var fueAterrizado: Boolean = false)
 {
     private fun validarConstruccion() {
 

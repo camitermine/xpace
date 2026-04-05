@@ -53,6 +53,8 @@ abstract class Nave(
     fun puedeAlcanzar(distancia: Double): Boolean {
         return tiempoDeViaje(distancia) <= autonomia
     }
+
+    fun requiereTripulacion(): Boolean = capacidadTripulantes > 0
     open fun puedeTransportar(tripulacion: Int): Boolean {
         Validaciones.validarMayorOIgualACero(
             tripulacion,

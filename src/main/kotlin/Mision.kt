@@ -88,6 +88,9 @@ class Mision(
     }
 
     private fun prepararTripulantes() {
+        if (nave.requiereTripulacion() && this.tripulantes.isEmpty()) {
+            throw ErrorDeMision("La nave requiere al menos un tripulante para ser lanzada")
+        }
         tripulacionAptaParaNave(this.tripulantes)
         if (this.tripulantes.isEmpty()) return
         val base = this.tripulantes.first().baseLanzamiento

@@ -27,21 +27,18 @@ class TripulanteTest :
             rol: Rol = Piloto(),
             perfilAptitud: PerfilAptitud = Conformista(),
             distanciaMax: Double = 1.0,
-            direccion : Direccion = Direccion("Argentina", "Buenos Aires", "Falsa",
-                "123", Point(0.0, 0.0))
-        ) =
-            Tripulante(
-                nombre = nombre,
-                apellido = apellido,
-                fechaNacimiento = fechaNacimiento,
-                fechaInicioActividad = fechaInicioActividad,
-                salarioBase = 100000.0,
-                rol = rol,
-                perfilAptitud = perfilAptitud,
-                baseLanzamiento = baseLanzamientoTest,
-                direccion = direccion,
-                distanciaMaxima = distanciaMax
-            )
+            direccion: Direccion = Direccion("Argentina", "Buenos Aires", "Falsa", "123", Point(0.0, 0.0))
+        ) = Tripulante(
+            nombre = nombre,
+            apellido = apellido,
+            fechaNacimiento = fechaNacimiento,
+            fechaInicioActividad = fechaInicioActividad,
+            rol = rol,
+            perfilAptitud = perfilAptitud,
+            baseLanzamiento = baseLanzamientoTest,
+            direccion = direccion,
+            distanciaMaxima = distanciaMax
+        )
 
         fun crearPlaneta(
             nombre: String = "Tierra",
@@ -51,24 +48,19 @@ class TripulanteTest :
             hayAguaLiquida: Boolean = true,
             toxicidadAtmosferica: Int = 10,
             actividadTectonica: Int = 10,
-            radioKm: Double = 6371.0,
-            fechaDescubrimiento: LocalDate = LocalDate.now().minusYears(10),
             distanciaATierra: Double = 1.0,
             fueAterrizado: Boolean = false
-        ) =
-            Planeta(
-                nombre,
-                temperaturaMedia,
-                gravedad,
-                nivelRadiacion,
-                hayAguaLiquida,
-                toxicidadAtmosferica,
-                actividadTectonica,
-                radioKm,
-                fechaDescubrimiento,
-                distanciaATierra,
-                fueAterrizado
-            )
+        ) = Planeta(
+            nombre = nombre,
+            temperaturaMedia = temperaturaMedia,
+            gravedad = gravedad,
+            nivelRadiacion = nivelRadiacion,
+            hayAguaLiquida = hayAguaLiquida,
+            toxicidadAtmosferica = toxicidadAtmosferica,
+            actividadTectonica = actividadTectonica,
+            distanciaATierra = distanciaATierra,
+            fueAterrizado = fueAterrizado
+        )
 
         fun crearTransbordador(
             fechaFab: LocalDate = LocalDate.now().minusYears(2),

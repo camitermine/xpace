@@ -13,11 +13,18 @@ class PlanetaTest : FunSpec({
         hayAguaLiquida: Boolean = true,
         toxicidadAtmosferica: Int = 20,
         actividadTectonica: Int = 10,
-        radioKm: Double = 6000.0,
-        fechaDescubrimiento: LocalDate = LocalDate.of(2015, 7, 23),
-        distanciaATierra: Double = 1400.0,
-        fueAterrizado: Boolean = false
-    ) = Planeta(nombre, temperaturaMedia, gravedad, nivelRadiacion, hayAguaLiquida, toxicidadAtmosferica, actividadTectonica, radioKm, fechaDescubrimiento, distanciaATierra, fueAterrizado)
+    ) = Planeta(
+        nombre = nombre,
+        temperaturaMedia = temperaturaMedia,
+        gravedad = gravedad,
+        nivelRadiacion = nivelRadiacion,
+        hayAguaLiquida = hayAguaLiquida,
+        toxicidadAtmosferica = toxicidadAtmosferica,
+        actividadTectonica = actividadTectonica,
+        radioKm = 6000.0,
+        fechaDescubrimiento = LocalDate.of(2015, 7, 23),
+        distanciaATierra = 1400.0,
+    )
 
     test("un planeta con temperatura entre 0 y 40 grados tiene temperatura ideal") {
         val planetaConTemperaturaIdeal = crearPlanetaBase(temperaturaMedia = 25.0)

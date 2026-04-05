@@ -30,16 +30,9 @@ class BaseLanzamientoTest : DescribeSpec({
         nombre = "Juan",
         apellido = "Perez",
         fechaNacimiento = LocalDate.of(1990, 5, 10),
-        fechaInicioActividad = LocalDate.now().minusYears(6),
-        salarioBase = 100000.0,
-        rol = Piloto(),
-        perfilAptitud = Conformista(),
         baseLanzamiento = base,
-        direccion = Direccion("Argentina", "Buenos Aires", "Falsa",
-            "123", Point(x.toDouble(), y.toDouble())),
-        distanciaMaxima = distanciaMax
-
-
+        direccion = Direccion("Argentina", "Buenos Aires", "Falsa", "123", Point(x.toDouble(), y.toDouble())),
+        distanciaMaxima = distanciaMax,
     )
 
 
