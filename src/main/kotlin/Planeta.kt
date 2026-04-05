@@ -37,11 +37,11 @@ class Planeta (val nombre: String,
     }
 
     fun tieneTemperaturaIdeal(): Boolean {
-        return temperaturaMedia in 0.0..40.0
+        return temperaturaMedia in Config.TEMPERATURA_IDEAL_MIN_PLANETA..Config.TEMPERATURA_IDEAL_MAX_PLANETA
     }
 
     fun gravedadSoportable(): Boolean {
-        return gravedad in 3.0..15.0
+        return gravedad in Config.GRAVEDAD_IDEAL_MIN_PLANETA..Config.GRAVEDAD_IDEAL_MAX_PLANETA
     }
 
     fun indiceDePeligrosidad(): Double {
@@ -49,10 +49,14 @@ class Planeta (val nombre: String,
     }
 
     fun esHabitable(): Boolean {
-        return tieneTemperaturaIdeal() && gravedadSoportable() && hayAguaLiquida && toxicidadAtmosferica < 30 && nivelRadiacion < 40
+        return  tieneTemperaturaIdeal() &&
+                gravedadSoportable() &&
+                hayAguaLiquida &&
+                toxicidadAtmosferica < Config.TOPE_TOX_ATMOS_HABITABLE &&
+                nivelRadiacion < Config.TOPE_NIVEL_RAD_HABITABLE
     }
 
     fun esExplorable(): Boolean {
-        return !esHabitable() && indiceDePeligrosidad() < 60.0
+        return !esHabitable() && indiceDePeligrosidad() < Config.TOPE_INDICE_PELIG_EXPLORABLE
     }
 }

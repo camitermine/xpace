@@ -106,21 +106,21 @@ class TripulanteTest :
             return m
         }
 
-            describe("Validaciones iniciales de Tripulante") {
-                it("lanza error si la fecha de nacimiento es posterior a hoy") {
-                    shouldThrow<AttributeException>{
-                        crearTripulante(fechaNacimiento = LocalDate.now().plusDays(1))
-                    }
-                }
-
-                it("lanza error si el nombre está vacío") {
-                    shouldThrow<AttributeException> { crearTripulante(nombre = "   ") }
-                }
-
-                it("lanza error si el apellido está vacío") {
-                    shouldThrow<AttributeException> { crearTripulante(apellido = "") }
+        describe("Validaciones iniciales de Tripulante") {
+            it("lanza error si la fecha de nacimiento es posterior a hoy") {
+                shouldThrow<AttributeException>{
+                    crearTripulante(fechaNacimiento = LocalDate.now().plusDays(1))
                 }
             }
+
+            it("lanza error si el nombre está vacío") {
+                shouldThrow<AttributeException> { crearTripulante(nombre = "   ") }
+            }
+
+            it("lanza error si el apellido está vacío") {
+                shouldThrow<AttributeException> { crearTripulante(apellido = "") }
+            }
+        }
 
         describe("Cálculo de Experiencia y Años Activos") {
             it("calcula correctamente los años activo") {

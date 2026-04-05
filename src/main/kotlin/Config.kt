@@ -1,0 +1,22 @@
+
+
+object Config {
+
+    const val IDA_Y_VUELTA = 2
+    const val DURACION_DE_ALTO_RIESGO = 500
+    const val DIAS_DEL_ANIO = 365
+    const val MAX_NAVE_MODERNA = 5
+    const val MAX_NAVE_MODERNA_CARGUERO = 10
+    const val TEMPERATURA_IDEAL_MAX_PLANETA =   40.0
+    const val TEMPERATURA_IDEAL_MIN_PLANETA =    0.0
+    const val GRAVEDAD_IDEAL_MAX_PLANETA =   15.0
+    const val GRAVEDAD_IDEAL_MIN_PLANETA =   3.0
+    const val TOPE_TOX_ATMOS_HABITABLE = 30
+    const val TOPE_NIVEL_RAD_HABITABLE = 40
+    const val TOPE_INDICE_PELIG_EXPLORABLE = 60
+    const val CONDICION_BASE_EXPERIENCIA = 3
+    const val FACTOR_ANTIGUEDAD_CARGUERO = 1.2
+    const val FACTOR_MODERNO_CARGUERO = 1.0
+
+
+}

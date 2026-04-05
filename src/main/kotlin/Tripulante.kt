@@ -65,7 +65,7 @@ class Tripulante(
     }
 
     private fun cumpleCondicionesBase(): Boolean {
-        val experienciaSuficiente = calcularExperiencia() >= 3.0
+        val experienciaSuficiente = calcularExperiencia() >= Config.CONDICION_BASE_EXPERIENCIA
         val sinMisionEnCurso = historialMisiones.none { it.estado == EstadoMision.EN_CURSO }
 
         return experienciaSuficiente && sinMisionEnCurso
