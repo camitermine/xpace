@@ -47,16 +47,16 @@ class Tripulante(
         return Period.between(fechaInicioActividad, LocalDate.now()).years
     }
 
-    fun cantidadMisiones(estado: EstadoMision): Int {
+    fun cantidadMisionesPor(estado: EstadoMision): Int {
         return historialMisiones.count { it.estado == estado }
     }
 
     fun calcularExperiencia(): Double {
-        val exitosas = cantidadMisiones(EstadoMision.COMPLETADA)
+        val exitosas = cantidadMisionesPor(EstadoMision.COMPLETADA)
         val parciales = historialMisiones.count {
             it.estado == EstadoMision.CANCELADA && it.altoRiesgo()
         }
-        val fracasadas = cantidadMisiones(EstadoMision.FALLIDA)
+        val fracasadas = cantidadMisionesPor(EstadoMision.FALLIDA)
 
         return calcularAniosActivo() +
                 (exitosas / 2.0) +
@@ -129,7 +129,7 @@ interface Rol {
 
 class Comandante : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
-        val misionesExitosas = tripulante.cantidadMisiones(EstadoMision.COMPLETADA)
+        val misionesExitosas = tripulante.cantidadMisionesPor(EstadoMision.COMPLETADA)
         return (tripulante.salarioBase * 0.50) + (tripulante.salarioBase * 0.05 * misionesExitosas)
     }
 }
@@ -167,7 +167,7 @@ class Cientifico : Rol {
 
 class Medico : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
-        val misionesFallidas = tripulante.cantidadMisiones(EstadoMision.FALLIDA)
+        val misionesFallidas = tripulante.cantidadMisionesPor(EstadoMision.FALLIDA)
         return (tripulante.salarioBase * 0.25) + (tripulante.salarioBase * 0.02 * misionesFallidas)
     }
 }
