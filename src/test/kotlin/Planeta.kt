@@ -1,9 +1,9 @@
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
-class PlanetaTest : FunSpec({
+class PlanetaTest : DescribeSpec({
 
     fun crearPlanetaBase(
         nombre: String = "Kepler",
@@ -25,79 +25,83 @@ class PlanetaTest : FunSpec({
         fechaDescubrimiento = LocalDate.of(2015, 7, 23),
         distanciaATierra = 1400.0,
     )
+    describe("Tests temperatura planeta") {
+        it("un planeta con temperatura entre 0 y 40 grados tiene temperatura ideal") {
+            val planetaConTemperaturaIdeal = crearPlanetaBase(temperaturaMedia = 25.0)
+            planetaConTemperaturaIdeal.tieneTemperaturaIdeal() shouldBe true
+        }
 
-    test("un planeta con temperatura entre 0 y 40 grados tiene temperatura ideal") {
-        val planetaConTemperaturaIdeal = crearPlanetaBase(temperaturaMedia = 25.0)
-        planetaConTemperaturaIdeal.tieneTemperaturaIdeal() shouldBe true
+        it("un planeta con temperatura fuera de rango NO tiene temperatura ideal") {
+            val planetaConTemperaturaAlta = crearPlanetaBase(temperaturaMedia = 45.0)
+            planetaConTemperaturaAlta.tieneTemperaturaIdeal() shouldBe false
+        }
     }
+    describe("Tests gravedad planeta") {
+        it("un planeta con gravedad entre 3 y 15 tiene gravedad soportable") {
+            val planetaConGravedadNormal = crearPlanetaBase(gravedad = 9.8)
+            planetaConGravedadNormal.gravedadSoportable() shouldBe true
+        }
 
-    test("un planeta con temperatura fuera de rango NO tiene temperatura ideal") {
-        val planetaConTemperaturaAlta = crearPlanetaBase(temperaturaMedia = 45.0)
-        planetaConTemperaturaAlta.tieneTemperaturaIdeal() shouldBe false
+        it("un planeta con gravedad menor a 3 NO tiene gravedad soportable") {
+            val planetaConGravedadBaja = crearPlanetaBase(nombre = "Mercurio", gravedad = 2.5)
+            planetaConGravedadBaja.gravedadSoportable() shouldBe false
+        }
     }
+    describe("Tests validaciones de creacion de planeta") {
+        it("no se puede crear un planeta con niveles de radiación, toxicidad o actividad tectónica fuera del rango 0-100") {
+            shouldThrow<AttributeException> {
+                crearPlanetaBase(
+                    nombre = "Krypton",
+                    gravedad = 45.0,
+                    nivelRadiacion = -5,
+                    toxicidadAtmosferica = -5,
+                    actividadTectonica = -5
+                )
+            }
+        }
 
-    test("un planeta con gravedad entre 3 y 15 tiene gravedad soportable") {
-        val planetaConGravedadNormal = crearPlanetaBase(gravedad = 9.8)
-        planetaConGravedadNormal.gravedadSoportable() shouldBe true
+        it("no se puede crear un planeta con nombre vacío") {
+            shouldThrow<AttributeException> {
+                crearPlanetaBase(nombre = "")
+            }
+        }
     }
-
-    test("un planeta con gravedad menor a 3 NO tiene gravedad soportable") {
-        val planetaConGravedadBaja = crearPlanetaBase(nombre = "Mercurio", gravedad = 2.5)
-        planetaConGravedadBaja.gravedadSoportable() shouldBe false
-    }
-
-    test("no se puede crear un planeta con niveles de radiación, toxicidad o actividad tectónica fuera del rango 0-100") {
-        shouldThrow<AttributeException>{
-            crearPlanetaBase(
-                nombre = "Krypton",
-                gravedad = 45.0,
-                nivelRadiacion = -5,
-                toxicidadAtmosferica = -5,
-                actividadTectonica = -5
+    describe("Tests planeta para que sea explorable") {
+        it("un planeta inhabitable tiene esHabitable en false") {
+            val planetaNoHabitable = crearPlanetaBase(
+                nombre = "Mercurio",
+                temperaturaMedia = 46.0,
+                gravedad = 1.5,
+                nivelRadiacion = 45,
+                hayAguaLiquida = false,
+                toxicidadAtmosferica = 45
             )
+            planetaNoHabitable.esHabitable() shouldBe false
         }
-    }
 
-    test("no se puede crear un planeta con nombre vacío") {
-        shouldThrow<AttributeException>{
-            crearPlanetaBase(nombre = "")
+        it("el índice de peligrosidad es el promedio de radiación, toxicidad y actividad tectónica") {
+            val planetaConIndiciosDePeligro = crearPlanetaBase(
+                nombre = "Mercurio",
+                gravedad = 2.5,
+                nivelRadiacion = 10,
+                hayAguaLiquida = false,
+                toxicidadAtmosferica = 10,
+                actividadTectonica = 10
+            )
+            planetaConIndiciosDePeligro.indiceDePeligrosidad() shouldBe 10.0
         }
-    }
 
-    test("un planeta inhabitable tiene esHabitable en false") {
-        val planetaNoHabitable = crearPlanetaBase(
-            nombre = "Mercurio",
-            temperaturaMedia = 46.0,
-            gravedad = 1.5,
-            nivelRadiacion = 45,
-            hayAguaLiquida = false,
-            toxicidadAtmosferica = 45
-        )
-        planetaNoHabitable.esHabitable() shouldBe false
-    }
-
-    test("el índice de peligrosidad es el promedio de radiación, toxicidad y actividad tectónica") {
-        val planetaConIndiciosDePeligro = crearPlanetaBase(
-            nombre = "Mercurio",
-            gravedad = 2.5,
-            nivelRadiacion = 10,
-            hayAguaLiquida = false,
-            toxicidadAtmosferica = 10,
-            actividadTectonica = 10
-        )
-        planetaConIndiciosDePeligro.indiceDePeligrosidad() shouldBe 10.0
-    }
-
-    test("un planeta no habitable con índice de peligrosidad menor a 60 es explorable") {
-        val planetaExplorable = crearPlanetaBase(
-            nombre = "Mercurio",
-            temperaturaMedia = 45.0,
-            gravedad = 2.5,
-            nivelRadiacion = 10,
-            hayAguaLiquida = false,
-            toxicidadAtmosferica = 10,
-            actividadTectonica = 90
-        )
-        planetaExplorable.esExplorable() shouldBe true
+        it("un planeta no habitable con índice de peligrosidad menor a 60 es explorable") {
+            val planetaExplorable = crearPlanetaBase(
+                nombre = "Mercurio",
+                temperaturaMedia = 45.0,
+                gravedad = 2.5,
+                nivelRadiacion = 10,
+                hayAguaLiquida = false,
+                toxicidadAtmosferica = 10,
+                actividadTectonica = 90
+            )
+            planetaExplorable.esExplorable() shouldBe true
+        }
     }
 })

@@ -1,8 +1,5 @@
 import java.time.LocalDate
 
-const val IDA_Y_VUELTA = 2
-const val DURACION_DE_ALTO_RIESGO = 500
-
 private enum class MensajesDeError(val mensaje: String) {
     NOMBRE_INVALIDO("El nombre no puede estar vacío"),
     NAVE_INVALIDA("Una mision necesita una nave"),
@@ -55,9 +52,9 @@ class Mision(
         misionFinalizada(EstadoMision.COMPLETADA)
     }
 
-    fun duracion(): Double = destino.distanciaATierra * 365 / this.nave.velPromedio * IDA_Y_VUELTA
+    fun duracion(): Double = destino.distanciaATierra * Config.DIAS_DEL_ANIO / this.nave.velPromedio * Config.IDA_Y_VUELTA
 
-    fun altoRiesgo(): Boolean = !destino.esHabitable() && duracion() > DURACION_DE_ALTO_RIESGO
+    fun altoRiesgo(): Boolean = !destino.esHabitable() && duracion() > Config.DURACION_DE_ALTO_RIESGO
 
     fun sumarTripulacion(tripulacion: List<Tripulante>) {
         val nuevaTripulacion = this.tripulantes + tripulacion

@@ -45,10 +45,10 @@ abstract class Nave(
 
     fun antiguedad(): Int = Period.between(fechaFabricacion, LocalDate.now()).years
 
-    fun esModerna(): Boolean = antiguedad() < 5
+    fun esModerna(): Boolean = antiguedad() < Config.MAX_NAVE_MODERNA
 
     fun tiempoDeViaje(distancia: Double): Double {
-        return (distancia * 365) / velPromedio * 2
+        return (distancia * Config.DIAS_DEL_ANIO) / velPromedio * 2
     }
     fun puedeAlcanzar(distancia: Double): Boolean {
         return tiempoDeViaje(distancia) <= autonomia
@@ -104,12 +104,12 @@ class Carguero(
     private fun validarCapacidadCarga() {
         Validaciones.validarMayorACero(capacidadTn, "La capacidad de carga no puede ser negativa")
     }
-    fun esAntigua(): Boolean = antiguedad() > 10
+    fun esAntigua(): Boolean = antiguedad() > Config.MAX_NAVE_MODERNA_CARGUERO
     fun consumoPorCarga(): Double =
         consumoBase + (consumoBase * 0.05 * capacidadTn)
 
     fun factorAntiguedad(): Double =
-        if (esAntigua()) 1.20 else 1.0
+        if (esAntigua()) Config.FACTOR_ANTIGUEDAD_CARGUERO else Config.FACTOR_MODERNO_CARGUERO
 
     override fun consumoPorAnioLuz(cantTripulantes: Int): Double {
         return consumoPorCarga() * factorAntiguedad()
