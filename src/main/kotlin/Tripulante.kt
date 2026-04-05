@@ -13,13 +13,13 @@ class Tripulante(
     val nombre: String,
     val apellido: String,
     val fechaNacimiento: LocalDate,
-    val fechaInicioActividad: LocalDate,
-    var salarioBase: Double,
-    var rol: Rol,
-    var perfilAptitud: PerfilAptitud,
+    val fechaInicioActividad: LocalDate = LocalDate.now(),
+    var salarioBase: Double = 0.0,
+    var rol: Rol = Piloto(),
+    var perfilAptitud: PerfilAptitud = Conformista(),
     var baseLanzamiento: BaseLanzamiento,
     val direccion: Direccion,
-    val distanciaMaxima: Double
+    val distanciaMaxima: Double = 0.0
 ) {
     private val _historialMisiones: MutableList<Mision> = mutableListOf()
     val historialMisiones: List<Mision> get() = _historialMisiones
