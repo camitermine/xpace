@@ -1,5 +1,14 @@
 import java.time.LocalDate
 
+private enum class MensajesDeErrorPlaneta(val mensaje: String) {
+    NOMBRE_INVALIDO("El nombre no puede estar vacío"),
+    NIVEL_RADIACION_INVALIDA("El nivel de radiación debe estar entre 0 y 100"),
+    TOXICIDAD_ATMOSFERICA_INVALIDA("La toxicidad atmosférica debe estar entre 0 y 100"),
+    ACTIVIDAD_TECTONICA_INVALIDA("La actividad tectónica debe estar entre 0 y 100"),
+    GRAVEDAD_INVALIDA("La gravedad debe ser mayor a "),
+    RADIO_KM_INVALIDO("El tamaño (radio) debe ser mayor a 0")
+}
+
 class Planeta (val nombre: String,
                val temperaturaMedia: Double,
                val gravedad: Double,
@@ -12,11 +21,19 @@ class Planeta (val nombre: String,
                val distanciaATierra: Double,
                var fueAterrizado: Boolean)
 {
+    private fun validarConstruccion() {
+
+        Validaciones.validarNoVacio(nombre, MensajesDeErrorPlaneta.NOMBRE_INVALIDO.mensaje)
+        Validaciones.validarEntre0y100(nivelRadiacion,MensajesDeErrorPlaneta.NIVEL_RADIACION_INVALIDA.mensaje)
+        Validaciones.validarEntre0y100(toxicidadAtmosferica,MensajesDeErrorPlaneta.TOXICIDAD_ATMOSFERICA_INVALIDA.mensaje)
+        Validaciones.validarEntre0y100(actividadTectonica,MensajesDeErrorPlaneta.ACTIVIDAD_TECTONICA_INVALIDA.mensaje)
+        Validaciones.validarMayorACero( gravedad,MensajesDeErrorPlaneta.GRAVEDAD_INVALIDA.mensaje )
+        Validaciones.validarMayorACero(radioKm,MensajesDeErrorPlaneta.RADIO_KM_INVALIDO.mensaje)
+
+    }
+
     init {
-        require(nombre.isNotBlank()) { "El nombre no debe estar vacío" }
-        require(nivelRadiacion in 0..100) {"El valor debe estar entre cero y cien"}
-        require(toxicidadAtmosferica in 0..100) {"El valor debe estar entre cero y cien"}
-        require(actividadTectonica in 0..100) {"El valor debe estar entre cero y cien"}
+        validarConstruccion()
     }
 
     fun tieneTemperaturaIdeal(): Boolean {
@@ -28,7 +45,7 @@ class Planeta (val nombre: String,
     }
 
     fun indiceDePeligrosidad(): Double {
-        return (nivelRadiacion + toxicidadAtmosferica + actividadTectonica).toDouble() /3
+        return (nivelRadiacion + toxicidadAtmosferica + actividadTectonica).toDouble() / 3
     }
 
     fun esHabitable(): Boolean {
@@ -38,5 +55,4 @@ class Planeta (val nombre: String,
     fun esExplorable(): Boolean {
         return !esHabitable() && indiceDePeligrosidad() < 60.0
     }
-
 }

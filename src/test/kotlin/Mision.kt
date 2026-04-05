@@ -1,12 +1,26 @@
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import java.awt.geom.Point2D
+import org.uqbar.geodds.Point
 import java.time.LocalDate
 
 class MisionSpec : DescribeSpec({
 
     describe("estados de la misión") {
+        fun crearPilotoJohnCena(base: BaseLanzamiento) = Tripulante(
+            nombre = "John",
+            apellido = "Cena",
+            fechaNacimiento = LocalDate.now().minusYears(30),
+            fechaInicioActividad = LocalDate.now().minusYears(10),
+            salarioBase = 100000.0,
+            rol = Piloto(),
+            perfilAptitud = Conformista(),
+            baseLanzamiento = base,
+            distanciaMaxima = 1.0,
+            direccion  = Direccion("Argentina", "Buenos Aires", "Falsa",
+                "123", Point(0.0, 0.0))
+
+        )
 
         fun crearBase() = BaseLanzamiento(
             nombre = "Base Test",
@@ -15,7 +29,7 @@ class MisionSpec : DescribeSpec({
                 ciudad = "Buenos Aires",
                 calle = "Calle Falsa",
                 altura = "123",
-                ubicacion = Point2D.Double(0.0, 0.0)
+                ubicacion = Point(0.0, 0.0)
             ),
             capacidadMaximaNaves = 5
         )
@@ -70,19 +84,34 @@ class MisionSpec : DescribeSpec({
             nave: Nave,
             planeta: Planeta,
             tripulantes: List<Tripulante> = emptyList()
-        ) = Mision(
-            "MISION 001",
-            "",
-            LocalDate.now().plusDays(1),
-            nave,
-            planeta,
-            tripulantes
-        )
+        ): Mision {
+            val m = Mision(
+                "MISION 001",
+                "",
+                LocalDate.now().plusDays(1),
+                nave,
+                planeta,
+            )
+            if (tripulantes.isNotEmpty()) m.sumarTripulacion(tripulantes)
+            return m
+        }
+
+        it("no permite lanzar con tripulacion inadecuada") {
+            val sonda = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(sonda, planetaHabitable)
+            val tripulacion = listOf<Tripulante>(crearPilotoJohnCena(crearBase()))
+
+            shouldThrow<ErrorDeMision> {
+                mision.sumarTripulacion(tripulacion)
+                mision.lanzar()
+            }
+        }
 
         it("no permite lanzar una misión ya finalizada") {
             val nave = crearSonda()
-            val planeta = crearPlanetaHabitable()
-            val mision = crearMision(nave, planeta)
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(nave, planetaHabitable)
 
             mision.lanzar()
             mision.cancelar()
@@ -92,10 +121,10 @@ class MisionSpec : DescribeSpec({
             }
         }
 
-        it("cancela una misión") {
+        it("cancela una misión en curso correctamente") {
             val nave = crearSonda()
-            val planeta = crearPlanetaHabitable()
-            val mision = crearMision(nave, planeta)
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(nave, planetaHabitable)
 
             mision.lanzar()
             mision.cancelar()
@@ -103,10 +132,62 @@ class MisionSpec : DescribeSpec({
             mision.estado shouldBe EstadoMision.CANCELADA
         }
 
+        it("no permite cancelar una misión que no está en curso") {
+            val nave = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val misionEnBorrador = crearMision(nave, planetaHabitable)
+
+            shouldThrow<ErrorDeMision> {
+                misionEnBorrador.cancelar()
+            }
+        }
+
+        it("completa una misión en curso correctamente") {
+            val nave = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(nave, planetaHabitable)
+
+            mision.lanzar()
+            mision.completar()
+
+            mision.estado shouldBe EstadoMision.COMPLETADA
+        }
+
+        it("no permite completar una misión que no está en curso") {
+            val nave = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val misionEnBorrador = crearMision(nave, planetaHabitable)
+
+            shouldThrow<ErrorDeMision> {
+                misionEnBorrador.completar()
+            }
+        }
+
+        it("registra fallo de una misión en curso correctamente") {
+            val nave = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(nave, planetaHabitable)
+
+            mision.lanzar()
+            mision.fallo()
+
+            mision.estado shouldBe EstadoMision.FALLIDA
+        }
+
+        it("no permite registrar fallo de una misión que no está en curso") {
+            val nave = crearSonda()
+            val planetaHabitable = crearPlanetaHabitable()
+            val misionEnBorrador = crearMision(nave, planetaHabitable)
+
+            shouldThrow<ErrorDeMision> {
+                misionEnBorrador.fallo()
+            }
+        }
+
         it("asigna la nave a la misión al lanzarla") {
             val nave = crearSonda()
-            val planeta = crearPlanetaHabitable()
-            val mision = crearMision(nave, planeta)
+            val planetaHabitable = crearPlanetaHabitable()
+            val mision = crearMision(nave, planetaHabitable)
 
             mision.lanzar()
 
@@ -115,29 +196,31 @@ class MisionSpec : DescribeSpec({
 
         it("detecta misión de alto riesgo") {
             val nave = crearTransbordador()
-            val planeta = crearPlanetaNoHabitable()
-            val mision = crearMision(nave, planeta)
+            val planetaNoHabitable = crearPlanetaNoHabitable()
+            val mision = crearMision(nave, planetaNoHabitable)
 
             mision.altoRiesgo() shouldBe true
         }
-
         it("agrega misión al historial del tripulante si se cancela una de alto riesgo") {
             val base = crearBase()
             val johnCena = Tripulante(
                 nombre = "John",
                 apellido = "Cena",
-                fechaNacimiento = LocalDate.now().minusDays(15),
-                fechaInicioActividad = LocalDate.now(),
+                fechaNacimiento = LocalDate.now().minusYears(30),
+                fechaInicioActividad = LocalDate.now().minusYears(10),
                 salarioBase = 100000.0,
                 rol = Piloto(),
                 perfilAptitud = Conformista(),
                 baseLanzamiento = base,
-                ubicacionGeografica = Point2D.Double(0.0, 0.0)
+                distanciaMaxima = 0.1,
+                direccion = Direccion("Argentina", "Buenos Aires", "Falsa",
+                    "123", Point(0.0, 0.0))
             )
 
             val nave = crearTransbordador()
-            val planeta = crearPlanetaNoHabitable()
-            val mision = crearMision(nave, planeta, listOf(johnCena))
+            base.estacionar(nave)
+            val planetaNoHabitable = crearPlanetaNoHabitable()
+            val mision = crearMision(nave, planetaNoHabitable, listOf(johnCena))
 
             mision.lanzar()
             mision.cancelar()

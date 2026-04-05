@@ -1,9 +1,12 @@
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.assertions.throwables.shouldThrow
 import java.time.LocalDate
 
 class NaveTest : DescribeSpec({
+
+    isolationMode = IsolationMode.InstancePerTest
 
     describe("Sonda") {
 
@@ -18,6 +21,13 @@ class NaveTest : DescribeSpec({
             )
 
             sonda.consumoPorAnioLuz(0) shouldBe 1000.0
+        }
+
+        it("sonda solo permite 0 tripulantes") {
+            val sonda = Sonda("V", 1, LocalDate.now(), 10.0, 100, 10.0)
+
+            sonda.puedeTransportar(0) shouldBe true
+            sonda.puedeTransportar(1) shouldBe false
         }
 
         it("no tiene capacidad de tripulantes") {
@@ -49,15 +59,17 @@ class NaveTest : DescribeSpec({
             nave.consumoPorAnioLuz(4) shouldBe 1400.0
         }
 
-        it("falla si supera capacidad") {
-            shouldThrow<IllegalArgumentException> {
+        it("falla si supera capacidad de tripulantes") {
+            val exception =shouldThrow<BusinessException> {
                 nave.consumoPorAnioLuz(25)
             }
+            exception.message shouldBe "Excede la capacidad de la nave"
         }
 
-        it("funciona en el límite de capacidad") {
+        it("funciona en el límite de capacidad de tripulantes") {
             nave.consumoPorAnioLuz(20) shouldBe 3000.0
         }
+
     }
 
     describe("Carguero") {
@@ -106,6 +118,12 @@ class NaveTest : DescribeSpec({
             nave.puedeAlcanzar(2.0) shouldBe true
         }
 
+        it("puede alcanzar justo en el límite") {
+            val nave = Sonda("V", 1, LocalDate.now(), 10.0, 292, 5.0)
+
+            nave.puedeAlcanzar(2.0) shouldBe true
+        }
+
         it("no puede alcanzar destino si autonomía no alcanza") {
             val nave = Sonda(
                 "Voyager",
@@ -119,11 +137,28 @@ class NaveTest : DescribeSpec({
             nave.puedeAlcanzar(2.0) shouldBe false
         }
     }
+    describe("Validaciones de transporte en Nave") {
+
+        val nave = Transbordador(
+            "Endeavour",
+            2,
+            LocalDate.of(2018, 1, 1),
+            1000.0,
+            400,
+            5.0
+        )
+
+        it("no permite tripulación negativa") {
+            shouldThrow<AttributeException> {
+                nave.puedeTransportar(-1)
+            }
+        }
+    }
 
     describe("Validaciones") {
 
         it("no permite nombre vacío") {
-            shouldThrow<IllegalArgumentException> {
+            shouldThrow<AttributeException> {
                 Sonda(
                     "",
                     1,
@@ -135,8 +170,16 @@ class NaveTest : DescribeSpec({
             }
         }
 
+        it("mensaje correcto en nombre vacío") {
+            val exception = shouldThrow<AttributeException> {
+                Sonda("", 1, LocalDate.now(), 10.0, 100, 50.0)
+            }
+
+            exception.message shouldBe "El nombre no puede estar vacío"
+        }
+
         it("no permite consumo negativo") {
-            shouldThrow<IllegalArgumentException> {
+            shouldThrow<AttributeException> {
                 Sonda(
                     "Test",
                     1,
@@ -144,6 +187,25 @@ class NaveTest : DescribeSpec({
                     -100.0,
                     300,
                     5.0
+                )
+            }
+        }
+        it("no permite velocidad negativa") {
+            shouldThrow<AttributeException> {
+                Sonda("Test", 1, LocalDate.now(), 10.0, 100, -5.0)
+            }
+        }
+
+        it("no permite capacidad de carga negativa") {
+            shouldThrow<AttributeException> {
+                Carguero(
+                    "Error",
+                    7,
+                    LocalDate.of(2022, 1, 1),
+                    1000.0,
+                    300,
+                    5.0,
+                    -10.0
                 )
             }
         }

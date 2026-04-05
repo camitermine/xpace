@@ -1,12 +1,4 @@
-import java.awt.geom.Point2D
-
-data class Direccion(
-    val pais: String,
-    val ciudad: String,
-    val calle: String,
-    val altura: String,
-    val ubicacion: Point2D.Double
-)
+import org.uqbar.geodds.Point
 
 class BaseLanzamiento(
     val nombre: String,
@@ -15,11 +7,14 @@ class BaseLanzamiento(
 ) {
     val navesEstacionadas: MutableList<Nave> = mutableListOf()
 
-    val ubicacionGeografica: Point2D.Double
+    val ubicacionGeografica: Point
         get() = direccion.ubicacion
 
     fun estacionar(nave: Nave) {
-        require(navesEstacionadas.size < capacidadMaximaNaves) { "La base no tiene capacidad para más naves" }
+        Validaciones.validarReglaNegocio(
+            navesEstacionadas.size < capacidadMaximaNaves,
+            "La base no tiene capacidad para más naves"
+        )
         navesEstacionadas.add(nave)
     }
 

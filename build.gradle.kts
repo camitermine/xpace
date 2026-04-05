@@ -27,6 +27,7 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    implementation("org.uqbar-project:geodds-xtend:1.0.3")
 }
 
 tasks.withType<KotlinCompile> {

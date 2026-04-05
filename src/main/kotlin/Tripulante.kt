@@ -1,6 +1,13 @@
-import java.awt.geom.Point2D
+import org.uqbar.geodds.Point
 import java.time.LocalDate
 import java.time.Period
+
+private enum class MensajesDeErrorTripulante(val mensaje: String) {
+
+    NOMBRE_INVALIDO("El nombre no puede estar vacío"),
+    APELLIDO_INVALIDO("El apellido no puede estar vacio"),
+    FECHA_NACIMIENTO_INVALIDA("La fecha de nacimiento debe ser anterior a hoy")
+}
 
 class Tripulante(
     val nombre: String,
@@ -11,17 +18,25 @@ class Tripulante(
     var rol: Rol,
     var perfilAptitud: PerfilAptitud,
     var baseLanzamiento: BaseLanzamiento,
-    val ubicacionGeografica: Point2D.Double
+    val direccion: Direccion,
+    val distanciaMaxima: Double
 ) {
-    val historialMisiones: MutableCollection<Mision> = mutableListOf()
+    private val _historialMisiones: MutableList<Mision> = mutableListOf()
+    val historialMisiones: List<Mision> get() = _historialMisiones
+
+    private fun validarConstruccion() {
+
+        Validaciones.validarNoVacio(nombre, MensajesDeErrorTripulante.NOMBRE_INVALIDO.mensaje)
+        Validaciones.validarNoVacio(apellido,MensajesDeErrorTripulante.APELLIDO_INVALIDO.mensaje)
+        Validaciones.validarFechaAnteriorAHoy(fechaNacimiento, MensajesDeErrorTripulante.FECHA_NACIMIENTO_INVALIDA.mensaje)
+    }
 
     init {
-        require(nombre.isNotBlank()) { "El nombre no debe estar vacío" }
-        require(apellido.isNotBlank()) { "El apellido no debe estar vacío" }
-        require(fechaNacimiento.isBefore(LocalDate.now())) { "La fecha de nacimiento debe ser anterior a hoy" }
+        validarConstruccion()
     }
+
     fun agregarMision(mision: Mision) {
-        historialMisiones.add(mision)
+        _historialMisiones.add(mision)
     }
 
     fun calcularEdad(): Int {
@@ -33,7 +48,6 @@ class Tripulante(
     }
 
     fun cantidadMisiones(estado: EstadoMision): Int {
-        // Filtramos las misiones basándonos en el estado que tenga cada objeto Mision
         return historialMisiones.count { it.estado == estado }
     }
 
@@ -61,14 +75,13 @@ class Tripulante(
         return cumpleCondicionesBase() && perfilAptitud.aceptaMision(mision)
     }
 
-
     fun calcularSalarioTotal(): Double {
         return salarioBase + rol.calcularBonus(this)
     }
 
-    fun consideraBaseCercana(base: BaseLanzamiento, distanciaMaxima: Double): Boolean {
-        val distancia = this.ubicacionGeografica.distance(base.ubicacionGeografica)
-        return distancia <= distanciaMaxima
+    fun consideraUbicacionCercana(ubicacionDeOtraDireccion: Point): Boolean {
+        return this.distanciaMaxima >= this.direccion.calcularDistancia(ubicacionDeOtraDireccion)
+
     }
 }
 
@@ -106,7 +119,7 @@ class Cauteloso(val umbralRadiacionMaximo: Double) : PerfilAptitud {
 
 class Exigente : PerfilAptitud {
     override fun aceptaMision(mision: Mision): Boolean {
-        return mision.nave.antiguedad() < 5
+        return mision.nave.esModerna()
     }
 }
 
@@ -132,7 +145,6 @@ class Ingeniero : Rol {
         val ultimaCompletada = tripulante.historialMisiones
             .lastOrNull { it.estado == EstadoMision.COMPLETADA }
 
-        // En Kotlin usamos 'is' para saber si una clase hereda de otra
         return if (ultimaCompletada != null && ultimaCompletada.nave is Carguero) {
             tripulante.salarioBase * 0.40
         } else {
@@ -145,7 +157,7 @@ class Cientifico : Rol {
     override fun calcularBonus(tripulante: Tripulante): Double {
         val cantidadPlanetasAterrizados = tripulante.historialMisiones
             .filter { it.estado == EstadoMision.COMPLETADA }
-            .map { it.destino } // En Mision se llama destino
+            .map { it.destino }
             .distinct()
             .count()
 
