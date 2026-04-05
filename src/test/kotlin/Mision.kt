@@ -11,15 +11,9 @@ class MisionSpec : DescribeSpec({
             nombre = "John",
             apellido = "Cena",
             fechaNacimiento = LocalDate.now().minusYears(30),
-            fechaInicioActividad = LocalDate.now().minusYears(10),
-            salarioBase = 100000.0,
-            rol = Piloto(),
-            perfilAptitud = Conformista(),
             baseLanzamiento = base,
+            direccion = Direccion("Argentina", "Buenos Aires", "Falsa", "123", Point(0.0, 0.0)),
             distanciaMaxima = 1.0,
-            direccion  = Direccion("Argentina", "Buenos Aires", "Falsa",
-                "123", Point(0.0, 0.0))
-
         )
 
         fun crearBase() = BaseLanzamiento(
@@ -53,31 +47,25 @@ class MisionSpec : DescribeSpec({
         )
 
         fun crearPlanetaHabitable() = Planeta(
-            "Kepler",
-            25.0,
-            9.8,
-            40,
-            true,
-            20,
-            10,
-            6000.0,
-            LocalDate.of(2015, 7, 23),
-            1400.0,
-            false
+            nombre = "Kepler",
+            temperaturaMedia = 25.0,
+            nivelRadiacion = 40,
+            hayAguaLiquida = true,
+            toxicidadAtmosferica = 20,
+            actividadTectonica = 10,
+            radioKm = 6000.0,
+            distanciaATierra = 1400.0,
         )
 
         fun crearPlanetaNoHabitable() = Planeta(
-            "Kepler",
-            25.0,
-            9.8,
-            40,
-            false,
-            20,
-            10,
-            6000.0,
-            LocalDate.of(2015, 7, 23),
-            1400.0,
-            false
+            nombre = "Kepler",
+            temperaturaMedia = 25.0,
+            nivelRadiacion = 40,
+            hayAguaLiquida = false,
+            toxicidadAtmosferica = 20,
+            actividadTectonica = 10,
+            radioKm = 6000.0,
+            distanciaATierra = 1400.0,
         )
 
         fun crearMision(
@@ -208,13 +196,9 @@ class MisionSpec : DescribeSpec({
                 apellido = "Cena",
                 fechaNacimiento = LocalDate.now().minusYears(30),
                 fechaInicioActividad = LocalDate.now().minusYears(10),
-                salarioBase = 100000.0,
-                rol = Piloto(),
-                perfilAptitud = Conformista(),
                 baseLanzamiento = base,
+                direccion = Direccion("Argentina", "Buenos Aires", "Falsa", "123", Point(0.0, 0.0)),
                 distanciaMaxima = 0.1,
-                direccion = Direccion("Argentina", "Buenos Aires", "Falsa",
-                    "123", Point(0.0, 0.0))
             )
 
             val nave = crearTransbordador()
