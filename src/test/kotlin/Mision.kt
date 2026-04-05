@@ -96,6 +96,15 @@ class MisionSpec : DescribeSpec({
             }
         }
 
+        it("no permite lanzar un transbordador sin tripulantes") {
+            val nave = crearTransbordador()
+            val mision = crearMision(nave, crearPlanetaHabitable())
+
+            shouldThrow<ErrorDeMision> {
+                mision.lanzar()
+            }
+        }
+
         it("no permite lanzar una misión ya finalizada") {
             val nave = crearSonda()
             val planetaHabitable = crearPlanetaHabitable()
