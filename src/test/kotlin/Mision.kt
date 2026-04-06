@@ -49,7 +49,7 @@ class MisionSpec : DescribeSpec({
         fun crearPlanetaHabitable() = Planeta(
             nombre = "Kepler",
             temperaturaMedia = 25.0,
-            nivelRadiacion = 40,
+            nivelRadiacion = 39,
             hayAguaLiquida = true,
             toxicidadAtmosferica = 20,
             actividadTectonica = 10,
@@ -198,6 +198,16 @@ class MisionSpec : DescribeSpec({
 
             mision.altoRiesgo() shouldBe true
         }
+        fun crearTripulanteExperimentado(base: BaseLanzamiento) = Tripulante(
+            nombre = "Jane",
+            apellido = "Doe",
+            fechaNacimiento = LocalDate.now().minusYears(30),
+            fechaInicioActividad = LocalDate.now().minusYears(5),
+            baseLanzamiento = base,
+            direccion = Direccion("Argentina", "Buenos Aires", "Falsa", "123", Point(0.0, 0.0)),
+            distanciaMaxima = 1.0,
+        )
+
         it("agrega misión al historial del tripulante si se cancela una de alto riesgo") {
             val base = crearBase()
             val johnCena = Tripulante(
@@ -219,6 +229,86 @@ class MisionSpec : DescribeSpec({
             mision.cancelar()
 
             johnCena.historialMisiones.last().estado shouldBe EstadoMision.CANCELADA
+        }
+
+        describe("alto riesgo") {
+            it("misión a planeta habitable no es de alto riesgo") {
+                val mision = crearMision(crearSonda(), crearPlanetaHabitable())
+                mision.altoRiesgo() shouldBe false
+            }
+        }
+
+        describe("efectos al finalizar la misión") {
+            it("el planeta queda marcado como aterrizado al completar") {
+                val planeta = crearPlanetaHabitable()
+                val mision = crearMision(crearSonda(), planeta)
+                mision.lanzar()
+                mision.completar()
+                planeta.fueAterrizado shouldBe true
+            }
+
+            it("la nave se libera al completar la misión") {
+                val nave = crearSonda()
+                val mision = crearMision(nave, crearPlanetaHabitable())
+                mision.lanzar()
+                mision.completar()
+                nave.misionAsignada shouldBe null
+            }
+
+            it("la nave se libera al fallar la misión") {
+                val nave = crearSonda()
+                val mision = crearMision(nave, crearPlanetaHabitable())
+                mision.lanzar()
+                mision.fallo()
+                nave.misionAsignada shouldBe null
+            }
+
+            it("los tripulantes suman una misión exitosa al completar") {
+                val base = crearBase()
+                val nave = crearTransbordador()
+                base.estacionar(nave)
+                val tripulante = crearTripulanteExperimentado(base)
+                val mision = crearMision(nave, crearPlanetaHabitable(), listOf(tripulante))
+                mision.lanzar()
+                mision.completar()
+                tripulante.cantidadMisionesPor(EstadoMision.COMPLETADA) shouldBe 1
+            }
+
+            it("los tripulantes suman una misión fracasada al fallar") {
+                val base = crearBase()
+                val nave = crearTransbordador()
+                base.estacionar(nave)
+                val tripulante = crearTripulanteExperimentado(base)
+                val mision = crearMision(nave, crearPlanetaHabitable(), listOf(tripulante))
+                mision.lanzar()
+                mision.fallo()
+                tripulante.cantidadMisionesPor(EstadoMision.FALLIDA) shouldBe 1
+            }
+
+            it("cancelar una misión sin alto riesgo no suma al historial del tripulante") {
+                val base = crearBase()
+                val nave = crearTransbordador()
+                base.estacionar(nave)
+                val tripulante = crearTripulanteExperimentado(base)
+                val mision = crearMision(nave, crearPlanetaHabitable(), listOf(tripulante))
+                mision.lanzar()
+                mision.cancelar()
+                tripulante.historialMisiones.isEmpty() shouldBe true
+            }
+        }
+
+        describe("validaciones de lanzamiento y creación") {
+            it("no permite lanzar si la nave no puede alcanzar el destino") {
+                val naveCortoAlcance = Sonda("Mini", 2, LocalDate.now(), 100.0, 1000, 1.0)
+                val mision = crearMision(naveCortoAlcance, crearPlanetaHabitable())
+                shouldThrow<ErrorDeMision> { mision.lanzar() }
+            }
+
+            it("no permite crear una misión con fecha de lanzamiento en el pasado") {
+                shouldThrow<AttributeException> {
+                    Mision("Test", "", LocalDate.now().minusDays(1), crearSonda(), crearPlanetaHabitable())
+                }
+            }
         }
     }
 })

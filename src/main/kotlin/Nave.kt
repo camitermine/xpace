@@ -80,9 +80,10 @@ class Sonda(
 }
 class Transbordador(
     nombre: String, codIdentif: Int, fechaFabricacion: LocalDate, consumoBase: Double,
-    autonomia: Int, velPromedio: Double
+    autonomia: Int, velPromedio: Double,
+    val capacidadMaxTripulantes: Int = 20
 ) : Nave(nombre, codIdentif, fechaFabricacion, consumoBase, autonomia, velPromedio) {
-    override val capacidadTripulantes: Int = 20
+    override val capacidadTripulantes: Int = capacidadMaxTripulantes
     override fun consumoPorAnioLuz(cantTripulantes: Int): Double {
         Validaciones.validarReglaNegocio(
             cantTripulantes <= capacidadTripulantes,
