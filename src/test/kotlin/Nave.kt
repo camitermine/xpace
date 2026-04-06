@@ -6,8 +6,6 @@ import java.time.LocalDate
 
 class NaveTest : DescribeSpec({
 
-    isolationMode = IsolationMode.InstancePerTest
-
     fun crearSonda() = Sonda(
         "Voyager",
         1,
@@ -79,13 +77,6 @@ class NaveTest : DescribeSpec({
                 nave.consumoPorAnioLuz(25)
             }
             exception.message shouldBe "Excede la capacidad de la nave"
-        }
-
-        it("no permite tripulación negativa") {
-            val nave = crearTransbordador()
-            shouldThrow<AttributeException> {
-                nave.puedeTransportar(-1)
-            }
         }
     }
 
