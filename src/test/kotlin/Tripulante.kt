@@ -123,6 +123,11 @@ class TripulanteTest :
         }
 
         describe("Cálculo de Experiencia y Años Activos") {
+            it("calcula correctamente la edad del tripulante") {
+                val tripulante = crearTripulante(fechaNacimiento = LocalDate.now().minusYears(25))
+                tripulante.calcularEdad() shouldBe 25
+            }
+
             it("calcula correctamente los años activo") {
                 val tripulante =
                     crearTripulante(fechaInicioActividad = LocalDate.now().minusYears(6))

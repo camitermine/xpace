@@ -104,4 +104,40 @@ class PlanetaTest : DescribeSpec({
             planetaExplorable.esExplorable() shouldBe true
         }
     }
+    describe("Tests planeta habitable") {
+        it("un planeta con todas las condiciones cumplidas es habitable") {
+            val planetaHabitable = crearPlanetaBase(
+                temperaturaMedia = 20.0,
+                gravedad = 9.8,
+                nivelRadiacion = 39,
+                hayAguaLiquida = true,
+                toxicidadAtmosferica = 29,
+                actividadTectonica = 10
+            )
+            planetaHabitable.esHabitable() shouldBe true
+        }
+
+        it("un planeta habitable no es explorable") {
+            val planetaHabitable = crearPlanetaBase(
+                temperaturaMedia = 20.0,
+                gravedad = 9.8,
+                nivelRadiacion = 39,
+                hayAguaLiquida = true,
+                toxicidadAtmosferica = 29,
+                actividadTectonica = 10
+            )
+            planetaHabitable.esExplorable() shouldBe false
+        }
+
+        it("un planeta no habitable con índice de peligrosidad >= 60 no es explorable") {
+            val planetaPeligroso = crearPlanetaBase(
+                temperaturaMedia = 100.0,
+                hayAguaLiquida = false,
+                nivelRadiacion = 80,
+                toxicidadAtmosferica = 80,
+                actividadTectonica = 80
+            )
+            planetaPeligroso.esExplorable() shouldBe false
+        }
+    }
 })

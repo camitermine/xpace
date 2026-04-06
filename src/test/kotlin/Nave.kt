@@ -130,6 +130,18 @@ class NaveTest : DescribeSpec({
         }
     }
 
+    describe("Modernidad") {
+        it("una nave fabricada hace 2 años es moderna") {
+            val nave = Sonda("V", 1, LocalDate.now().minusYears(2), 10.0, 100, 5.0)
+            nave.esModerna() shouldBe true
+        }
+
+        it("una nave fabricada hace 6 años no es moderna") {
+            val nave = Sonda("V", 1, LocalDate.now().minusYears(6), 10.0, 100, 5.0)
+            nave.esModerna() shouldBe false
+        }
+    }
+
     describe("Validaciones de transporte en Nave") {
 
         it("no permite tripulación negativa") {
