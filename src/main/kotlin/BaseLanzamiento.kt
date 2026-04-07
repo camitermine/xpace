@@ -15,6 +15,10 @@ class BaseLanzamiento(
             navesEstacionadas.size < capacidadMaximaNaves,
             "La base no tiene capacidad para más naves"
         )
+        Validaciones.validarReglaNegocio(
+            !this.tieneNaveEstacionada(nave),
+            "La nave ya está estacionada"
+        )
         navesEstacionadas.add(nave)
     }
 
