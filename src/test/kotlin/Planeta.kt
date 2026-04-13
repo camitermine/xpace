@@ -68,7 +68,18 @@ class PlanetaTest : DescribeSpec({
     }
 
     describe("Tests planeta indice de peligrosidad") {
-        it("un planeta con indice de peligrosidad menor al tope") {
+        it("el índice de peligrosidad es el promedio de radiación, toxicidad y actividad tectónica") {
+            val planetaConIndiciosDePeligro = crearPlanetaBase(
+                nivelRadiacion = 20,
+                toxicidadAtmosferica = 20,
+                actividadTectonica = 20
+            )
+            planetaConIndiciosDePeligro.indiceDePeligrosidad() shouldBe 20.0
+        }
+    }
+
+    describe("Tests planeta indice de peligrosidad menor al tope") {
+        it("un planeta con indice de peligrosidad menor al tope estipulado") {
             val planetaPeligrosidadMenor = crearPlanetaBase(
                 temperaturaMedia = 20.0,
                 gravedad = 9.8,
