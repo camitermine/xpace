@@ -1,27 +1,66 @@
 import java.time.LocalDate
 
+private enum class MensajesDeErrorPlaneta(val mensaje: String) {
+    NOMBRE_INVALIDO("El nombre no puede estar vacío"),
+    NIVEL_RADIACION_INVALIDA("El nivel de radiación debe estar entre 0 y 100"),
+    TOXICIDAD_ATMOSFERICA_INVALIDA("La toxicidad atmosférica debe estar entre 0 y 100"),
+    ACTIVIDAD_TECTONICA_INVALIDA("La actividad tectónica debe estar entre 0 y 100"),
+    GRAVEDAD_INVALIDA("La gravedad debe ser mayor a 0"),
+    RADIO_KM_INVALIDO("El tamaño (radio) debe ser mayor a 0")
+}
+
 class Planeta (val nombre: String,
-               val temperaturaMedia: Double,
-               val gravedad: Double,
-               nivelRadiacion: Int,
-               val hayAguaLiquida: Boolean,
-               toxicidadAtmosferica: Int,
-               actividadTectonica: Int,
-               val radioKm: Double,
-               val fechaDescubrimiento: LocalDate,
-               val distanciaATierra: Double,
-               var fueAterrizado: Boolean)
+               val temperaturaMedia: Double = 20.0,
+               val gravedad: Double = 9.8,
+               val nivelRadiacion: Int = 0,
+               val hayAguaLiquida: Boolean = false,
+               val toxicidadAtmosferica: Int = 0,
+               val actividadTectonica: Int = 0,
+               val radioKm: Double = 6371.0,
+               val fechaDescubrimiento: LocalDate = LocalDate.now(),
+               val distanciaATierra: Double = 0.0,
+               var fueAterrizado: Boolean = false)
 {
+    private fun validarConstruccion() {
+
+        Validaciones.validarNoVacio(nombre, MensajesDeErrorPlaneta.NOMBRE_INVALIDO.mensaje)
+        Validaciones.validarEntre0y100(nivelRadiacion,MensajesDeErrorPlaneta.NIVEL_RADIACION_INVALIDA.mensaje)
+        Validaciones.validarEntre0y100(toxicidadAtmosferica,MensajesDeErrorPlaneta.TOXICIDAD_ATMOSFERICA_INVALIDA.mensaje)
+        Validaciones.validarEntre0y100(actividadTectonica,MensajesDeErrorPlaneta.ACTIVIDAD_TECTONICA_INVALIDA.mensaje)
+        Validaciones.validarMayorACero( gravedad,MensajesDeErrorPlaneta.GRAVEDAD_INVALIDA.mensaje )
+        Validaciones.validarMayorACero(radioKm,MensajesDeErrorPlaneta.RADIO_KM_INVALIDO.mensaje)
+
+    }
+
     init {
-        require(nivelRadiacion in 0..100) {"El valor debe estar entre cero y cien"}
-        require(toxicidadAtmosferica in 0..100) {"El valor debe estar entre cero y cien"}
-        require(actividadTectonica in 0..100) {"El valor debe estar entre cero y cien"}
+        validarConstruccion()
     }
 
     fun tieneTemperaturaIdeal(): Boolean {
-        return temperaturaMedia >= 0 && temperaturaMedia <= 40
+        return temperaturaMedia in Config.TEMPERATURA_IDEAL_MIN_PLANETA..Config.TEMPERATURA_IDEAL_MAX_PLANETA
     }
+
     fun gravedadSoportable(): Boolean {
-        return gravedad >= 3 && gravedad <= 15
+        return gravedad in Config.GRAVEDAD_IDEAL_MIN_PLANETA..Config.GRAVEDAD_IDEAL_MAX_PLANETA
+    }
+
+    fun indiceDePeligrosidad(): Double {
+        return (nivelRadiacion + toxicidadAtmosferica + actividadTectonica).toDouble() / 3
+    }
+
+    fun indiceDePeligrosidadMenorATope(): Boolean {
+        return indiceDePeligrosidad() < Config.TOPE_INDICE_PELIG_EXPLORABLE
+    }
+
+    fun esHabitable(): Boolean {
+        return  tieneTemperaturaIdeal() &&
+                gravedadSoportable() &&
+                hayAguaLiquida &&
+                toxicidadAtmosferica < Config.TOPE_TOX_ATMOS_HABITABLE &&
+                nivelRadiacion < Config.TOPE_NIVEL_RAD_HABITABLE
+    }
+
+    fun esExplorable(): Boolean {
+        return !esHabitable() && indiceDePeligrosidadMenorATope()
     }
 }
