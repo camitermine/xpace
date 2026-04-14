@@ -1,8 +1,5 @@
 enum class EstadoMision {
-    BORRADOR,
-    COMPLETADA,
-    CANCELADA,
-    EN_CURSO,
-    FALLIDA,
+    EXITOSA,
+    PARCIALMENTE_EXITOSA,
+    FRACASADA
 }
-
