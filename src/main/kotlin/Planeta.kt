@@ -20,7 +20,8 @@ class Planeta (val nombre: String,
                val fechaDescubrimiento: LocalDate = LocalDate.now(),
                val distanciaATierra: Double = 0.0,
                var fueAterrizado: Boolean = false)
-{
+    : Entidad {
+    override var id: Int? = null
     private fun validarConstruccion() {
 
         Validaciones.validarNoVacio(nombre, MensajesDeErrorPlaneta.NOMBRE_INVALIDO.mensaje)
