@@ -5,7 +5,7 @@ private enum class MensajesDeErrorPlaneta(val mensaje: String) {
     NIVEL_RADIACION_INVALIDA("El nivel de radiación debe estar entre 0 y 100"),
     TOXICIDAD_ATMOSFERICA_INVALIDA("La toxicidad atmosférica debe estar entre 0 y 100"),
     ACTIVIDAD_TECTONICA_INVALIDA("La actividad tectónica debe estar entre 0 y 100"),
-    GRAVEDAD_INVALIDA("La gravedad debe ser mayor a "),
+    GRAVEDAD_INVALIDA("La gravedad debe ser mayor a 0"),
     RADIO_KM_INVALIDO("El tamaño (radio) debe ser mayor a 0")
 }
 
@@ -20,7 +20,8 @@ class Planeta (val nombre: String,
                val fechaDescubrimiento: LocalDate = LocalDate.now(),
                val distanciaATierra: Double = 0.0,
                var fueAterrizado: Boolean = false)
-{
+    : Entidad {
+    override var id: Int? = null
     private fun validarConstruccion() {
 
         Validaciones.validarNoVacio(nombre, MensajesDeErrorPlaneta.NOMBRE_INVALIDO.mensaje)
@@ -48,6 +49,10 @@ class Planeta (val nombre: String,
         return (nivelRadiacion + toxicidadAtmosferica + actividadTectonica).toDouble() / 3
     }
 
+    fun indiceDePeligrosidadMenorATope(): Boolean {
+        return indiceDePeligrosidad() < Config.TOPE_INDICE_PELIG_EXPLORABLE
+    }
+
     fun esHabitable(): Boolean {
         return  tieneTemperaturaIdeal() &&
                 gravedadSoportable() &&
@@ -57,6 +62,6 @@ class Planeta (val nombre: String,
     }
 
     fun esExplorable(): Boolean {
-        return !esHabitable() && indiceDePeligrosidad() < Config.TOPE_INDICE_PELIG_EXPLORABLE
+        return !esHabitable() && indiceDePeligrosidadMenorATope()
     }
 }

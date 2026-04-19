@@ -8,13 +8,23 @@ private enum class MensajesDeError(val mensaje: String) {
 }
 
 class Mision(
-    private val nombre: String,
-    private val descripcion: String,
-    private val fechaLanzamiento: LocalDate,
+    val nombre: String, // Ahora es publico (sin 'private') para que el Repositorio pueda buscar por nombre
+
+    val descripcion: String,
+    val fechaLanzamiento: LocalDate,
     val nave: Nave,
     val destino: Planeta,
-) {
-    private var tripulantes: List<Tripulante> = emptyList()
+) : Entidad {
+
+    // ---ENTREGA 2 ---
+    override var id: Int? = null
+
+    var subvencionAplicada: Subvencion? = null
+        private set
+    var precioCombustible: Double = 500.0
+    // -------------------------------------
+
+    var tripulantes: List<Tripulante> = emptyList()// saco private para que pase test
     var estado: EstadoMision = EstadoMision.BORRADOR
         private set
 
@@ -52,7 +62,8 @@ class Mision(
         misionFinalizada(EstadoMision.COMPLETADA)
     }
 
-    fun duracion(): Double = destino.distanciaATierra * Config.DIAS_DEL_ANIO / this.nave.velPromedio * Config.IDA_Y_VUELTA
+    fun duracion(): Double =
+        destino.distanciaATierra * Config.DIAS_DEL_ANIO / this.nave.velPromedio * Config.IDA_Y_VUELTA
 
     fun altoRiesgo(): Boolean = !destino.esHabitable() && duracion() > Config.DURACION_DE_ALTO_RIESGO
 
@@ -102,7 +113,31 @@ class Mision(
         if (!tripulanteInvalido.esAptoParaMision(this)) {
             throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
         }
+    }
+    // --- NUEVOS MÉTODOS (ENTREGA 2) ---
 
+    fun esApto(tripulante: Tripulante): Boolean {
+        return tripulante.perfilAptitud.aceptaMision(this, tripulante)
+    }
 
+    fun asignarSubvencion(subvencion: Subvencion) {
+        this.subvencionAplicada = subvencion
+    }
+
+    fun calcularPresupuestoFijo(): Double {
+        // Se calcula el consumo total basado en el viaje de ida y vuelta usando Config.IDA_Y_VUELTA
+        val consumoTotal = nave.consumoPorAnioLuz(tripulantes.size) * (destino.distanciaATierra * Config.IDA_Y_VUELTA)
+        val costoCombustible = consumoTotal * precioCombustible
+
+        // Costo salarial ajustado por la duración en meses (duración / 30 días)
+        val costoSalarial = tripulantes.sumOf { it.calcularSalarioTotal() } * (duracion() / 30.0)
+
+        var presupuesto = costoCombustible + costoSalarial
+
+        // Recargos
+        if (!destino.esHabitable()) presupuesto *= 1.20 // 20% de recargo por riesgo
+        if (!nave.esModerna()) presupuesto *= 1.10 // 10% de recargo por mantenimiento
+
+        return presupuesto
     }
 }

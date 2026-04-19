@@ -4,7 +4,8 @@ class BaseLanzamiento(
     val nombre: String,
     val direccion: Direccion,
     val capacidadMaximaNaves: Int
-) {
+) : Entidad {
+    override var id: Int? = null
     val navesEstacionadas: MutableList<Nave> = mutableListOf()
 
     val ubicacionGeografica: Point
@@ -14,6 +15,10 @@ class BaseLanzamiento(
         Validaciones.validarReglaNegocio(
             navesEstacionadas.size < capacidadMaximaNaves,
             "La base no tiene capacidad para más naves"
+        )
+        Validaciones.validarReglaNegocio(
+            !this.tieneNaveEstacionada(nave),
+            "La nave ya está estacionada"
         )
         navesEstacionadas.add(nave)
     }

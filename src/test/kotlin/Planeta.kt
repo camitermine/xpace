@@ -66,44 +66,46 @@ class PlanetaTest : DescribeSpec({
             }
         }
     }
-    describe("Tests planeta para que sea explorable") {
-        it("un planeta inhabitable tiene esHabitable en false") {
-            val planetaNoHabitable = crearPlanetaBase(
-                nombre = "Mercurio",
-                temperaturaMedia = 46.0,
-                gravedad = 1.5,
-                nivelRadiacion = 45,
-                hayAguaLiquida = false,
-                toxicidadAtmosferica = 45
-            )
-            planetaNoHabitable.esHabitable() shouldBe false
-        }
 
+    describe("Tests planeta indice de peligrosidad") {
         it("el índice de peligrosidad es el promedio de radiación, toxicidad y actividad tectónica") {
             val planetaConIndiciosDePeligro = crearPlanetaBase(
-                nombre = "Mercurio",
-                gravedad = 2.5,
-                nivelRadiacion = 10,
-                hayAguaLiquida = false,
-                toxicidadAtmosferica = 10,
-                actividadTectonica = 10
+                nivelRadiacion = 20,
+                toxicidadAtmosferica = 20,
+                actividadTectonica = 20
             )
-            planetaConIndiciosDePeligro.indiceDePeligrosidad() shouldBe 10.0
-        }
-
-        it("un planeta no habitable con índice de peligrosidad menor a 60 es explorable") {
-            val planetaExplorable = crearPlanetaBase(
-                nombre = "Mercurio",
-                temperaturaMedia = 45.0,
-                gravedad = 2.5,
-                nivelRadiacion = 10,
-                hayAguaLiquida = false,
-                toxicidadAtmosferica = 10,
-                actividadTectonica = 90
-            )
-            planetaExplorable.esExplorable() shouldBe true
+            planetaConIndiciosDePeligro.indiceDePeligrosidad() shouldBe 20.0
         }
     }
+
+    describe("Tests planeta indice de peligrosidad menor al tope") {
+        it("un planeta con indice de peligrosidad menor al tope estipulado") {
+            val planetaPeligrosidadMenor = crearPlanetaBase(
+                temperaturaMedia = 20.0,
+                gravedad = 9.8,
+                nivelRadiacion = 39,
+                hayAguaLiquida = true,
+                toxicidadAtmosferica = 29,
+                actividadTectonica = 10
+            )
+            planetaPeligrosidadMenor.indiceDePeligrosidadMenorATope() shouldBe true
+        }
+
+        it("un planeta con indice de peligrosidad mayor al tope") {
+            val planetaPeligrosidadMayor = crearPlanetaBase(
+                temperaturaMedia = 20.0,
+                gravedad = 9.8,
+                nivelRadiacion = 70,
+                hayAguaLiquida = true,
+                toxicidadAtmosferica = 65,
+                actividadTectonica = 80
+            )
+            planetaPeligrosidadMayor.indiceDePeligrosidadMenorATope() shouldBe false
+        }
+
+    }
+
+
     describe("Tests planeta habitable") {
         it("un planeta con todas las condiciones cumplidas es habitable") {
             val planetaHabitable = crearPlanetaBase(
@@ -117,8 +119,22 @@ class PlanetaTest : DescribeSpec({
             planetaHabitable.esHabitable() shouldBe true
         }
 
-        it("un planeta habitable no es explorable") {
+        it("un planeta que NO cumple con todas las condiciones, es NO habitable") {
             val planetaHabitable = crearPlanetaBase(
+                temperaturaMedia = 20.0,
+                gravedad = 20.0,
+                nivelRadiacion = 39,
+                hayAguaLiquida = false,
+                toxicidadAtmosferica = 29,
+                actividadTectonica = 10
+            )
+            planetaHabitable.esHabitable() shouldBe false
+        }
+    }
+
+    describe("Tests Planeta para que sea explorable") {
+        it("un planeta habitable no es explorable") {
+            val planetaNoExplorable = crearPlanetaBase(
                 temperaturaMedia = 20.0,
                 gravedad = 9.8,
                 nivelRadiacion = 39,
@@ -126,18 +142,33 @@ class PlanetaTest : DescribeSpec({
                 toxicidadAtmosferica = 29,
                 actividadTectonica = 10
             )
-            planetaHabitable.esExplorable() shouldBe false
+            planetaNoExplorable.esExplorable() shouldBe false
         }
 
-        it("un planeta no habitable con índice de peligrosidad >= 60 no es explorable") {
-            val planetaPeligroso = crearPlanetaBase(
-                temperaturaMedia = 100.0,
-                hayAguaLiquida = false,
-                nivelRadiacion = 80,
-                toxicidadAtmosferica = 80,
+        it("el índice de peligrosidad es mayor al tope, no es explorable") {
+            val planetaNoExplorablePorPeligrosidadMayor = crearPlanetaBase(
+                temperaturaMedia = 20.0,
+                gravedad = 9.8,
+                nivelRadiacion = 70,
+                hayAguaLiquida = true,
+                toxicidadAtmosferica = 65,
                 actividadTectonica = 80
             )
-            planetaPeligroso.esExplorable() shouldBe false
+            planetaNoExplorablePorPeligrosidadMayor.esExplorable() shouldBe false
         }
+
+        it("un planeta no habitable con índice de peligrosidad menor al tope, es explorable") {
+            val planetaExplorable = crearPlanetaBase(
+                nombre = "Mercurio",
+                temperaturaMedia = 45.0,
+                gravedad = 2.5,
+                nivelRadiacion = 10,
+                hayAguaLiquida = false,
+                toxicidadAtmosferica = 10,
+                actividadTectonica = 90
+            )
+            planetaExplorable.esExplorable() shouldBe true
+        }
+
     }
 })
