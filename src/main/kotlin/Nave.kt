@@ -13,7 +13,8 @@ private enum class MensajesDeErrorNave(val mensaje: String) {
 abstract class Nave(
     val nombre: String, val codIdentif: Int, val fechaFabricacion: LocalDate,
     val consumoBase: Double, val autonomia: Int, val velPromedio: Double
-) {
+) :Entidad {
+    override var id: Int? = null
     abstract val capacidadTripulantes: Int
 
     var misionAsignada: Mision? = null
