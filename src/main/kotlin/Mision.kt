@@ -8,23 +8,19 @@ private enum class MensajesDeError(val mensaje: String) {
 }
 
 class Mision(
-    val nombre: String, // Ahora es publico (sin 'private') para que el Repositorio pueda buscar por nombre
-
+    val nombre: String,
     val descripcion: String,
     val fechaLanzamiento: LocalDate,
     val nave: Nave,
     val destino: Planeta,
 ) : Entidad {
 
-    // ---ENTREGA 2 ---
     override var id: Int? = null
 
     var subvencionAplicada: Subvencion? = null
         private set
-    var precioCombustible: Double = 500.0
-    // -------------------------------------
 
-    var tripulantes: List<Tripulante> = emptyList()// saco private para que pase test
+    var tripulantes: List<Tripulante> = emptyList()
     var estado: EstadoMision = EstadoMision.BORRADOR
         private set
 
@@ -37,6 +33,7 @@ class Mision(
 
     init {
         validarConstruccion()
+        //prepararNave()
     }
 
     fun lanzar() {
@@ -96,9 +93,6 @@ class Mision(
     }
 
     private fun prepararTripulantes() {
-        if (nave.requiereTripulacion() && this.tripulantes.isEmpty()) {
-            throw ErrorDeMision("La nave requiere al menos un tripulante para ser lanzada")
-        }
         tripulacionAptaParaNave(this.tripulantes)
         if (this.tripulantes.isEmpty()) return
         val base = this.tripulantes.first().baseLanzamiento
@@ -125,18 +119,11 @@ class Mision(
     }
 
     fun calcularPresupuestoFijo(): Double {
-        // Se calcula el consumo total basado en el viaje de ida y vuelta usando Config.IDA_Y_VUELTA
-        val consumoTotal = nave.consumoPorAnioLuz(tripulantes.size) * (destino.distanciaATierra * Config.IDA_Y_VUELTA)
-        val costoCombustible = consumoTotal * precioCombustible
-
-        // Costo salarial ajustado por la duración en meses (duración / 30 días)
+        val costoCombustible = nave.consumoDeCombustible(this);
         val costoSalarial = tripulantes.sumOf { it.calcularSalarioTotal() } * (duracion() / 30.0)
-
         var presupuesto = costoCombustible + costoSalarial
-
-        // Recargos
-        if (!destino.esHabitable()) presupuesto *= 1.20 // 20% de recargo por riesgo
-        if (!nave.esModerna()) presupuesto *= 1.10 // 10% de recargo por mantenimiento
+        if (!destino.esHabitable()) presupuesto *= 1.20
+        if (!nave.esModerna()) presupuesto *= 1.10
 
         return presupuesto
     }
