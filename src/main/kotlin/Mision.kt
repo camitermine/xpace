@@ -33,7 +33,6 @@ class Mision(
 
     init {
         validarConstruccion()
-        //prepararNave()
     }
 
     fun lanzar() {
