@@ -55,12 +55,12 @@ abstract class Nave(
         return tiempoDeViaje(distancia) <= autonomia
     }
 
-    fun requiereTripulacion(): Boolean = capacidadTripulantes > 0
     open fun puedeTransportar(tripulacion: Int): Boolean {
         Validaciones.validarMayorOIgualACero(
             tripulacion,
             "La tripulación no puede ser negativa"
         )
+        if(capacidadTripulantes == 0) return tripulacion == 0
         return tripulacion in 1..capacidadTripulantes
     }
 }
