@@ -130,36 +130,37 @@ object Exigente : PerfilAptitud {
     override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
         return mision.nave.esModerna()
     }
-    // --- NUEVOS PERFILES ENTREGA 2 ---
+}
 
-    object Temerario : PerfilAptitud {
-        override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
-            // Asumiendo que Planeta tiene el método esHabitable() y Mision altoRiesgo()
-            return !mision.destino.esHabitable() || mision.altoRiesgo()
+// --- NUEVOS PERFILES ENTREGA 2 ---
+
+object Temerario : PerfilAptitud {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
+        // Asumiendo que Planeta tiene el método esHabitable() y Mision altoRiesgo()
+        return !mision.destino.esHabitable() || mision.altoRiesgo()
+    }
+}
+
+object Cambiante : PerfilAptitud {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
+        val edad = tripulante.calcularEdad()
+        return if (edad % 2 == 0) {
+            Temerario.aceptaMision(mision, tripulante)
+        } else {
+            Prudente.aceptaMision(mision, tripulante)
         }
     }
+}
 
-    object Cambiante : PerfilAptitud {
-        override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
-            val edad = tripulante.calcularEdad()
-            return if (edad % 2 == 0) {
-                Temerario.aceptaMision(mision, tripulante)
-            } else {
-                Prudente.aceptaMision(mision, tripulante)
-            }
-        }
+class PerfilCompuestoY(val perfiles: List<PerfilAptitud>) : PerfilAptitud {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
+        return perfiles.all { it.aceptaMision(mision, tripulante) }
     }
+}
 
-    class PerfilCompuestoY(val perfiles: List<PerfilAptitud>) : PerfilAptitud {
-        override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
-            return perfiles.all { it.aceptaMision(mision, tripulante) }
-        }
-    }
-
-    class PerfilCompuestoO(val perfiles: List<PerfilAptitud>) : PerfilAptitud {
-        override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
-            return perfiles.any { it.aceptaMision(mision, tripulante) }
-        }
+class PerfilCompuestoO(val perfiles: List<PerfilAptitud>) : PerfilAptitud {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
+        return perfiles.any { it.aceptaMision(mision, tripulante) }
     }
 }
 
