@@ -19,7 +19,6 @@ class Mision(
 
     var subvencionAplicada: Subvencion? = null
         private set
-    var precioCombustible: Double = 500.0
 
     var tripulantes: List<Tripulante> = emptyList()
     var estado: EstadoMision = EstadoMision.BORRADOR
@@ -34,6 +33,7 @@ class Mision(
 
     init {
         validarConstruccion()
+        prepararNave()
     }
 
     fun lanzar() {
@@ -119,9 +119,7 @@ class Mision(
     }
 
     fun calcularPresupuestoFijo(): Double {
-        val consumoTotal = nave.consumoPorAnioLuz(tripulantes.size) * (destino.distanciaATierra * Config.IDA_Y_VUELTA)
-        val costoCombustible = consumoTotal * precioCombustible
-
+        val costoCombustible = nave.consumoDeCombustible(this);
         val costoSalarial = tripulantes.sumOf { it.calcularSalarioTotal() } * (duracion() / 30.0)
         var presupuesto = costoCombustible + costoSalarial
         if (!destino.esHabitable()) presupuesto *= 1.20
