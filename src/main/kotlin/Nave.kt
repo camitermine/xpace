@@ -16,7 +16,7 @@ abstract class Nave(
 ) :Entidad {
     override var id: Int? = null
     abstract val capacidadTripulantes: Int
-
+    var precioCombustible: Double = 500.0
     var misionAsignada: Mision? = null
         private set
 
@@ -33,6 +33,10 @@ abstract class Nave(
     init {
         validarConstruccion()
     }
+    fun consumoDeCombustible(mision: Mision): Double {
+        val consumoTotal = consumoPorAnioLuz(mision.tripulantes.size) * (mision.destino.distanciaATierra * Config.IDA_Y_VUELTA)
+        return consumoTotal * precioCombustible
+    }
 
     abstract fun consumoPorAnioLuz(cantTripulantes: Int): Double
 
@@ -45,7 +49,6 @@ abstract class Nave(
     }
 
     fun antiguedad(): Int = Period.between(fechaFabricacion, LocalDate.now()).years
-
     fun esModerna(): Boolean = antiguedad() < Config.MAX_NAVE_MODERNA
 
     fun tiempoDeViaje(distancia: Double): Double {
@@ -55,12 +58,12 @@ abstract class Nave(
         return tiempoDeViaje(distancia) <= autonomia
     }
 
-    fun requiereTripulacion(): Boolean = capacidadTripulantes > 0
     open fun puedeTransportar(tripulacion: Int): Boolean {
         Validaciones.validarMayorOIgualACero(
             tripulacion,
             "La tripulación no puede ser negativa"
         )
+        if(capacidadTripulantes == 0) return tripulacion == 0
         return tripulacion in 1..capacidadTripulantes
     }
 }
