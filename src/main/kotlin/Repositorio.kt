@@ -90,8 +90,8 @@ class RepositorioNave : Repositorio<Nave>() {
 class RepositorioMision : Repositorio<Mision>() {
     override fun search(criterio: String): List<Mision> =
         getAll().filter {
-            it.nombre.contains(criterio, ignoreCase = true) ||
-            it.destino.nombre.contains(criterio, ignoreCase = true)
+            it.nombre.equals(criterio, ignoreCase = true) ||
+            it.destino.nombre.equals(criterio, ignoreCase = true)
         }
 }
 

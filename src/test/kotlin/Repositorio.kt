@@ -134,12 +134,14 @@ class RepositorioTest : DescribeSpec({
 
         beforeEach { repo = RepositorioMision() }
 
-        it("encuentra por nombre parcial de misión") {
+        it("encuentra por nombre exacto de misión") {
             val m1 = repo.create(mision("Exploración Alfa"))
-            val m2 = repo.create(mision("Exploración Beta"))
+            repo.create(mision("Exploración Beta"))
             repo.create(mision("Rescate Gamma"))
 
-            repo.search("Exploración") shouldContainAll listOf(m1, m2)
+            val resultado = repo.search("Exploración Alfa")
+            resultado shouldContain m1
+            resultado shouldHaveSize 1
         }
 
         it("encuentra por nombre del planeta destino") {
@@ -194,6 +196,20 @@ class RepositorioTest : DescribeSpec({
         it("no encuentra si el criterio aparece en el medio del nombre") {
             repo.create(subvencion("FondoSubespacial"))
             repo.search("Sub") shouldHaveSize 0
+        }
+    }
+
+    describe("RepositorioPlaneta - search por nombre parcial") {
+        lateinit var repo: RepositorioPlaneta
+
+        beforeEach { repo = RepositorioPlaneta() }
+
+        it("encuentra por coincidencia parcial en el nombre") {
+            val p1 = repo.create(planeta("Kepler-11b"))
+            val p2 = repo.create(planeta("Kepler-22b"))
+            repo.create(planeta("Gliese"))
+
+            repo.search("Kepler") shouldContainAll listOf(p1, p2)
         }
     }
 })
