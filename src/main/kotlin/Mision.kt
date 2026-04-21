@@ -126,4 +126,10 @@ class Mision(
 
         return presupuesto
     }
+
+    fun calcularPresupuesto(): Double {
+        val presupuestoFijo = calcularPresupuestoFijo()
+        val montoSubvencion = subvencionAplicada?.calcularMontoTotal(this) ?: 0.0
+        return presupuestoFijo - montoSubvencion
+    }
 }
