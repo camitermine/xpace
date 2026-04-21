@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "2.2.0"
+    kotlin("plugin.serialization") version "2.2.0"
     jacoco
 }
 
@@ -28,6 +29,8 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     implementation("org.uqbar-project:geodds-xtend:1.0.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+    testImplementation("org.assertj:assertj-core:3.25.3")
 }
 
 tasks.withType<KotlinCompile> {

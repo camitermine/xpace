@@ -1,3 +1,6 @@
+import kotlinx.serialization.json.Json
+
+
 abstract class Repositorio<T : Entidad> {
     private val elementos: MutableList<T> = mutableListOf()
     private var nextId = 1
@@ -38,9 +41,43 @@ class RepositorioTripulante : Repositorio<Tripulante>() {
         }
 }
 
+interface ServicePlaneta{
+    fun getPlanetas() : String
+}
+
 class RepositorioPlaneta : Repositorio<Planeta>() {
     override fun search(criterio: String): List<Planeta> =
         getAll().filter { it.nombre.contains(criterio, ignoreCase = true) }
+
+    fun guardarPlaneta( planetaDTO : PlanetaDTO ){
+        val planetaMapeado = Planeta (
+            nombre = planetaDTO.nombre,
+            temperaturaMedia  = planetaDTO.temperaturaMedia,
+            gravedad = planetaDTO.gravedad,
+            nivelRadiacion = planetaDTO.nivelRadiacion,
+            hayAguaLiquida = planetaDTO.hayAguaLiquida,
+            toxicidadAtmosferica = planetaDTO.toxicidadAtmosferica,
+            actividadTectonica = planetaDTO.actividadTectonica,
+            radioKm = planetaDTO.radioKm,
+            distanciaATierra = planetaDTO.distanciaATierra
+        )
+        planetaMapeado.id = planetaDTO.id
+
+        if (planetaDTO.id == null) {
+            create(planetaMapeado)
+        } else {
+            update(planetaMapeado)
+        }
+    }
+
+    fun importarPlanetas(service: ServicePlaneta){
+        val jsonString = service.getPlanetas() //mi conexion al servicio
+        val json = Json { ignoreUnknownKeys = true } // ignora lo que no quiero del Json
+        val planetasDTO : List<PlanetaDTO> = json.decodeFromString(jsonString)
+        planetasDTO.forEach { guardarPlaneta(it) }
+    }
+
+
 }
 
 class RepositorioNave : Repositorio<Nave>() {
