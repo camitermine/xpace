@@ -14,7 +14,14 @@ abstract class Nave(
     val nombre: String, val codIdentif: Int, val fechaFabricacion: LocalDate,
     val consumoBase: Double, val autonomia: Int, val velPromedio: Double
 ) :Entidad {
+
     override var id: Int? = null
+
+    override fun coincideCon(criterio: String): Boolean {
+        val codigo = criterio.toIntOrNull() ?: return false
+        return this.codIdentif == codigo
+    }
+
     abstract val capacidadTripulantes: Int
     var precioCombustible: Double = 500.0
     var misionAsignada: Mision? = null

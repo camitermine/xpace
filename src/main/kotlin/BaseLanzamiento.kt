@@ -5,7 +5,15 @@ class BaseLanzamiento(
     val direccion: Direccion,
     val capacidadMaximaNaves: Int
 ) : Entidad {
+
     override var id: Int? = null
+
+    override fun coincideCon(criterio: String): Boolean {
+        // La base busca por su nombre o por el país donde está ubicada
+        return nombre.contains(criterio, ignoreCase = true) ||
+                direccion.pais.equals(criterio, ignoreCase = true)
+    }
+
     val navesEstacionadas: MutableList<Nave> = mutableListOf()
 
     val ubicacionGeografica: Point

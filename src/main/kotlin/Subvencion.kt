@@ -6,7 +6,13 @@ abstract class Subvencion(
     val fechaEmision: LocalDate,
     val duracionDias: Int
 ) : Entidad {
+
     override var id: Int? = null
+
+    override fun coincideCon(criterio: String): Boolean {
+        return nombre.startsWith(criterio, ignoreCase = true)
+    }
+
     var estaAplicada: Boolean = false
         private set
 
