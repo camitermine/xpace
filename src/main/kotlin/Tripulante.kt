@@ -24,6 +24,11 @@ class Tripulante(
 
     override var id: Int? = null
 
+    override fun coincideCon(criterio: String): Boolean {
+        return nombre.contains(criterio, ignoreCase = true) ||
+                apellido.equals(criterio, ignoreCase = true)
+    }
+
     private val _historialMisiones: MutableList<Mision> = mutableListOf()
     val historialMisiones: List<Mision> get() = _historialMisiones
 
