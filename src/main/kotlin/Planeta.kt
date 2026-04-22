@@ -21,7 +21,13 @@ class Planeta (val nombre: String,
                val distanciaATierra: Double = 0.0,
                var fueAterrizado: Boolean = false)
     : Entidad {
+
     override var id: Int? = null
+
+    override fun coincideCon(criterio: String): Boolean {
+        return nombre.contains(criterio, ignoreCase = true)
+    }
+
     private fun validarConstruccion() {
 
         Validaciones.validarNoVacio(nombre, MensajesDeErrorPlaneta.NOMBRE_INVALIDO.mensaje)

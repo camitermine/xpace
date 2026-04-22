@@ -1,6 +1,5 @@
 import kotlinx.serialization.json.Json
 
-
 abstract class Repositorio<T : Entidad> {
     private val elementos: MutableList<T> = mutableListOf()
     private var nextId = 1
@@ -17,8 +16,8 @@ abstract class Repositorio<T : Entidad> {
 
     fun update(elemento: T): T {
         val id = elemento.id ?: throw ElementoSinIdException("El elemento no tiene id asignado")
-        val index = elementos.indexOfFirst { it.id == id }
-        if (index == -1) throw ElementoNoEncontradoException("No se encontró elemento con id $id para actualizar")
+        val elementoViejo = getById(id)
+        val index = elementos.indexOf(elementoViejo)
         elementos[index] = elemento
         return elemento
     }
@@ -30,29 +29,31 @@ abstract class Repositorio<T : Entidad> {
 
     fun getAll(): List<T> = elementos.toList()
 
-    abstract fun search(criterio: String): List<T>
+    fun search(criterio: String): List<T> {
+        // Filtramos directamente la lista privada (más rápido y eficiente)
+        return elementos.filter { it.coincideCon(criterio) }
+    }
 }
+class RepositorioTripulante : Repositorio<Tripulante>()
 
-class RepositorioTripulante : Repositorio<Tripulante>() {
-    override fun search(criterio: String): List<Tripulante> =
-        getAll().filter {
-            it.nombre.contains(criterio, ignoreCase = true) ||
-            it.apellido.equals(criterio, ignoreCase = true)
-        }
+class RepositorioNave : Repositorio<Nave>()
+
+class RepositorioMision : Repositorio<Mision>()
+
+class RepositorioBase : Repositorio<BaseLanzamiento>()
+
+class RepositorioSubvencion : Repositorio<Subvencion>()
+
+interface ServicePlaneta {
+    fun getPlanetas(): String
 }
-
-interface ServicePlaneta{
-    fun getPlanetas() : String
-}
-
 class RepositorioPlaneta : Repositorio<Planeta>() {
-    override fun search(criterio: String): List<Planeta> =
-        getAll().filter { it.nombre.contains(criterio, ignoreCase = true) }
+    // Hereda el search automáticamente, solo te quedas con tu lógica de API
 
-    fun guardarPlaneta( planetaDTO : PlanetaDTO ){
-        val planetaMapeado = Planeta (
+    fun guardarPlaneta(planetaDTO: PlanetaDTO) {
+        val planetaMapeado = Planeta(
             nombre = planetaDTO.nombre,
-            temperaturaMedia  = planetaDTO.temperaturaMedia,
+            temperaturaMedia = planetaDTO.temperaturaMedia,
             gravedad = planetaDTO.gravedad,
             nivelRadiacion = planetaDTO.nivelRadiacion,
             hayAguaLiquida = planetaDTO.hayAguaLiquida,
@@ -70,40 +71,11 @@ class RepositorioPlaneta : Repositorio<Planeta>() {
         }
     }
 
-    fun importarPlanetas(service: ServicePlaneta){
+    fun importarPlanetas(service: ServicePlaneta) {
         val jsonString = service.getPlanetas() //mi conexion al servicio
         val json = Json { ignoreUnknownKeys = true } // ignora lo que no quiero del Json
-        val planetasDTO : List<PlanetaDTO> = json.decodeFromString(jsonString)
+        val planetasDTO: List<PlanetaDTO> = json.decodeFromString(jsonString)
         planetasDTO.forEach { guardarPlaneta(it) }
     }
-
-
 }
 
-class RepositorioNave : Repositorio<Nave>() {
-    override fun search(criterio: String): List<Nave> {
-        val codigo = criterio.toIntOrNull() ?: return emptyList()
-        return getAll().filter { it.codIdentif == codigo }
-    }
-}
-
-class RepositorioMision : Repositorio<Mision>() {
-    override fun search(criterio: String): List<Mision> =
-        getAll().filter {
-            it.nombre.equals(criterio, ignoreCase = true) ||
-            it.destino.nombre.equals(criterio, ignoreCase = true)
-        }
-}
-
-class RepositorioBase : Repositorio<BaseLanzamiento>() {
-    override fun search(criterio: String): List<BaseLanzamiento> =
-        getAll().filter {
-            it.nombre.contains(criterio, ignoreCase = true) ||
-            it.direccion.pais.equals(criterio, ignoreCase = true)
-        }
-}
-
-class RepositorioSubvencion : Repositorio<Subvencion>() {
-    override fun search(criterio: String): List<Subvencion> =
-        getAll().filter { it.nombre.startsWith(criterio, ignoreCase = true) }
-}
