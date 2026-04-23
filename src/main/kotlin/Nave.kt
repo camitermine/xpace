@@ -21,7 +21,6 @@ abstract class Nave(
         val codigo = criterio.toIntOrNull() ?: return false
         return this.codIdentif == codigo
     }
-
     abstract val capacidadTripulantes: Int
     var precioCombustible: Double = 500.0
     var misionAsignada: Mision? = null
@@ -40,8 +39,9 @@ abstract class Nave(
     init {
         validarConstruccion()
     }
-    fun consumoDeCombustible(mision: Mision): Double {
-        val consumoTotal = consumoPorAnioLuz(mision.tripulantes.size) * (mision.destino.distanciaATierra * Config.IDA_Y_VUELTA)
+
+    fun consumoDeCombustible(distanciaIda: Double, cantTripulantes: Int): Double {
+        val consumoTotal = consumoPorAnioLuz(cantTripulantes) * (distanciaIda * Config.IDA_Y_VUELTA)
         return consumoTotal * precioCombustible
     }
 

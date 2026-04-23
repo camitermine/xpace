@@ -115,22 +115,28 @@ class Mision(
     }
     // --- NUEVOS MÉTODOS (ENTREGA 2) ---
 
-    fun esApto(tripulante: Tripulante): Boolean {
-        return tripulante.perfilAptitud.aceptaMision(this, tripulante)
-    }
-
     fun asignarSubvencion(subvencion: Subvencion) {
         this.subvencionAplicada = subvencion
     }
 
-    fun calcularPresupuestoFijo(): Double {
-        val costoCombustible = nave.consumoDeCombustible(this);
-        val costoSalarial = tripulantes.sumOf { it.calcularSalarioTotal() } * (duracion() / 30.0)
-        var presupuesto = costoCombustible + costoSalarial
-        if (!destino.esHabitable()) presupuesto *= 1.20
-        if (!nave.esModerna()) presupuesto *= 1.10
+    private fun calcularCostoCombustible(): Double {
+        return nave.consumoDeCombustible(destino.distanciaATierra, tripulantes.size)
+    }
 
-        return presupuesto
+    private fun calcularCostoSalarial(): Double {
+        val duracionEnMeses = duracion() / 30.0
+        return tripulantes.sumOf { it.calcularSalarioTotal() } * duracionEnMeses
+    }
+
+    private fun aplicarRecargos(montoBase: Double): Double {
+        var montoFinal = montoBase
+        if (!destino.esHabitable()) montoFinal *= 1.20
+        if (!nave.esModerna()) montoFinal *= 1.10
+        return montoFinal
+    }
+    fun calcularPresupuestoFijo(): Double {
+        val costoBase = calcularCostoCombustible() + calcularCostoSalarial()
+        return aplicarRecargos(costoBase)
     }
 
     fun calcularPresupuesto(): Double {
@@ -139,3 +145,8 @@ class Mision(
         return presupuestoFijo - montoSubvencion
     }
 }
+
+
+
+
+
