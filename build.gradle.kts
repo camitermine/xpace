@@ -29,7 +29,8 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     implementation("org.uqbar-project:geodds-xtend:1.0.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
     testImplementation("org.assertj:assertj-core:3.25.3")
 }
 
