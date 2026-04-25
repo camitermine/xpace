@@ -134,8 +134,6 @@ object Exigente : PerfilAptitud {
     }
 }
 
-// --- NUEVOS PERFILES ENTREGA 2 ---
-
 object Temerario : PerfilAptitud {
     override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
         return !mision.destino.esHabitable() || mision.altoRiesgo()

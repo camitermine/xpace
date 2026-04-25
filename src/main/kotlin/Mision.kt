@@ -18,7 +18,6 @@ class Mision(
     override var id: Int? = null
 
     override fun coincideCon(criterio: String): Boolean {
-        // La misión es más compleja: busca por su nombre exacto o por el nombre exacto de su planeta destino
         return nombre.equals(criterio, ignoreCase = true) ||
                 destino.nombre.equals(criterio, ignoreCase = true)
     }
@@ -113,7 +112,6 @@ class Mision(
             throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
         }
     }
-    // --- NUEVOS MÉTODOS (ENTREGA 2) ---
 
     fun asignarSubvencion(subvencion: Subvencion) {
         this.subvencionAplicada = subvencion

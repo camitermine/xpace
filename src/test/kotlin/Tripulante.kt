@@ -271,7 +271,7 @@ class TripulanteTest :
                 val planetaHabitableLejos = crearPlaneta(distanciaATierra = 50000.0, temperaturaMedia = 20.0, gravedad = 9.8, nivelRadiacion=0, toxicidadAtmosferica=0, hayAguaLiquida=true)
                 val naveLenta = crearTransbordador(velProm = 1.0)
                 val mision2 = crearMision(planeta = planetaHabitableLejos, nave = naveLenta)
-                experto.esAptoParaMision(mision2) shouldBe false // Habitable planets are never high-risk in current Mision logic
+                experto.esAptoParaMision(mision2) shouldBe false
 
                 val planetaSeguro = crearPlaneta(distanciaATierra = 1.0, temperaturaMedia = 20.0, gravedad = 9.8, nivelRadiacion=0, toxicidadAtmosferica=0, hayAguaLiquida=true)
                 val mision3 = crearMision(planeta = planetaSeguro)
@@ -279,7 +279,6 @@ class TripulanteTest :
             }
 
             it("Cambiante se comporta como Temerario si la edad es par y como Prudente si es impar") {
-                // Edad par
                 val tripulantePar = crearTripulante(fechaNacimiento = LocalDate.now().minusYears(20), fechaInicioActividad = LocalDate.now().minusYears(5))
                 tripulantePar.perfilAptitud = Cambiante
                 
@@ -287,7 +286,6 @@ class TripulanteTest :
                 val misionTemeraria = crearMision(planeta = planetaPeligroso)
                 tripulantePar.esAptoParaMision(misionTemeraria) shouldBe true
 
-                // Edad impar
                 val tripulanteImpar = crearTripulante(fechaNacimiento = LocalDate.now().minusYears(21), fechaInicioActividad = LocalDate.now().minusYears(5))
                 tripulanteImpar.perfilAptitud = Cambiante
                 tripulanteImpar.esAptoParaMision(misionTemeraria) shouldBe false

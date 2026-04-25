@@ -9,7 +9,6 @@ class BaseLanzamiento(
     override var id: Int? = null
 
     override fun coincideCon(criterio: String): Boolean {
-        // La base busca por su nombre o por el país donde está ubicada
         return nombre.contains(criterio, ignoreCase = true) ||
                 direccion.pais.equals(criterio, ignoreCase = true)
     }

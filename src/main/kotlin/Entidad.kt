@@ -1,5 +1,5 @@
 interface Entidad {
-    var id: Int?// NUEVO: Obligamos a toda entidad a saber cómo buscarse a sí misma
+    var id: Int?
     fun coincideCon(criterio: String): Boolean
 }
 
