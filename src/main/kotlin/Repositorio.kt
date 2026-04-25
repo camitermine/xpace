@@ -32,7 +32,6 @@ abstract class Repositorio<T : Entidad> {
     fun getAll(): List<T> = elementos.toList()
 
     fun search(criterio: String): List<T> {
-        // Filtramos directamente la lista privada (más rápido y eficiente)
         return elementos.filter { it.coincideCon(criterio) }
     }
 }
@@ -50,9 +49,8 @@ interface ServicePlaneta {
     fun getPlanetas(): String
 }
 class RepositorioPlaneta : Repositorio<Planeta>() {
-    // Hereda el search automáticamente, solo te quedas con tu lógica de API
 
-    val mapper = jacksonObjectMapper() // crea objeto mapper que sabe manejar json
+    val mapper = jacksonObjectMapper()
 
     fun guardarPlaneta(planeta: Planeta) {
         val idExterno = planeta.id
@@ -64,8 +62,8 @@ class RepositorioPlaneta : Repositorio<Planeta>() {
     }
 
     fun importarPlanetas(service: ServicePlaneta) {
-        val jsonString = service.getPlanetas() //mi conexion al servicio
-        val planetas: List<Planeta> = mapper.readValue(jsonString)  //serializa y mapea
+        val jsonString = service.getPlanetas()
+        val planetas: List<Planeta> = mapper.readValue(jsonString)
         planetas.forEach { guardarPlaneta(it) }
     }
 
