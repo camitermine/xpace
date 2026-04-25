@@ -1,6 +1,5 @@
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import kotlinx.serialization.json.Json
 
 abstract class Repositorio<T : Entidad> {
     private val elementos: MutableList<T> = mutableListOf()
