@@ -293,6 +293,15 @@ class TripulanteTest :
                 tripulanteImpar.esAptoParaMision(misionTemeraria) shouldBe false
             }
 
+            it("Cambiante con edad impar acepta misiones que Prudente aceptaria") {
+                val tripulanteImpar = crearTripulante(fechaNacimiento = LocalDate.now().minusYears(21), fechaInicioActividad = LocalDate.now().minusYears(5))
+                tripulanteImpar.perfilAptitud = Cambiante
+
+                val planetaIdeal = crearPlaneta(temperaturaMedia = 20.0, gravedad = 9.8)
+                val misionIdeal = crearMision(planeta = planetaIdeal)
+                tripulanteImpar.esAptoParaMision(misionIdeal) shouldBe true
+            }
+
             it("PerfilCompuestoY exige que todos los perfiles acepten la mision") {
                 experto.perfilAptitud = PerfilCompuestoY(listOf(Conformista, Explorador))
                 val planetaNuevo = crearPlaneta(fueAterrizado = false)
@@ -309,6 +318,13 @@ class TripulanteTest :
                 val planetaMaloNuevo = crearPlaneta(temperaturaMedia = 1000.0, fueAterrizado = false)
                 val mision = crearMision(planeta = planetaMaloNuevo)
                 experto.esAptoParaMision(mision) shouldBe true
+            }
+
+            it("PerfilCompuestoO rechaza si todos los perfiles rechazan la mision") {
+                experto.perfilAptitud = PerfilCompuestoO(listOf(Prudente, Explorador))
+                val planetaMaloYaAterrizado = crearPlaneta(temperaturaMedia = 1000.0, fueAterrizado = true)
+                val mision = crearMision(planeta = planetaMaloYaAterrizado)
+                experto.esAptoParaMision(mision) shouldBe false
             }
         }
 

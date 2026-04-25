@@ -81,9 +81,13 @@ class RepositorioTest : DescribeSpec({
 
         it("delete elimina el elemento y lanza excepción si no existe") {
             val t = repo.create(tripulante())
-            repo.delete(t.id!!)
+            repo.delete(t)
             repo.getAll() shouldHaveSize 0
-            shouldThrow<ElementoNoEncontradoException> { repo.delete(t.id!!) }
+            shouldThrow<ElementoNoEncontradoException> { repo.delete(t) }
+        }
+
+        it("delete lanza excepción si el elemento no tiene id") {
+            shouldThrow<ElementoSinIdException> { repo.delete(tripulante()) }
         }
     }
 
