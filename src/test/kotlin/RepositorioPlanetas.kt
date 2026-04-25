@@ -21,7 +21,6 @@ class RepositorioPlanetasTest : DescribeSpec({
         return planeta
     }
 
-    /* para usar en proximos test no me borren :)
     fun planetaCentauri() : Planeta {
         val planeta = Planeta(nombre = "Proxima Centauri b",
             temperaturaMedia = -39.0,
@@ -36,23 +35,9 @@ class RepositorioPlanetasTest : DescribeSpec({
         return planeta
     }
 
-    fun planetaTrappist() : Planeta {
-        val planeta = Planeta(nombre = "TRAPPIST-1e",
-            temperaturaMedia = -22.0,
-            gravedad = 9.1,
-            nivelRadiacion = 30,
-            hayAguaLiquida = true,
-            toxicidadAtmosferica = 25,
-            actividadTectonica = 15,
-            radioKm = 5800.0,
-            distanciaATierra = 39.6)
-        planeta.id = 3
-        return planeta
-    }*/
-
     describe("Prueba de servicio") {
 
-        it("Dado un servicio pruebo que se puedan importar planetas ") {
+        it("Dado un servicio probamos que se puede actualizar un planeta ") {
             val jsonString = "[\n" +
                     "{\n" +
                     " \"id\": 1,\n" +
@@ -80,9 +65,47 @@ class RepositorioPlanetasTest : DescribeSpec({
 
         }
 
+        it("Dado un servicio probamos que se puede actualizar el primer planeta y guardar el segundo") {
+            val jsonString = "[\n" +
+                    "{\n" +
+                    " \"id\": 1,\n" +
+                    " \"nombre\": \"Kepler-442b\",\n" +
+                    " \"temperaturaMedia\": 22.5,\n" +
+                    " \"gravedad\": 9.8,\n" +
+                    " \"nivelRadiacion\": 15,\n" +
+                    " \"hayAguaLiquida\": true,\n" +
+                    " \"toxicidadAtmosferica\": 10,\n" +
+                    " \"actividadTectonica\": 20,\n" +
+                    " \"tamanio\": 7500,\n" +
+                    " \"distanciaATierra\": 104.7\n" +
+                    "},{\n" +
+                    " \"nombre\": \"Proxima Centauri b\",\n" +
+                    " \"temperaturaMedia\": -39.0,\n" +
+                    " \"gravedad\": 11.2,\n" +
+                    " \"nivelRadiacion\": 75,\n" +
+                    " \"hayAguaLiquida\": false,\n" +
+                    " \"toxicidadAtmosferica\": 60,\n" +
+                    " \"actividadTectonica\": 45,\n" +
+                    " \"tamanio\": 7160,\n" +
+                    " \"distanciaATierra\": 4.24\n" +
+                    "}]"
+            val servicio = stubService(jsonString)
+            val repoPlanetas = RepositorioPlaneta()
+
+            val planetita1 = planetaKepler()
+            val planetita2 = planetaCentauri()
+
+            repoPlanetas.create(planetita1)
+            repoPlanetas.getAll() shouldHaveSize 1
+
+            repoPlanetas.importarPlanetas(servicio)
+
+            repoPlanetas.getAll() shouldHaveSize 2
+            assertThat(repoPlanetas.getAll()).usingRecursiveComparison().isEqualTo(listOf(planetita1, planetita2))
+
+        }
 
     }
-
 
 })
 

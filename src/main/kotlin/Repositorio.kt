@@ -1,4 +1,5 @@
-import kotlinx.serialization.json.Json
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 abstract class Repositorio<T : Entidad> {
     private val elementos: MutableList<T> = mutableListOf()
@@ -50,32 +51,21 @@ interface ServicePlaneta {
 class RepositorioPlaneta : Repositorio<Planeta>() {
     // Hereda el search automáticamente, solo te quedas con tu lógica de API
 
-    fun guardarPlaneta(planetaDTO: PlanetaDTO) {
-        val planetaMapeado = Planeta(
-            nombre = planetaDTO.nombre,
-            temperaturaMedia = planetaDTO.temperaturaMedia,
-            gravedad = planetaDTO.gravedad,
-            nivelRadiacion = planetaDTO.nivelRadiacion,
-            hayAguaLiquida = planetaDTO.hayAguaLiquida,
-            toxicidadAtmosferica = planetaDTO.toxicidadAtmosferica,
-            actividadTectonica = planetaDTO.actividadTectonica,
-            radioKm = planetaDTO.radioKm,
-            distanciaATierra = planetaDTO.distanciaATierra
-        )
-        planetaMapeado.id = planetaDTO.id
+    val mapper = jacksonObjectMapper() // crea objeto mapper que sabe manejar json
 
-        if (planetaDTO.id == null) {
-            create(planetaMapeado)
+    fun guardarPlaneta(planeta: Planeta) {
+        if (planeta.id == null) {
+            create(planeta)
         } else {
-            update(planetaMapeado)
+            update(planeta)
         }
     }
 
     fun importarPlanetas(service: ServicePlaneta) {
         val jsonString = service.getPlanetas() //mi conexion al servicio
-        val json = Json { ignoreUnknownKeys = true } // ignora lo que no quiero del Json
-        val planetasDTO: List<PlanetaDTO> = json.decodeFromString(jsonString)
-        planetasDTO.forEach { guardarPlaneta(it) }
+        val planetas: List<Planeta> = mapper.readValue(jsonString)  //serializa y mapea
+        planetas.forEach { guardarPlaneta(it) }
     }
+
 }
 
