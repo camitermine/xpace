@@ -165,6 +165,31 @@ class SubvencionTest :
 
                     subvencion.calcularMontoTotal(mision) shouldBe (80000.0 + 50000.0)
                 }
+
+                it("condicion particular: falla si exp promedio es menor o igual a 5") {
+                    val subvencion = SubvencionPrivada("Priv", 1.0, LocalDate.now(), 30)
+                    val novatoBase = BaseLanzamiento(
+                            "Base",
+                            Direccion("Argentina", "BA", "Falsa", "123", Point(0.0, 0.0)),
+                            10
+                    )
+                    val novato = Tripulante(
+                            nombre = "Novato",
+                            apellido = "Test",
+                            fechaNacimiento = LocalDate.now().minusYears(25),
+                            fechaInicioActividad = LocalDate.now().minusYears(1),
+                            baseLanzamiento = novatoBase,
+                            direccion = Direccion("Argentina", "BA", "Falsa", "123", Point(0.0, 0.0))
+                    )
+                    val mision = Mision(
+                            "M", "", LocalDate.now().plusDays(1),
+                            Transbordador("T", 7, LocalDate.now(), 100.0, 1000, 10.0),
+                            crearPlanetaHabitable()
+                    )
+                    mision.sumarTripulacion(listOf(novato))
+
+                    subvencion.puedeAplicarseA(mision) shouldBe false
+                }
             }
 
             describe("Subvencion Emergencia") {
@@ -229,6 +254,25 @@ class SubvencionTest :
                             SubvencionEmergencia("Emerg", 10.0, LocalDate.now().minusDays(50), 30)
 
                     shouldThrow<Exception> { subvencionVencida.aplicar(mision) }
+                }
+
+                it("no se puede aplicar una subvencion ya aplicada") {
+                    val subvencion = SubvencionEmergencia("Emerg", 10.0, LocalDate.now(), 30)
+                    val mision = Mision("M", "", LocalDate.now().plusDays(1), crearSonda(), crearPlanetaHabitable())
+                    subvencion.aplicar(mision)
+
+                    shouldThrow<Exception> { subvencion.aplicar(mision) }
+                }
+
+                it("presupuesto fijo aplica ambos recargos cuando planeta no habitable y nave no moderna") {
+                    val naveAntigua = Sonda("Vieja", 2, LocalDate.now().minusYears(6), 100.0, 10000000, 10.0)
+                    val planeta = crearPlanetaNoHabitable()
+                    val mision = Mision("M", "", LocalDate.now().plusDays(1), naveAntigua, planeta)
+
+                    val costoCombustible = naveAntigua.consumoDeCombustible(planeta.distanciaATierra, 0)
+                    val esperado = costoCombustible * 1.20 * 1.10
+
+                    mision.calcularPresupuestoFijo() shouldBe esperado.plusOrMinus(0.01)
                 }
             }
         })
