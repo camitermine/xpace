@@ -23,9 +23,10 @@ abstract class Repositorio<T : Entidad> {
         return elemento
     }
 
-    fun delete(id: Int) {
-        val elemento = getById(id)
-        elementos.remove(elemento)
+    fun delete(elemento: T) {
+        val id = elemento.id ?: throw ElementoSinIdException("El elemento no tiene id asignado")
+        val existente = getById(id)
+        elementos.remove(existente)
     }
 
     fun getAll(): List<T> = elementos.toList()
@@ -54,10 +55,11 @@ class RepositorioPlaneta : Repositorio<Planeta>() {
     val mapper = jacksonObjectMapper() // crea objeto mapper que sabe manejar json
 
     fun guardarPlaneta(planeta: Planeta) {
-        if (planeta.id == null) {
-            create(planeta)
-        } else {
+        val idExterno = planeta.id
+        if (idExterno != null && getAll().any { it.id == idExterno }) {
             update(planeta)
+        } else {
+            create(planeta)
         }
     }
 
