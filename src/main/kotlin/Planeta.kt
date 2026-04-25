@@ -1,4 +1,7 @@
 import java.time.LocalDate
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+
 
 private enum class MensajesDeErrorPlaneta(val mensaje: String) {
     NOMBRE_INVALIDO("El nombre no puede estar vacío"),
@@ -9,19 +12,25 @@ private enum class MensajesDeErrorPlaneta(val mensaje: String) {
     RADIO_KM_INVALIDO("El tamaño (radio) debe ser mayor a 0")
 }
 
-class Planeta (val nombre: String,
-               val temperaturaMedia: Double = 20.0,
-               val gravedad: Double = 9.8,
-               val nivelRadiacion: Int = 0,
-               val hayAguaLiquida: Boolean = false,
-               val toxicidadAtmosferica: Int = 0,
-               val actividadTectonica: Int = 0,
-               val radioKm: Double = 6371.0,
+class Planeta @JsonCreator constructor (@JsonProperty("nombre")val nombre: String,
+        @JsonProperty("temperaturaMedia") val temperaturaMedia: Double = 20.0,
+        @JsonProperty("gravedad") val gravedad: Double = 9.8,
+        @JsonProperty("nivelRadiacion") val nivelRadiacion: Int = 0,
+        @JsonProperty("hayAguaLiquida") val hayAguaLiquida: Boolean = false,
+        @JsonProperty("toxicidadAtmosferica") val toxicidadAtmosferica: Int = 0,
+        @JsonProperty("actividadTectonica") val actividadTectonica: Int = 0,
+        @JsonProperty("tamanio") val radioKm: Double = 6371.0,
                val fechaDescubrimiento: LocalDate = LocalDate.now(),
-               val distanciaATierra: Double = 0.0,
+        @JsonProperty("distanciaATierra")val distanciaATierra: Double = 0.0,
                var fueAterrizado: Boolean = false)
     : Entidad {
+
     override var id: Int? = null
+
+    override fun coincideCon(criterio: String): Boolean {
+        return nombre.contains(criterio, ignoreCase = true)
+    }
+
     private fun validarConstruccion() {
 
         Validaciones.validarNoVacio(nombre, MensajesDeErrorPlaneta.NOMBRE_INVALIDO.mensaje)

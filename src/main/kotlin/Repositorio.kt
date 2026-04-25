@@ -1,3 +1,6 @@
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+
 abstract class Repositorio<T : Entidad> {
     private val elementos: MutableList<T> = mutableListOf()
     private var nextId = 1
@@ -14,8 +17,8 @@ abstract class Repositorio<T : Entidad> {
 
     fun update(elemento: T): T {
         val id = elemento.id ?: throw ElementoSinIdException("El elemento no tiene id asignado")
-        val index = elementos.indexOfFirst { it.id == id }
-        if (index == -1) throw ElementoNoEncontradoException("No se encontró elemento con id $id para actualizar")
+        val elementoViejo = getById(id)
+        val index = elementos.indexOf(elementoViejo)
         elementos[index] = elemento
         return elemento
     }
@@ -27,46 +30,42 @@ abstract class Repositorio<T : Entidad> {
 
     fun getAll(): List<T> = elementos.toList()
 
-    abstract fun search(criterio: String): List<T>
-}
-
-class RepositorioTripulante : Repositorio<Tripulante>() {
-    override fun search(criterio: String): List<Tripulante> =
-        getAll().filter {
-            it.nombre.contains(criterio, ignoreCase = true) ||
-            it.apellido.equals(criterio, ignoreCase = true)
-        }
-}
-
-class RepositorioPlaneta : Repositorio<Planeta>() {
-    override fun search(criterio: String): List<Planeta> =
-        getAll().filter { it.nombre.contains(criterio, ignoreCase = true) }
-}
-
-class RepositorioNave : Repositorio<Nave>() {
-    override fun search(criterio: String): List<Nave> {
-        val codigo = criterio.toIntOrNull() ?: return emptyList()
-        return getAll().filter { it.codIdentif == codigo }
+    fun search(criterio: String): List<T> {
+        // Filtramos directamente la lista privada (más rápido y eficiente)
+        return elementos.filter { it.coincideCon(criterio) }
     }
 }
+class RepositorioTripulante : Repositorio<Tripulante>()
 
-class RepositorioMision : Repositorio<Mision>() {
-    override fun search(criterio: String): List<Mision> =
-        getAll().filter {
-            it.nombre.contains(criterio, ignoreCase = true) ||
-            it.destino.nombre.contains(criterio, ignoreCase = true)
+class RepositorioNave : Repositorio<Nave>()
+
+class RepositorioMision : Repositorio<Mision>()
+
+class RepositorioBase : Repositorio<BaseLanzamiento>()
+
+class RepositorioSubvencion : Repositorio<Subvencion>()
+
+interface ServicePlaneta {
+    fun getPlanetas(): String
+}
+class RepositorioPlaneta : Repositorio<Planeta>() {
+    // Hereda el search automáticamente, solo te quedas con tu lógica de API
+
+    val mapper = jacksonObjectMapper() // crea objeto mapper que sabe manejar json
+
+    fun guardarPlaneta(planeta: Planeta) {
+        if (planeta.id == null) {
+            create(planeta)
+        } else {
+            update(planeta)
         }
+    }
+
+    fun importarPlanetas(service: ServicePlaneta) {
+        val jsonString = service.getPlanetas() //mi conexion al servicio
+        val planetas: List<Planeta> = mapper.readValue(jsonString)  //serializa y mapea
+        planetas.forEach { guardarPlaneta(it) }
+    }
+
 }
 
-class RepositorioBase : Repositorio<BaseLanzamiento>() {
-    override fun search(criterio: String): List<BaseLanzamiento> =
-        getAll().filter {
-            it.nombre.contains(criterio, ignoreCase = true) ||
-            it.direccion.pais.equals(criterio, ignoreCase = true)
-        }
-}
-
-class RepositorioSubvencion : Repositorio<Subvencion>() {
-    override fun search(criterio: String): List<Subvencion> =
-        getAll().filter { it.nombre.startsWith(criterio, ignoreCase = true) }
-}

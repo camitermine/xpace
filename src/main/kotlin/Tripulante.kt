@@ -20,11 +20,14 @@ class Tripulante(
     var baseLanzamiento: BaseLanzamiento,
     val direccion: Direccion,
     val distanciaMaxima: Double = 0.0
-) : Entidad {// 1. Implementamos Entidad
+) : Entidad {
 
-    // --- NUEVA PROPIEDAD (ENTREGA 2) ---
     override var id: Int? = null
-    // -----------------------------------
+
+    override fun coincideCon(criterio: String): Boolean {
+        return nombre.contains(criterio, ignoreCase = true) ||
+                apellido.equals(criterio, ignoreCase = true)
+    }
 
     private val _historialMisiones: MutableList<Mision> = mutableListOf()
     val historialMisiones: List<Mision> get() = _historialMisiones
@@ -75,12 +78,11 @@ class Tripulante(
 
         return experienciaSuficiente && sinMisionEnCurso
     }
-    // --- Metodo Modificado (ENTREGA 2) ---
+
     fun esAptoParaMision(mision: Mision): Boolean {
         if (!cumpleCondicionesBase()) {
             return false
         }
-        // 2. Si pasa las validaciones base, la decisión final la toma su perfil
         return perfilAptitud.aceptaMision(mision, this)
     }
 
@@ -136,7 +138,6 @@ object Exigente : PerfilAptitud {
 
 object Temerario : PerfilAptitud {
     override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
-        // Asumiendo que Planeta tiene el método esHabitable() y Mision altoRiesgo()
         return !mision.destino.esHabitable() || mision.altoRiesgo()
     }
 }

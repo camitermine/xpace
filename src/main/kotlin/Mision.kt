@@ -17,6 +17,12 @@ class Mision(
 
     override var id: Int? = null
 
+    override fun coincideCon(criterio: String): Boolean {
+        // La misión es más compleja: busca por su nombre exacto o por el nombre exacto de su planeta destino
+        return nombre.equals(criterio, ignoreCase = true) ||
+                destino.nombre.equals(criterio, ignoreCase = true)
+    }
+
     var subvencionAplicada: Subvencion? = null
         private set
 
@@ -33,7 +39,6 @@ class Mision(
 
     init {
         validarConstruccion()
-        //prepararNave()
     }
 
     fun lanzar() {
@@ -110,21 +115,38 @@ class Mision(
     }
     // --- NUEVOS MÉTODOS (ENTREGA 2) ---
 
-    fun esApto(tripulante: Tripulante): Boolean {
-        return tripulante.perfilAptitud.aceptaMision(this, tripulante)
-    }
-
     fun asignarSubvencion(subvencion: Subvencion) {
         this.subvencionAplicada = subvencion
     }
 
-    fun calcularPresupuestoFijo(): Double {
-        val costoCombustible = nave.consumoDeCombustible(this);
-        val costoSalarial = tripulantes.sumOf { it.calcularSalarioTotal() } * (duracion() / 30.0)
-        var presupuesto = costoCombustible + costoSalarial
-        if (!destino.esHabitable()) presupuesto *= 1.20
-        if (!nave.esModerna()) presupuesto *= 1.10
+    private fun calcularCostoCombustible(): Double {
+        return nave.consumoDeCombustible(destino.distanciaATierra, tripulantes.size)
+    }
 
-        return presupuesto
+    private fun calcularCostoSalarial(): Double {
+        val duracionEnMeses = duracion() / 30.0
+        return tripulantes.sumOf { it.calcularSalarioTotal() } * duracionEnMeses
+    }
+
+    private fun aplicarRecargos(montoBase: Double): Double {
+        var montoFinal = montoBase
+        if (!destino.esHabitable()) montoFinal *= 1.20
+        if (!nave.esModerna()) montoFinal *= 1.10
+        return montoFinal
+    }
+    fun calcularPresupuestoFijo(): Double {
+        val costoBase = calcularCostoCombustible() + calcularCostoSalarial()
+        return aplicarRecargos(costoBase)
+    }
+
+    fun calcularPresupuesto(): Double {
+        val presupuestoFijo = calcularPresupuestoFijo()
+        val montoSubvencion = subvencionAplicada?.calcularMontoTotal(this) ?: 0.0
+        return presupuestoFijo - montoSubvencion
     }
 }
+
+
+
+
+
