@@ -261,6 +261,69 @@ class TripulanteTest :
                 val misionAntigua = crearMision(nave = naveAntigua)
                 experto.esAptoParaMision(misionAntigua) shouldBe false
             }
+
+            it("Temerario acepta misiones a planetas no habitables o de alto riesgo") {
+                experto.perfilAptitud = Temerario
+                val planetaNoHabitable = crearPlaneta(temperaturaMedia = 1000.0) 
+                val mision1 = crearMision(planeta = planetaNoHabitable)
+                experto.esAptoParaMision(mision1) shouldBe true
+
+                val planetaHabitableLejos = crearPlaneta(distanciaATierra = 50000.0, temperaturaMedia = 20.0, gravedad = 9.8, nivelRadiacion=0, toxicidadAtmosferica=0, hayAguaLiquida=true)
+                val naveLenta = crearTransbordador(velProm = 1.0)
+                val mision2 = crearMision(planeta = planetaHabitableLejos, nave = naveLenta)
+                experto.esAptoParaMision(mision2) shouldBe false
+
+                val planetaSeguro = crearPlaneta(distanciaATierra = 1.0, temperaturaMedia = 20.0, gravedad = 9.8, nivelRadiacion=0, toxicidadAtmosferica=0, hayAguaLiquida=true)
+                val mision3 = crearMision(planeta = planetaSeguro)
+                experto.esAptoParaMision(mision3) shouldBe false
+            }
+
+            it("Cambiante se comporta como Temerario si la edad es par y como Prudente si es impar") {
+                val tripulantePar = crearTripulante(fechaNacimiento = LocalDate.now().minusYears(20), fechaInicioActividad = LocalDate.now().minusYears(5))
+                tripulantePar.perfilAptitud = Cambiante
+                
+                val planetaPeligroso = crearPlaneta(temperaturaMedia = 1000.0)
+                val misionTemeraria = crearMision(planeta = planetaPeligroso)
+                tripulantePar.esAptoParaMision(misionTemeraria) shouldBe true
+
+                val tripulanteImpar = crearTripulante(fechaNacimiento = LocalDate.now().minusYears(21), fechaInicioActividad = LocalDate.now().minusYears(5))
+                tripulanteImpar.perfilAptitud = Cambiante
+                tripulanteImpar.esAptoParaMision(misionTemeraria) shouldBe false
+            }
+
+            it("Cambiante con edad impar acepta misiones que Prudente aceptaria") {
+                val tripulanteImpar = crearTripulante(fechaNacimiento = LocalDate.now().minusYears(21), fechaInicioActividad = LocalDate.now().minusYears(5))
+                tripulanteImpar.perfilAptitud = Cambiante
+
+                val planetaIdeal = crearPlaneta(temperaturaMedia = 20.0, gravedad = 9.8)
+                val misionIdeal = crearMision(planeta = planetaIdeal)
+                tripulanteImpar.esAptoParaMision(misionIdeal) shouldBe true
+            }
+
+            it("PerfilCompuestoY exige que todos los perfiles acepten la mision") {
+                experto.perfilAptitud = PerfilCompuestoY(listOf(Conformista, Explorador))
+                val planetaNuevo = crearPlaneta(fueAterrizado = false)
+                val misionExploracion = crearMision(planeta = planetaNuevo)
+                experto.esAptoParaMision(misionExploracion) shouldBe true
+
+                val planetaViejo = crearPlaneta(fueAterrizado = true)
+                val misionVieja = crearMision(planeta = planetaViejo)
+                experto.esAptoParaMision(misionVieja) shouldBe false
+            }
+
+            it("PerfilCompuestoO acepta si al menos un perfil acepta la mision") {
+                experto.perfilAptitud = PerfilCompuestoO(listOf(Prudente, Explorador))
+                val planetaMaloNuevo = crearPlaneta(temperaturaMedia = 1000.0, fueAterrizado = false)
+                val mision = crearMision(planeta = planetaMaloNuevo)
+                experto.esAptoParaMision(mision) shouldBe true
+            }
+
+            it("PerfilCompuestoO rechaza si todos los perfiles rechazan la mision") {
+                experto.perfilAptitud = PerfilCompuestoO(listOf(Prudente, Explorador))
+                val planetaMaloYaAterrizado = crearPlaneta(temperaturaMedia = 1000.0, fueAterrizado = true)
+                val mision = crearMision(planeta = planetaMaloYaAterrizado)
+                experto.esAptoParaMision(mision) shouldBe false
+            }
         }
 
         describe("Cálculo de Salario Total por Rol con Bonus") {

@@ -8,13 +8,24 @@ private enum class MensajesDeError(val mensaje: String) {
 }
 
 class Mision(
-    private val nombre: String,
-    private val descripcion: String,
-    private val fechaLanzamiento: LocalDate,
+    val nombre: String,
+    val descripcion: String,
+    val fechaLanzamiento: LocalDate,
     val nave: Nave,
     val destino: Planeta,
-) {
-    private var tripulantes: List<Tripulante> = emptyList()
+) : Entidad {
+
+    override var id: Int? = null
+
+    override fun coincideCon(criterio: String): Boolean {
+        return nombre.equals(criterio, ignoreCase = true) ||
+                destino.nombre.equals(criterio, ignoreCase = true)
+    }
+
+    var subvencionAplicada: Subvencion? = null
+        private set
+
+    var tripulantes: List<Tripulante> = emptyList()
     var estado: EstadoMision = EstadoMision.BORRADOR
         private set
 
@@ -52,7 +63,8 @@ class Mision(
         misionFinalizada(EstadoMision.COMPLETADA)
     }
 
-    fun duracion(): Double = destino.distanciaATierra * Config.DIAS_DEL_ANIO / this.nave.velPromedio * Config.IDA_Y_VUELTA
+    fun duracion(): Double =
+        destino.distanciaATierra * Config.DIAS_DEL_ANIO / this.nave.velPromedio * Config.IDA_Y_VUELTA
 
     fun altoRiesgo(): Boolean = !destino.esHabitable() && duracion() > Config.DURACION_DE_ALTO_RIESGO
 
@@ -85,9 +97,6 @@ class Mision(
     }
 
     private fun prepararTripulantes() {
-        if (nave.requiereTripulacion() && this.tripulantes.isEmpty()) {
-            throw ErrorDeMision("La nave requiere al menos un tripulante para ser lanzada")
-        }
         tripulacionAptaParaNave(this.tripulantes)
         if (this.tripulantes.isEmpty()) return
         val base = this.tripulantes.first().baseLanzamiento
@@ -102,7 +111,40 @@ class Mision(
         if (!tripulanteInvalido.esAptoParaMision(this)) {
             throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
         }
+    }
 
+    fun asignarSubvencion(subvencion: Subvencion) {
+        this.subvencionAplicada = subvencion
+    }
 
+    private fun calcularCostoCombustible(): Double {
+        return nave.consumoDeCombustible(destino.distanciaATierra, tripulantes.size)
+    }
+
+    private fun calcularCostoSalarial(): Double {
+        val duracionEnMeses = duracion() / 30.0
+        return tripulantes.sumOf { it.calcularSalarioTotal() } * duracionEnMeses
+    }
+
+    private fun aplicarRecargos(montoBase: Double): Double {
+        var montoFinal = montoBase
+        if (!destino.esHabitable()) montoFinal *= 1.20
+        if (!nave.esModerna()) montoFinal *= 1.10
+        return montoFinal
+    }
+    fun calcularPresupuestoFijo(): Double {
+        val costoBase = calcularCostoCombustible() + calcularCostoSalarial()
+        return aplicarRecargos(costoBase)
+    }
+
+    fun calcularPresupuesto(): Double {
+        val presupuestoFijo = calcularPresupuestoFijo()
+        val montoSubvencion = subvencionAplicada?.calcularMontoTotal(this) ?: 0.0
+        return presupuestoFijo - montoSubvencion
     }
 }
+
+
+
+
+

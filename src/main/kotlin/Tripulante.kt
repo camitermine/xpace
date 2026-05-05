@@ -20,7 +20,15 @@ class Tripulante(
     var baseLanzamiento: BaseLanzamiento,
     val direccion: Direccion,
     val distanciaMaxima: Double = 0.0
-) {
+) : Entidad {
+
+    override var id: Int? = null
+
+    override fun coincideCon(criterio: String): Boolean {
+        return nombre.contains(criterio, ignoreCase = true) ||
+                apellido.equals(criterio, ignoreCase = true)
+    }
+
     private val _historialMisiones: MutableList<Mision> = mutableListOf()
     val historialMisiones: List<Mision> get() = _historialMisiones
 
@@ -72,7 +80,10 @@ class Tripulante(
     }
 
     fun esAptoParaMision(mision: Mision): Boolean {
-        return cumpleCondicionesBase() && perfilAptitud.aceptaMision(mision)
+        if (!cumpleCondicionesBase()) {
+            return false
+        }
+        return perfilAptitud.aceptaMision(mision, this)
     }
 
     fun calcularSalarioTotal(): Double {
@@ -86,40 +97,69 @@ class Tripulante(
 }
 
 interface PerfilAptitud {
-    fun aceptaMision(mision: Mision): Boolean
+    fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean
 }
 
 object Conformista : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean = true
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean = true
 }
 
 object Prudente : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
         return mision.destino.tieneTemperaturaIdeal() && mision.destino.gravedadSoportable()
     }
 }
 
 object Explorador : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
         return !mision.destino.fueAterrizado
     }
 }
 
 class Veterano(val maxDiasPermitidos: Int) : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
         return mision.duracion() <= maxDiasPermitidos
     }
 }
 
 class Cauteloso(val umbralRadiacionMaximo: Double) : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
         return mision.destino.nivelRadiacion < umbralRadiacionMaximo
     }
 }
 
 object Exigente : PerfilAptitud {
-    override fun aceptaMision(mision: Mision): Boolean {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
         return mision.nave.esModerna()
+    }
+}
+
+object Temerario : PerfilAptitud {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
+        return !mision.destino.esHabitable() || mision.altoRiesgo()
+    }
+}
+
+object Cambiante : PerfilAptitud {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
+        val edad = tripulante.calcularEdad()
+        return if (edad % 2 == 0) {
+            Temerario.aceptaMision(mision, tripulante)
+        } else {
+            Prudente.aceptaMision(mision, tripulante)
+        }
+    }
+}
+
+class PerfilCompuestoY(val perfiles: List<PerfilAptitud>) : PerfilAptitud {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
+        return perfiles.all { it.aceptaMision(mision, tripulante) }
+    }
+}
+
+class PerfilCompuestoO(val perfiles: List<PerfilAptitud>) : PerfilAptitud {
+    override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
+        return perfiles.any { it.aceptaMision(mision, tripulante) }
     }
 }
 

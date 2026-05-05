@@ -13,9 +13,16 @@ private enum class MensajesDeErrorNave(val mensaje: String) {
 abstract class Nave(
     val nombre: String, val codIdentif: Int, val fechaFabricacion: LocalDate,
     val consumoBase: Double, val autonomia: Int, val velPromedio: Double
-) {
-    abstract val capacidadTripulantes: Int
+) :Entidad {
 
+    override var id: Int? = null
+
+    override fun coincideCon(criterio: String): Boolean {
+        val codigo = criterio.toIntOrNull() ?: return false
+        return this.codIdentif == codigo
+    }
+    abstract val capacidadTripulantes: Int
+    var precioCombustible: Double = 500.0
     var misionAsignada: Mision? = null
         private set
 
@@ -33,6 +40,11 @@ abstract class Nave(
         validarConstruccion()
     }
 
+    fun consumoDeCombustible(distanciaIda: Double, cantTripulantes: Int): Double {
+        val consumoTotal = consumoPorAnioLuz(cantTripulantes) * (distanciaIda * Config.IDA_Y_VUELTA)
+        return consumoTotal * precioCombustible
+    }
+
     abstract fun consumoPorAnioLuz(cantTripulantes: Int): Double
 
     fun asignar(mision: Mision) {
@@ -44,7 +56,6 @@ abstract class Nave(
     }
 
     fun antiguedad(): Int = Period.between(fechaFabricacion, LocalDate.now()).years
-
     fun esModerna(): Boolean = antiguedad() < Config.MAX_NAVE_MODERNA
 
     fun tiempoDeViaje(distancia: Double): Double {
@@ -54,12 +65,12 @@ abstract class Nave(
         return tiempoDeViaje(distancia) <= autonomia
     }
 
-    fun requiereTripulacion(): Boolean = capacidadTripulantes > 0
     open fun puedeTransportar(tripulacion: Int): Boolean {
         Validaciones.validarMayorOIgualACero(
             tripulacion,
             "La tripulación no puede ser negativa"
         )
+        if(capacidadTripulantes == 0) return tripulacion == 0
         return tripulacion in 1..capacidadTripulantes
     }
 }
