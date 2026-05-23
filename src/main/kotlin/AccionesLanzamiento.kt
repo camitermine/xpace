@@ -1,8 +1,6 @@
 import java.time.LocalDate
 
-// ==========================================
 // INTERFACES DE SERVICIOS EXTERNOS
-// ==========================================
 
 interface MailSender {
     fun enviarMail(to: String, asunto: String, cuerpo: String)
@@ -12,9 +10,7 @@ interface SistemaContable {
     fun informarMisionCara(codigo: String, presupuesto: Double, fecha: LocalDate)
 }
 
-// ==========================================
 // PATRÓN OBSERVER: ACCIONES DE LANZAMIENTO
-// ==========================================
 
 interface AccionLanzamiento {
     fun ejecutar(mision: Mision)
@@ -49,7 +45,7 @@ class NotificarMisionPionera : AccionLanzamiento {
 
 class EvaluarMantenimientoNave : AccionLanzamiento {
     override fun ejecutar(mision: Mision) {
-        // La validación combinada queda súper limpia gracias a los métodos en Mision y Nave
+
         if (!mision.nave.esModerna() && mision.esDesgastante()) {
             mision.nave.solicitarMantenimiento()
         }
