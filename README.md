@@ -1,5 +1,7 @@
 # 🚀 Xpace
 
+[![Build Status](https://github.com/algo2-unsam/tp-xpace-2026-grupo-4-1/actions/workflows/build.yml.yml/badge.svg)](https://github.com/algo2-unsam/tp-xpace-2026-grupo-4-1/actions/workflows/build.yml.yml)
+[![Coverage](https://raw.githubusercontent.com/algo2-unsam/tp-xpace-2026-grupo-4-1/main/.github/badges/jacoco.svg)](https://github.com/algo2-unsam/tp-xpace-2026-grupo-4-1)
 
 ![image](./images/Imagen1.png)
 
