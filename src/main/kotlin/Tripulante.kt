@@ -10,6 +10,7 @@ private enum class MensajesDeErrorTripulante(val mensaje: String) {
 }
 
 class Tripulante(
+    val email: String="sin-correo@xpace.com ",
     val nombre: String,
     val apellido: String,
     val fechaNacimiento: LocalDate,

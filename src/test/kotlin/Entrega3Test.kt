@@ -19,8 +19,15 @@ class Entrega3Test : DescribeSpec({
     describe("Acciones Dinámicas de Lanzamiento (Observer)") {
 
         it("NotificarTripulantesPorMail envía un correo a cada tripulante") {
-            val tripulante1 = mockk<Tripulante> { every { nombre } returns "Juan" }
-            val tripulante2 = mockk<Tripulante> { every { nombre } returns "Ana" }
+            // 1. Arrange: Configuramos los robots con nombre Y EMAIL
+            val tripulante1 = mockk<Tripulante> {
+                every { nombre } returns "Juan"
+                every { email } returns "juan@xpace.com"
+            }
+            val tripulante2 = mockk<Tripulante> {
+                every { nombre } returns "Ana"
+                every { email } returns "ana@xpace.com"
+            }
 
             val planetaMock = mockk<Planeta> { every { nombre } returns "Marte" }
             val misionMock = mockk<Mision>(relaxed = true) {
@@ -31,11 +38,22 @@ class Entrega3Test : DescribeSpec({
             }
 
             val accion = NotificarTripulantesPorMail(mailSenderMock)
+
+            // 2. Act
             accion.ejecutar(misionMock)
 
+            // 3. Assert: Verificamos que se mandó AL mail del tripulante con los textos exactos
             verify(exactly = 1) {
-                mailSenderMock.enviarMail("lanzamientos@xpace.com", "Misión Mision Alpha lanzada", match { it.contains("Juan") })
-                mailSenderMock.enviarMail("lanzamientos@xpace.com", "Misión Mision Alpha lanzada", match { it.contains("Ana") })
+                mailSenderMock.enviarMail(
+                    "juan@xpace.com",
+                    "Misión Mision Alpha lanzada",
+                    "Tripulante Juan, la misión Mision Alpha con destino al planeta Marte ha sido lanzada exitosamente. Duración estimada: 120 días."
+                )
+                mailSenderMock.enviarMail(
+                    "ana@xpace.com",
+                    "Misión Mision Alpha lanzada",
+                    "Tripulante Ana, la misión Mision Alpha con destino al planeta Marte ha sido lanzada exitosamente. Duración estimada: 120 días."
+                )
             }
         }
 
@@ -190,8 +208,133 @@ class Entrega3Test : DescribeSpec({
                 )
             }
         }
+
+        it("BorrarSubvencionesVencidas elimina solo las vencidas y no aplicadas") {
+            val repoSubvencion = mockk<RepositorioSubvencion>(relaxed = true)
+
+            val subVencidaNoAplicada = mockk<Subvencion> {
+                every { estaVigente() } returns false
+                every { estaAplicada } returns false
+            }
+            val subVencidaAplicada = mockk<Subvencion> {
+                every { estaVigente() } returns false
+                every { estaAplicada } returns true
+            }
+            val subVigente = mockk<Subvencion> {
+                every { estaVigente() } returns true
+                every { estaAplicada } returns false
+            }
+
+            every { repoSubvencion.getAll() } returns listOf(subVencidaNoAplicada, subVencidaAplicada, subVigente)
+
+            val proceso = BorrarSubvencionesVencidas(repoSubvencion, mailSenderMock)
+            proceso.ejecutar()
+
+            verify(exactly = 1) { repoSubvencion.delete(subVencidaNoAplicada) }
+            verify(exactly = 0) { repoSubvencion.delete(subVencidaAplicada) }
+            verify(exactly = 0) { repoSubvencion.delete(subVigente) }
+            verify(exactly = 1) {
+                mailSenderMock.enviarMail("admin@xpace.com", match { it.contains("Subvenciones") }, any())
+            }
+        }
+
+        it("BorrarSubvencionesVencidas no borra nada si no hay vencidas sin aplicar") {
+            val repoSubvencion = mockk<RepositorioSubvencion>(relaxed = true)
+
+            val subVigente = mockk<Subvencion> {
+                every { estaVigente() } returns true
+                every { estaAplicada } returns false
+            }
+
+            every { repoSubvencion.getAll() } returns listOf(subVigente)
+
+            BorrarSubvencionesVencidas(repoSubvencion, mailSenderMock).ejecutar()
+
+            verify(exactly = 0) { repoSubvencion.delete(any()) }
+        }
+
+        it("RetirarTripulantesInactivos retira tripulantes cuya última misión fue hace más de 2 años") {
+            val repoTripulante = mockk<RepositorioTripulante>(relaxed = true)
+            val repoMision = mockk<RepositorioMision>(relaxed = true)
+
+            val tripulanteInactivo = mockk<Tripulante>()
+            val tripulanteActivo = mockk<Tripulante>()
+
+            val misionVieja = mockk<Mision> {
+                every { tripulantes } returns listOf(tripulanteInactivo)
+                every { fechaLanzamiento } returns LocalDate.now().minusYears(3)
+            }
+            val misionReciente = mockk<Mision> {
+                every { tripulantes } returns listOf(tripulanteActivo)
+                every { fechaLanzamiento } returns LocalDate.now().minusMonths(6)
+            }
+
+            every { repoTripulante.getAll() } returns listOf(tripulanteInactivo, tripulanteActivo)
+            every { repoMision.getAll() } returns listOf(misionVieja, misionReciente)
+
+            RetirarTripulantesInactivos(repoTripulante, repoMision, mailSenderMock).ejecutar()
+
+            verify(exactly = 1) { repoTripulante.delete(tripulanteInactivo) }
+            verify(exactly = 0) { repoTripulante.delete(tripulanteActivo) }
+            verify(exactly = 1) {
+                mailSenderMock.enviarMail("admin@xpace.com", match { it.contains("Tripulantes") }, any())
+            }
+        }
+
+        it("RetirarTripulantesInactivos retira tripulantes sin ninguna misión") {
+            val repoTripulante = mockk<RepositorioTripulante>(relaxed = true)
+            val repoMision = mockk<RepositorioMision>(relaxed = true)
+
+            val tripulanteSinMisiones = mockk<Tripulante>()
+
+            every { repoTripulante.getAll() } returns listOf(tripulanteSinMisiones)
+            every { repoMision.getAll() } returns emptyList()
+
+            RetirarTripulantesInactivos(repoTripulante, repoMision, mailSenderMock).ejecutar()
+
+            verify(exactly = 1) { repoTripulante.delete(tripulanteSinMisiones) }
+        }
+
+        it("RetirarTripulantesInactivos no retira tripulantes con misiones recientes") {
+            val repoTripulante = mockk<RepositorioTripulante>(relaxed = true)
+            val repoMision = mockk<RepositorioMision>(relaxed = true)
+
+            val tripulanteActivo = mockk<Tripulante>()
+            val misionReciente = mockk<Mision> {
+                every { tripulantes } returns listOf(tripulanteActivo)
+                every { fechaLanzamiento } returns LocalDate.now().minusDays(30)
+            }
+
+            every { repoTripulante.getAll() } returns listOf(tripulanteActivo)
+            every { repoMision.getAll() } returns listOf(misionReciente)
+
+            RetirarTripulantesInactivos(repoTripulante, repoMision, mailSenderMock).ejecutar()
+
+            verify(exactly = 0) { repoTripulante.delete(any()) }
+        }
+
+        it("AgregarNavesMasivas agrega todas las naves de la lista al repositorio") {
+            val repoNave = mockk<RepositorioNave>(relaxed = true)
+            val nave1 = mockk<Nave>()
+            val nave2 = mockk<Nave>()
+            val nave3 = mockk<Nave>()
+
+            AgregarNavesMasivas(listOf(nave1, nave2, nave3), repoNave, mailSenderMock).ejecutar()
+
+            verify(exactly = 1) { repoNave.create(nave1) }
+            verify(exactly = 1) { repoNave.create(nave2) }
+            verify(exactly = 1) { repoNave.create(nave3) }
+            verify(exactly = 1) {
+                mailSenderMock.enviarMail("admin@xpace.com", match { it.contains("Naves") }, any())
+            }
+        }
+
+        it("AgregarNavesMasivas no agrega nada si la lista está vacía") {
+            val repoNave = mockk<RepositorioNave>(relaxed = true)
+
+            AgregarNavesMasivas(emptyList(), repoNave, mailSenderMock).ejecutar()
+
+            verify(exactly = 0) { repoNave.create(any()) }
+        }
     }
-
-
-
 })
