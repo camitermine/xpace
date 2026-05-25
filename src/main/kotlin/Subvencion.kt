@@ -21,14 +21,14 @@ abstract class Subvencion(
     fun puedeAplicarseA(mision: Mision): Boolean {
         return estaVigente() &&
                 !estaAplicada &&
-                montoBase <= mision.calcularPresupuestoFijo() &&
+                montoBase <= mision.presupuesto.calcularPresupuestoFijo() &&
                 cumpleCondicionParticular(mision)
     }
 
     fun aplicar(mision: Mision) {
         if (!puedeAplicarseA(mision)) throw Exception("La subvención no es aplicable a esta misión")
         this.estaAplicada = true
-        mision.asignarSubvencion(this)
+        mision.presupuesto.asignarSubvencion(this)
     }
 
     fun calcularMontoTotal(mision: Mision): Double = montoBase + calcularMontoAdicional(mision)
@@ -58,5 +58,5 @@ class SubvencionPrivada(nombre: String, montoBase: Double, fechaEmision: LocalDa
 class SubvencionEmergencia(nombre: String, montoBase: Double, fechaEmision: LocalDate, duracionDias: Int)
     : Subvencion(nombre, montoBase, fechaEmision, duracionDias) {
     override fun cumpleCondicionParticular(mision: Mision) = true
-    override fun calcularMontoAdicional(mision: Mision) = mision.calcularPresupuestoFijo() * 0.50
+    override fun calcularMontoAdicional(mision: Mision) = mision.presupuesto.calcularPresupuestoFijo() * 0.50
 }

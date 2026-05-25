@@ -220,7 +220,7 @@ class SubvencionTest :
                                     crearSonda(),
                                     crearPlanetaHabitable()
                             )
-                    mision.calcularPresupuesto() shouldBe mision.calcularPresupuestoFijo()
+                    mision.presupuesto.calcularPresupuesto() shouldBe mision.calcularPresupuestoFijo()
                 }
 
                 it("si hay subvencion aplicada, la resta del presupuesto fijo") {
@@ -238,7 +238,7 @@ class SubvencionTest :
 
                     val pFijo = mision.calcularPresupuestoFijo()
                     val montoSub = subvencion.calcularMontoTotal(mision)
-                    mision.calcularPresupuesto() shouldBe (pFijo - montoSub)
+                    mision.presupuesto.calcularPresupuesto() shouldBe (pFijo - montoSub)
                 }
 
                 it("falla al aplicar subvencion invalida o vencida") {

@@ -1,5 +1,7 @@
 import java.time.LocalDate
 
+
+
 // INTERFACES DE SERVICIOS EXTERNOS
 
 interface MailSender {
@@ -9,6 +11,11 @@ interface MailSender {
 interface SistemaContable {
     fun informarMisionCara(codigo: String, presupuesto: Double, fecha: LocalDate)
 }
+
+
+
+
+
 
 // PATRÓN OBSERVER: ACCIONES DE LANZAMIENTO
 
