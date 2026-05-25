@@ -100,7 +100,7 @@ class Entrega3Test : DescribeSpec({
         it("BorrarMensajesAntiguos elimina del inbox solo los leídos de más de 30 días") {
             val tripulanteMock = mockk<Tripulante>(relaxed = true)
 
-            // Usamos tu clase Mensaje (asegurate de tenerla importada)
+            // Usamos la clase Mensaje 
             val msgViejoLeido = mockk<Mensaje> {
                 every { leido } returns true
                 every { fechaEmision } returns LocalDate.now().minusDays(40)
