@@ -19,8 +19,15 @@ class Entrega3Test : DescribeSpec({
     describe("Acciones Dinámicas de Lanzamiento (Observer)") {
 
         it("NotificarTripulantesPorMail envía un correo a cada tripulante") {
-            val tripulante1 = mockk<Tripulante> { every { nombre } returns "Juan" }
-            val tripulante2 = mockk<Tripulante> { every { nombre } returns "Ana" }
+            // 1. Arrange: Configuramos los robots con nombre Y EMAIL
+            val tripulante1 = mockk<Tripulante> {
+                every { nombre } returns "Juan"
+                every { email } returns "juan@xpace.com"
+            }
+            val tripulante2 = mockk<Tripulante> {
+                every { nombre } returns "Ana"
+                every { email } returns "ana@xpace.com"
+            }
 
             val planetaMock = mockk<Planeta> { every { nombre } returns "Marte" }
             val misionMock = mockk<Mision>(relaxed = true) {
@@ -31,11 +38,22 @@ class Entrega3Test : DescribeSpec({
             }
 
             val accion = NotificarTripulantesPorMail(mailSenderMock)
+
+            // 2. Act
             accion.ejecutar(misionMock)
 
+            // 3. Assert: Verificamos que se mandó AL mail del tripulante con los textos exactos
             verify(exactly = 1) {
-                mailSenderMock.enviarMail("lanzamientos@xpace.com", "Misión Mision Alpha lanzada", match { it.contains("Juan") })
-                mailSenderMock.enviarMail("lanzamientos@xpace.com", "Misión Mision Alpha lanzada", match { it.contains("Ana") })
+                mailSenderMock.enviarMail(
+                    "juan@xpace.com",
+                    "Misión Mision Alpha lanzada",
+                    "Tripulante Juan, la misión Mision Alpha con destino al planeta Marte ha sido lanzada exitosamente. Duración estimada: 120 días."
+                )
+                mailSenderMock.enviarMail(
+                    "ana@xpace.com",
+                    "Misión Mision Alpha lanzada",
+                    "Tripulante Ana, la misión Mision Alpha con destino al planeta Marte ha sido lanzada exitosamente. Duración estimada: 120 días."
+                )
             }
         }
 

@@ -23,7 +23,7 @@ class NotificarTripulantesPorMail(private val mailSender: MailSender) : AccionLa
             val cuerpo = "Tripulante ${tripulante.nombre}, la misión ${mision.nombre} " +
                     "con destino al planeta ${mision.destino.nombre} ha sido lanzada exitosamente. " +
                     "Duración estimada: ${mision.duracion().toInt()} días."
-            mailSender.enviarMail("lanzamientos@xpace.com", asunto, cuerpo)
+            mailSender.enviarMail(tripulante.email, asunto, cuerpo)
         }
     }
 }
