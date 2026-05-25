@@ -10,6 +10,7 @@ private enum class MensajesDeErrorTripulante(val mensaje: String) {
 }
 
 class Tripulante(
+    val email: String="sin-correo@xpace.com ",
     val nombre: String,
     val apellido: String,
     val fechaNacimiento: LocalDate,
@@ -31,6 +32,23 @@ class Tripulante(
 
     private val _historialMisiones: MutableList<Mision> = mutableListOf()
     val historialMisiones: List<Mision> get() = _historialMisiones
+
+    // --- NUEVOS ATRIBUTOS Y MÉTODOS ENTREGA 3 (INBOX Y ESTADO) ---
+    private val _inbox: MutableList<Mensaje> = mutableListOf()
+    fun inbox(): List<Mensaje> = _inbox.toList()
+
+    fun recibirMensaje(mensaje: Mensaje) {
+        _inbox.add(mensaje)
+    }
+
+    fun eliminarMensajes(mensajesABorrar: List<Mensaje>) {
+        _inbox.removeAll(mensajesABorrar)
+    }
+
+    fun hacerVeterano(maxDiasPermitidos: Int) {
+        this.perfilAptitud = Veterano(maxDiasPermitidos)
+    }
+    // --------------------------------------------------------------
 
     private fun validarConstruccion() {
 
@@ -134,8 +152,6 @@ object Exigente : PerfilAptitud {
     }
 }
 
-// --- NUEVOS PERFILES ENTREGA 2 ---
-
 object Temerario : PerfilAptitud {
     override fun aceptaMision(mision: Mision, tripulante: Tripulante): Boolean {
         return !mision.destino.esHabitable() || mision.altoRiesgo()
@@ -213,3 +229,4 @@ object Medico : Rol {
         return (tripulante.salarioBase * 0.25) + (tripulante.salarioBase * 0.02 * misionesFallidas)
     }
 }
+

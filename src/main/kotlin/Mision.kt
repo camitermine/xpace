@@ -1,3 +1,5 @@
+
+
 import java.time.LocalDate
 
 private enum class MensajesDeError(val mensaje: String) {
@@ -13,12 +15,12 @@ class Mision(
     val fechaLanzamiento: LocalDate,
     val nave: Nave,
     val destino: Planeta,
+    val cargaEnKg: Double = 0.0 // Atributo nuevo requerido para la Entrega 3
 ) : Entidad {
 
     override var id: Int? = null
 
     override fun coincideCon(criterio: String): Boolean {
-        // La misión es más compleja: busca por su nombre exacto o por el nombre exacto de su planeta destino
         return nombre.equals(criterio, ignoreCase = true) ||
                 destino.nombre.equals(criterio, ignoreCase = true)
     }
@@ -40,12 +42,24 @@ class Mision(
     init {
         validarConstruccion()
     }
+    // Lista de observadores para los comportamientos dinámicos
+    private val accionesLanzamiento: MutableList<AccionLanzamiento> = mutableListOf()
+
+    fun agregarAccion(accion: AccionLanzamiento) {
+        accionesLanzamiento.add(accion)
+    }
+
+    fun removerAccion(accion: AccionLanzamiento) {
+        accionesLanzamiento.remove(accion)
+    }
 
     fun lanzar() {
         if (this.estado !== EstadoMision.BORRADOR) throw ErrorDeMision("La mision ya fue lanzada")
         prepararNave()
         prepararTripulantes()
         this.estado = EstadoMision.EN_CURSO
+        // DISPARO DEL OBSERVER: Notifica a cada comportamiento dinámico configurado
+        accionesLanzamiento.forEach { it.ejecutar(this) }
     }
 
     fun fallo() {
@@ -68,6 +82,13 @@ class Mision(
         destino.distanciaATierra * Config.DIAS_DEL_ANIO / this.nave.velPromedio * Config.IDA_Y_VUELTA
 
     fun altoRiesgo(): Boolean = !destino.esHabitable() && duracion() > Config.DURACION_DE_ALTO_RIESGO
+
+    // Lógica para evaluar si la misión genera desgaste en la nave
+    fun esDesgastante(): Boolean {
+        val excesoCargaYTripulacion = this.tripulantes.size > 5 && this.cargaEnKg > 5000.0
+        val distanciaExcesiva = this.destino.distanciaATierra > 4.0
+        return excesoCargaYTripulacion || distanciaExcesiva
+    }
 
     fun sumarTripulacion(tripulacion: List<Tripulante>) {
         val nuevaTripulacion = this.tripulantes + tripulacion
@@ -113,7 +134,6 @@ class Mision(
             throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
         }
     }
-    // --- NUEVOS MÉTODOS (ENTREGA 2) ---
 
     fun asignarSubvencion(subvencion: Subvencion) {
         this.subvencionAplicada = subvencion
@@ -145,6 +165,7 @@ class Mision(
         return presupuestoFijo - montoSubvencion
     }
 }
+
 
 
 

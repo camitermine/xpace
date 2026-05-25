@@ -38,8 +38,6 @@ class RepositorioTest : DescribeSpec({
     fun subvencion(nombre: String = "SubNASA") =
         SubvencionEmergencia(nombre, 100.0, LocalDate.now(), 365)
 
-    // --- CRUD genérico (se prueba una sola vez, la lógica es compartida por todos los repos) ---
-
     describe("CRUD genérico y manejo de errores") {
         lateinit var repo: RepositorioTripulante
 
