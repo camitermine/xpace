@@ -10,7 +10,8 @@ val MAIL_FINANCIAMIENTO = "financiamiento@xpace.com"
  */
 class Sender: MailSender {
     override fun enviarMail(to: String, asunto: String, cuerpo: String) {
-        TODO("Not yet implemented")
+        System.out.println(to);
+
     }
 
 }
