@@ -49,9 +49,14 @@ class Mision(
 
     fun lanzar() {
         if (this.estado !== EstadoMision.BORRADOR) throw ErrorDeMision("La mision ya fue lanzada")
+
         prepararNave()
         prepararTripulantes()
+        presupuesto.calcularPresupuesto()
+
         this.estado = EstadoMision.EN_CURSO
+
+        if(altoRiesgo() && tripulantes.isNotEmpty()) tripulantes.forEach { tripulant -> tripulant.hacerVeterano(300) }
         accionesLanzamiento.forEach { it.ejecutar(this) }
     }
 
