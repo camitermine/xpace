@@ -85,3 +85,53 @@ class ActualizacionPlanetas(
     }
 }
 
+class BorrarSubvencionesVencidas(
+    private val repositorioSubvencion: RepositorioSubvencion,
+    mailSender: MailSender
+) : ProcesoAdministracion(mailSender) {
+
+    override fun nombreProceso() = "Borrar Subvenciones vencidas sin aplicar"
+
+    override fun ejecutarProceso() {
+        val subvencionesABorrar = repositorioSubvencion.getAll().filter {
+            !it.estaVigente() && !it.estaAplicada
+        }
+        subvencionesABorrar.forEach { repositorioSubvencion.delete(it) }
+    }
+}
+
+class RetirarTripulantesInactivos(
+    private val repositorioTripulante: RepositorioTripulante,
+    private val repositorioMision: RepositorioMision,
+    mailSender: MailSender
+) : ProcesoAdministracion(mailSender) {
+
+    override fun nombreProceso() = "Retirar Tripulantes inactivos"
+
+    override fun ejecutarProceso() {
+        val dosAniosAtras = LocalDate.now().minusYears(2)
+        val todasLasMisiones = repositorioMision.getAll()
+
+        val tripulantesInactivos = repositorioTripulante.getAll().filter { tripulante ->
+            todasLasMisiones.none { mision ->
+                tripulante in mision.tripulantes && mision.fechaLanzamiento.isAfter(dosAniosAtras)
+            }
+        }
+
+        tripulantesInactivos.forEach { repositorioTripulante.delete(it) }
+    }
+}
+
+class AgregarNavesMasivas(
+    private val naves: List<Nave>,
+    private val repositorioNave: RepositorioNave,
+    mailSender: MailSender
+) : ProcesoAdministracion(mailSender) {
+
+    override fun nombreProceso() = "Agregar Naves masivas"
+
+    override fun ejecutarProceso() {
+        naves.forEach { repositorioNave.create(it) }
+    }
+}
+
