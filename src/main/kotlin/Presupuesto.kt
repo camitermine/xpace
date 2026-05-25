@@ -1,14 +1,30 @@
 import java.time.LocalDate
 
 val PRESUPUESTO_GRANDE = 1000000
+val MAIL_FINANCIAMIENTO = "financiamiento@xpace.com"
+
+/**
+ * @Author Nico
+ * Provicional para que no me tire error creando smtp en Presupuesto.
+ * Borrar e implementar en un archivo.
+ */
+class Sender: MailSender {
+    override fun enviarMail(to: String, asunto: String, cuerpo: String) {
+        TODO("Not yet implemented")
+    }
+
+}
 
 class Presupuesto(val mision: Mision) {
     private val sistemasContables: MutableList<SistemaContable> = mutableListOf()
+    private val smtp: MailSender =  Sender()
+
     var subvencionAplicada: Subvencion? = null
         private set
 
     fun asignarSubvencion(subvencion: Subvencion) {
         this.subvencionAplicada = subvencion
+        smtp.enviarMail(MAIL_FINANCIAMIENTO, mision.nombre, "Se uso subvencion")
     }
 
     fun agregarSistema(sist: SistemaContable) {
