@@ -23,7 +23,7 @@ class Mision(
     }
     private val accionesLanzamiento: MutableList<AccionLanzamiento> = mutableListOf()
 
-    val presupuesto: Presupuesto = Presupuesto(this);
+    val presupuesto: Presupuesto = Presupuesto(this)
     var tripulantes: List<Tripulante> = emptyList()
     var estado: EstadoMision = EstadoMision.BORRADOR
         private set
