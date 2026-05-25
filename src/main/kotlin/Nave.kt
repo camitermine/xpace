@@ -81,7 +81,7 @@ abstract class Nave(
         return (distancia * Config.DIAS_DEL_ANIO) / velPromedio * 2
     }
     fun puedeAlcanzar(distancia: Double): Boolean {
-        return tiempoDeViaje(distancia) <= autonomiaSistemaContable
+        return tiempoDeViaje(distancia) <= autonomia
     }
 
     open fun puedeTransportar(tripulacion: Int): Boolean {
