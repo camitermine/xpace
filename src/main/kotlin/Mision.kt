@@ -1,5 +1,3 @@
-
-
 import java.time.LocalDate
 
 private enum class MensajesDeError(val mensaje: String) {
@@ -15,19 +13,17 @@ class Mision(
     val fechaLanzamiento: LocalDate,
     val nave: Nave,
     val destino: Planeta,
-    val cargaEnKg: Double = 0.0 // Atributo nuevo requerido para la Entrega 3
+    val cargaEnKg: Double = 0.0
 ) : Entidad {
 
     override var id: Int? = null
-
     override fun coincideCon(criterio: String): Boolean {
         return nombre.equals(criterio, ignoreCase = true) ||
                 destino.nombre.equals(criterio, ignoreCase = true)
     }
+    private val accionesLanzamiento: MutableList<AccionLanzamiento> = mutableListOf()
 
-    var subvencionAplicada: Subvencion? = null
-        private set
-
+    val presupuesto: Presupuesto = Presupuesto(this)
     var tripulantes: List<Tripulante> = emptyList()
     var estado: EstadoMision = EstadoMision.BORRADOR
         private set
@@ -42,8 +38,6 @@ class Mision(
     init {
         validarConstruccion()
     }
-    // Lista de observadores para los comportamientos dinámicos
-    private val accionesLanzamiento: MutableList<AccionLanzamiento> = mutableListOf()
 
     fun agregarAccion(accion: AccionLanzamiento) {
         accionesLanzamiento.add(accion)
@@ -55,10 +49,14 @@ class Mision(
 
     fun lanzar() {
         if (this.estado !== EstadoMision.BORRADOR) throw ErrorDeMision("La mision ya fue lanzada")
+
         prepararNave()
         prepararTripulantes()
+        presupuesto.calcularPresupuesto()
+
         this.estado = EstadoMision.EN_CURSO
-        // DISPARO DEL OBSERVER: Notifica a cada comportamiento dinámico configurado
+
+        if(altoRiesgo() && tripulantes.isNotEmpty()) tripulantes.forEach { tripulant -> tripulant.hacerVeterano(300) }
         accionesLanzamiento.forEach { it.ejecutar(this) }
     }
 
@@ -83,7 +81,6 @@ class Mision(
 
     fun altoRiesgo(): Boolean = !destino.esHabitable() && duracion() > Config.DURACION_DE_ALTO_RIESGO
 
-    // Lógica para evaluar si la misión genera desgaste en la nave
     fun esDesgastante(): Boolean {
         val excesoCargaYTripulacion = this.tripulantes.size > 5 && this.cargaEnKg > 5000.0
         val distanciaExcesiva = this.destino.distanciaATierra > 4.0
@@ -134,40 +131,4 @@ class Mision(
             throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
         }
     }
-
-    fun asignarSubvencion(subvencion: Subvencion) {
-        this.subvencionAplicada = subvencion
-    }
-
-    private fun calcularCostoCombustible(): Double {
-        return nave.consumoDeCombustible(destino.distanciaATierra, tripulantes.size)
-    }
-
-    private fun calcularCostoSalarial(): Double {
-        val duracionEnMeses = duracion() / 30.0
-        return tripulantes.sumOf { it.calcularSalarioTotal() } * duracionEnMeses
-    }
-
-    private fun aplicarRecargos(montoBase: Double): Double {
-        var montoFinal = montoBase
-        if (!destino.esHabitable()) montoFinal *= 1.20
-        if (!nave.esModerna()) montoFinal *= 1.10
-        return montoFinal
-    }
-    fun calcularPresupuestoFijo(): Double {
-        val costoBase = calcularCostoCombustible() + calcularCostoSalarial()
-        return aplicarRecargos(costoBase)
-    }
-
-    fun calcularPresupuesto(): Double {
-        val presupuestoFijo = calcularPresupuestoFijo()
-        val montoSubvencion = subvencionAplicada?.calcularMontoTotal(this) ?: 0.0
-        return presupuestoFijo - montoSubvencion
-    }
 }
-
-
-
-
-
-

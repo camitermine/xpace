@@ -203,7 +203,7 @@ class SubvencionTest :
                                     crearSonda(),
                                     crearPlanetaHabitable()
                             )
-                    val pFijo = mision.calcularPresupuestoFijo()
+                    val pFijo = mision.presupuesto.calcularPresupuestoFijo()
 
                     subvencion.calcularMontoTotal(mision) shouldBe
                             (100.0 + (pFijo * 0.50)).plusOrMinus(0.01)
@@ -220,7 +220,7 @@ class SubvencionTest :
                                     crearSonda(),
                                     crearPlanetaHabitable()
                             )
-                    mision.calcularPresupuesto() shouldBe mision.calcularPresupuestoFijo()
+                    mision.presupuesto.calcularPresupuesto() shouldBe mision.presupuesto.calcularPresupuestoFijo()
                 }
 
                 it("si hay subvencion aplicada, la resta del presupuesto fijo") {
@@ -236,9 +236,9 @@ class SubvencionTest :
 
                     subvencion.aplicar(mision)
 
-                    val pFijo = mision.calcularPresupuestoFijo()
+                    val pFijo = mision.presupuesto.calcularPresupuestoFijo()
                     val montoSub = subvencion.calcularMontoTotal(mision)
-                    mision.calcularPresupuesto() shouldBe (pFijo - montoSub)
+                    mision.presupuesto.calcularPresupuesto() shouldBe (pFijo - montoSub)
                 }
 
                 it("falla al aplicar subvencion invalida o vencida") {
@@ -272,7 +272,7 @@ class SubvencionTest :
                     val costoCombustible = naveAntigua.consumoDeCombustible(planeta.distanciaATierra, 0)
                     val esperado = costoCombustible * 1.20 * 1.10
 
-                    mision.calcularPresupuestoFijo() shouldBe esperado.plusOrMinus(0.01)
+                    mision.presupuesto.calcularPresupuestoFijo() shouldBe esperado.plusOrMinus(0.01)
                 }
             }
         })
