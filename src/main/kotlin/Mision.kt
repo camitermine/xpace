@@ -38,13 +38,22 @@ class Mision(
     init {
         validarConstruccion()
     }
-
+    fun nombreDestino(): String {
+        return destino.nombre
+    }
+    fun esPionera(): Boolean {
+        return destino.esHabitable() && !destino.fueAterrizado
+    }
     fun agregarAccion(accion: AccionLanzamiento) {
         accionesLanzamiento.add(accion)
     }
 
     fun removerAccion(accion: AccionLanzamiento) {
         accionesLanzamiento.remove(accion)
+    }
+    fun provocaMantenimientoNave(): Boolean {
+        // Usamos nave() en lugar de la propiedad directa para mantener tu regla de diseño
+        return esDesgastante() && !nave.esModerna()
     }
 
     fun lanzar() {

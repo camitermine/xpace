@@ -34,6 +34,9 @@ class Tripulante(
     val historialMisiones: List<Mision> get() = _historialMisiones
 
     // --- NUEVOS ATRIBUTOS Y MÉTODOS ENTREGA 3 (INBOX Y ESTADO) ---
+
+
+
     private val _inbox: MutableList<Mensaje> = mutableListOf()
     fun inbox(): List<Mensaje> = _inbox.toList()
 
@@ -44,7 +47,9 @@ class Tripulante(
     fun eliminarMensajes(mensajesABorrar: List<Mensaje>) {
         _inbox.removeAll(mensajesABorrar)
     }
-
+    fun limpiarMensajesObsoletos(fechaLimite: LocalDate) {
+        _inbox.removeAll { it.esObsoleto(fechaLimite) }
+    }
     fun hacerVeterano(maxDiasPermitidos: Int) {
         this.perfilAptitud = Veterano(maxDiasPermitidos)
     }
@@ -229,4 +234,6 @@ object Medico : Rol {
         return (tripulante.salarioBase * 0.25) + (tripulante.salarioBase * 0.02 * misionesFallidas)
     }
 }
+
+
 
