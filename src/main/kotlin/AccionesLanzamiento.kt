@@ -50,3 +50,35 @@ class EvaluarMantenimientoNave : AccionLanzamiento {
         }
     }
 }
+class InformarMisionCara(private val sistemaContable: SistemaContable) : AccionLanzamiento {
+    override fun ejecutar(mision: Mision) {
+        val presupuesto = mision.calcularPresupuestoFijo()
+        if (presupuesto > 1000000.0) {
+            // Uso el nombre de la misión como código para informar al sistema
+            sistemaContable.informarMisionCara(mision.nombre, presupuesto, LocalDate.now())
+        }
+    }
+}
+
+class PromoverAVeterano(private val maxDiasConfigurables: Int = 300) : AccionLanzamiento {
+    override fun ejecutar(mision: Mision) {
+        if (mision.altoRiesgo()) {
+            mision.tripulantes.forEach { tripulante ->
+                // Actualiza el estado usando la clase Veterano que ya estaba
+                tripulante.hacerVeterano(maxDiasConfigurables)
+            }
+        }
+    }
+}
+
+class NotificarFinanciamiento(private val mailSender: MailSender) : AccionLanzamiento {
+    override fun ejecutar(mision: Mision) {
+        val subvencion = mision.subvencionAplicada
+        if (subvencion != null) {
+            val asunto = "Misión ${mision.nombre} con subvención"
+            val cuerpo = "Se informa que la misión ${mision.nombre} fue lanzada utilizando la subvención: ${subvencion.nombre}."
+
+            mailSender.enviarMail("financiamiento@xpace.com", asunto, cuerpo)
+        }
+    }
+}

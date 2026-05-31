@@ -1,9 +1,8 @@
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.*
 import java.time.LocalDate
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+
 
 class Entrega3Test : DescribeSpec({
 
@@ -57,7 +56,37 @@ class Entrega3Test : DescribeSpec({
                 )
             }
         }
+        it("InformarMisionCara avisa al sistema contable si el presupuesto supera el millón") {
+            // Simulamos una misión que gasta 1.5 millones
+            val misionCara = mockk<Mision> {
+                every { nombre } returns "Apolo Lujo"
+                every { calcularPresupuestoFijo() } returns 1500000.0
+            }
 
+            val accion = InformarMisionCara(sistemaContableMock)
+            accion.ejecutar(misionCara)
+
+            // Verificamos que se llamó al servicio contable con los datos exactos
+            verify(exactly = 1) {
+                sistemaContableMock.informarMisionCara("Apolo Lujo", 1500000.0, any())
+            }
+        }
+
+        it("InformarMisionCara NO avisa al sistema contable si el presupuesto es de un millón o menos") {
+            // Simulamos una misión austera
+            val misionBarata = mockk<Mision> {
+                every { nombre } returns "Apolo Económico"
+                every { calcularPresupuestoFijo() } returns 900000.0
+            }
+
+            val accion = InformarMisionCara(sistemaContableMock)
+            accion.ejecutar(misionBarata)
+
+            // Verificamos que NUNCA se contactó al sistema contable
+            verify(exactly = 0) {
+                sistemaContableMock.informarMisionCara(any(), any(), any())
+            }
+        }
         it("NotificarMisionPionera envía mensaje ALTA prioridad al inbox si el planeta es nuevo y habitable") {
             val tripulanteReal = mockk<Tripulante>(relaxed = true)
 
@@ -99,7 +128,79 @@ class Entrega3Test : DescribeSpec({
             verify(exactly = 1) { naveMock.solicitarMantenimiento() }
         }
 
+        // --- TESTS FALTANTES PARA PromoverAVeterano ---
+        it("PromoverAVeterano actualiza el estado de los tripulantes si la misión es de alto riesgo") {
+            // 1. Arrange
+            val tripulante1 = mockk<Tripulante>(relaxed = true)
+            val tripulante2 = mockk<Tripulante>(relaxed = true)
 
+            val misionRiesgosa = mockk<Mision> {
+                every { altoRiesgo() } returns true // Condición positiva
+                every { tripulantes } returns listOf(tripulante1, tripulante2)
+            }
+
+            val accion = PromoverAVeterano(300)
+
+            // 2. Act
+            accion.ejecutar(misionRiesgosa)
+
+            // 3. Assert
+            verify(exactly = 1) { tripulante1.hacerVeterano(300) }
+            verify(exactly = 1) { tripulante2.hacerVeterano(300) }
+        }
+
+        it("PromoverAVeterano NO hace nada si la misión NO es de alto riesgo") {
+            val tripulante = mockk<Tripulante>(relaxed = true)
+
+            val misionSegura = mockk<Mision> {
+                every { altoRiesgo() } returns false // Condición negativa
+                every { tripulantes } returns listOf(tripulante)
+            }
+
+            val accion = PromoverAVeterano(300)
+            accion.ejecutar(misionSegura)
+
+            // Verificamos que NUNCA se llamó al método hacerVeterano
+            verify(exactly = 0) { tripulante.hacerVeterano(any()) }
+        }
+
+        it("NotificarFinanciamiento envía un mail a financiamiento si la misión tiene subvención aplicada") {
+            // Creamos un mock de la subvención
+            val subvencionMock = mockk<Subvencion> {
+                every { nombre } returns "Fondo Galáctico"
+            }
+
+            val misionSubvencionada = mockk<Mision> {
+                every { nombre } returns "Apolo X"
+                every { subvencionAplicada } returns subvencionMock // Tiene subvención
+            }
+
+            val accion = NotificarFinanciamiento(mailSenderMock)
+            accion.ejecutar(misionSubvencionada)
+
+            // Verificamos el envío del mail con los datos correctos
+            verify(exactly = 1) {
+                mailSenderMock.enviarMail(
+                    "financiamiento@xpace.com",
+                    "Misión Apolo X con subvención",
+                    "Se informa que la misión Apolo X fue lanzada utilizando la subvención: Fondo Galáctico."
+                )
+            }
+        }
+
+        it("NotificarFinanciamiento NO envía mail si la misión no tiene subvención aplicada") {
+            val misionSinSubvencion = mockk<Mision> {
+                every { subvencionAplicada } returns null // No tiene subvención
+            }
+
+            val accion = NotificarFinanciamiento(mailSenderMock)
+            accion.ejecutar(misionSinSubvencion)
+
+            // Verificamos que no se intentó mandar ningún mail
+            verify(exactly = 0) {
+                mailSenderMock.enviarMail(any(), any(), any())
+            }
+        }
 
         describe("Procesos Administrativos (Command + Template Method)") {
 
