@@ -11,8 +11,18 @@ class Mensaje(
     val asunto: String,
     val cuerpo: String,
     val prioridad: Prioridad,
-    var leido: Boolean = false
+    private var leido: Boolean = false
 ) {
+    fun estaLeido(): Boolean {
+        return leido
+    }
+    fun fechaEmision(): LocalDate {
+        return fechaEmision
+    }
+
+    fun esObsoleto(fechaLimite: LocalDate): Boolean {
+        return estaLeido() && fechaEmision().isBefore(fechaLimite)
+    }
 
     fun marcarComoLeido() {
         this.leido = true
@@ -22,3 +32,4 @@ class Mensaje(
         this.leido = false
     }
 }
+
