@@ -17,11 +17,13 @@ class Mision(
 ) : Entidad {
 
     override var id: Int? = null
+
     override fun coincideCon(criterio: String): Boolean {
         return nombre.equals(criterio, ignoreCase = true) ||
                 destino.nombre.equals(criterio, ignoreCase = true)
     }
-    private val accionesLanzamiento: MutableList<AccionLanzamiento> = mutableListOf()
+    var subvencionAplicada: Subvencion? = null
+        private set
 
     val presupuesto: Presupuesto = Presupuesto(this)
     var tripulantes: List<Tripulante> = emptyList()
@@ -38,13 +40,25 @@ class Mision(
     init {
         validarConstruccion()
     }
+    // Lista de observadores para los comportamientos dinámicos
+    private val accionesLanzamiento: MutableList<AccionLanzamiento> = mutableListOf()
 
+    fun nombreDestino(): String {
+        return destino.nombre
+    }
+    fun esPionera(): Boolean {
+        return destino.esHabitable() && !destino.fueAterrizado
+    }
     fun agregarAccion(accion: AccionLanzamiento) {
         accionesLanzamiento.add(accion)
     }
 
     fun removerAccion(accion: AccionLanzamiento) {
         accionesLanzamiento.remove(accion)
+    }
+    fun provocaMantenimientoNave(): Boolean {
+        // Usamos nave() en lugar de la propiedad directa para mantener tu regla de diseño
+        return esDesgastante() && !nave.esModerna()
     }
 
     fun lanzar() {
@@ -130,5 +144,34 @@ class Mision(
         if (!tripulanteInvalido.esAptoParaMision(this)) {
             throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
         }
+    }
+    fun asignarSubvencion(subvencion: Subvencion) {
+        this.subvencionAplicada = subvencion
+    }
+
+    private fun calcularCostoCombustible(): Double {
+        return nave.consumoDeCombustible(destino.distanciaATierra, tripulantes.size)
+    }
+
+    private fun calcularCostoSalarial(): Double {
+        val duracionEnMeses = duracion() / 30.0
+        return tripulantes.sumOf { it.calcularSalarioTotal() } * duracionEnMeses
+    }
+
+    private fun aplicarRecargos(montoBase: Double): Double {
+        var montoFinal = montoBase
+        if (!destino.esHabitable()) montoFinal *= 1.20
+        if (!nave.esModerna()) montoFinal *= 1.10
+        return montoFinal
+    }
+    fun calcularPresupuestoFijo(): Double {
+        val costoBase = calcularCostoCombustible() + calcularCostoSalarial()
+        return aplicarRecargos(costoBase)
+    }
+
+    fun calcularPresupuesto(): Double {
+        val presupuestoFijo = calcularPresupuestoFijo()
+        val montoSubvencion = subvencionAplicada?.calcularMontoTotal(this) ?: 0.0
+        return presupuestoFijo - montoSubvencion
     }
 }

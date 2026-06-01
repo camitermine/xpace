@@ -40,16 +40,10 @@ class BorrarMensajesAntiguos(
     override fun ejecutarProceso() {
         val limiteFecha = LocalDate.now().minusDays(30)
 
-        tripulantes.forEach { tripulante ->
-            val mensajesParaBorrar = tripulante.inbox().filter {
-                it.leido && it.fechaEmision.isBefore(limiteFecha)
-            }
-            tripulante.eliminarMensajes(mensajesParaBorrar)
-        }
+        tripulantes.forEach { it.limpiarMensajesObsoletos(limiteFecha) }
     }
 }
 
-// 2. Reparar Naves con requerimiento de mantenimiento (si no están en misión)
 class RepararNaves(
     private val baseLanzamiento: BaseLanzamiento,
     mailSender: MailSender
@@ -58,9 +52,8 @@ class RepararNaves(
     override fun nombreProceso() = "Reparar Naves con requerimiento de mantenimiento"
 
     override fun ejecutarProceso() {
-        baseLanzamiento.navesEstacionadas
-            .filter { it.requiereMantenimiento && it.misionAsignada == null }
-            .forEach { it.reparar() }
+
+        baseLanzamiento.repararNavesDisponibles()
     }
 }
 
@@ -134,4 +127,6 @@ class AgregarNavesMasivas(
         naves.forEach { repositorioNave.create(it) }
     }
 }
+
+
 
