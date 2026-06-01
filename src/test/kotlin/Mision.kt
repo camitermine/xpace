@@ -1,8 +1,6 @@
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
-import io.mockk.verify
 import org.uqbar.geodds.Point
 import java.time.LocalDate
 
