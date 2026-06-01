@@ -86,9 +86,7 @@ class BorrarSubvencionesVencidas(
     override fun nombreProceso() = "Borrar Subvenciones vencidas sin aplicar"
 
     override fun ejecutarProceso() {
-        val subvencionesABorrar = repositorioSubvencion.getAll().filter {
-            !it.estaVigente() && !it.estaAplicada
-        }
+        val subvencionesABorrar = repositorioSubvencion.getAll().filter { it.esBorrable() }
         subvencionesABorrar.forEach { repositorioSubvencion.delete(it) }
     }
 }
@@ -106,9 +104,7 @@ class RetirarTripulantesInactivos(
         val todasLasMisiones = repositorioMision.getAll()
 
         val tripulantesInactivos = repositorioTripulante.getAll().filter { tripulante ->
-            todasLasMisiones.none { mision ->
-                tripulante in mision.tripulantes && mision.fechaLanzamiento.isAfter(dosAniosAtras)
-            }
+            todasLasMisiones.none { mision -> mision.tuvoComoTripulanteDespuesDe(tripulante, dosAniosAtras) }
         }
 
         tripulantesInactivos.forEach { repositorioTripulante.delete(it) }
