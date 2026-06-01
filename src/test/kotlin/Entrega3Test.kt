@@ -287,14 +287,17 @@ class Entrega3Test : DescribeSpec({
                 val subVencidaNoAplicada = mockk<Subvencion> {
                     every { estaVigente() } returns false
                     every { estaAplicada } returns false
+                    every { esBorrable() } returns true
                 }
                 val subVencidaAplicada = mockk<Subvencion> {
                     every { estaVigente() } returns false
                     every { estaAplicada } returns true
+                    every { esBorrable() } returns false
                 }
                 val subVigente = mockk<Subvencion> {
                     every { estaVigente() } returns true
                     every { estaAplicada } returns false
+                    every { esBorrable() } returns false
                 }
 
                 every { repoSubvencion.getAll() } returns listOf(subVencidaNoAplicada, subVencidaAplicada, subVigente)
@@ -316,6 +319,7 @@ class Entrega3Test : DescribeSpec({
                 val subVigente = mockk<Subvencion> {
                     every { estaVigente() } returns true
                     every { estaAplicada } returns false
+                    every { esBorrable() } returns false
                 }
 
                 every { repoSubvencion.getAll() } returns listOf(subVigente)
@@ -335,10 +339,13 @@ class Entrega3Test : DescribeSpec({
                 val misionVieja = mockk<Mision> {
                     every { tripulantes } returns listOf(tripulanteInactivo)
                     every { fechaLanzamiento } returns LocalDate.now().minusYears(3)
+                    every { tuvoComoTripulanteDespuesDe(any(), any()) } returns false
                 }
                 val misionReciente = mockk<Mision> {
                     every { tripulantes } returns listOf(tripulanteActivo)
                     every { fechaLanzamiento } returns LocalDate.now().minusMonths(6)
+                    every { tuvoComoTripulanteDespuesDe(tripulanteActivo, any()) } returns true
+                    every { tuvoComoTripulanteDespuesDe(tripulanteInactivo, any()) } returns false
                 }
 
                 every { repoTripulante.getAll() } returns listOf(tripulanteInactivo, tripulanteActivo)
@@ -375,6 +382,7 @@ class Entrega3Test : DescribeSpec({
                 val misionReciente = mockk<Mision> {
                     every { tripulantes } returns listOf(tripulanteActivo)
                     every { fechaLanzamiento } returns LocalDate.now().minusDays(30)
+                    every { tuvoComoTripulanteDespuesDe(tripulanteActivo, any()) } returns true
                 }
 
                 every { repoTripulante.getAll() } returns listOf(tripulanteActivo)
