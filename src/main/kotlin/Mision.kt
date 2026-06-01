@@ -1,4 +1,5 @@
 import java.time.LocalDate
+import kotlin.collections.forEach
 
 private enum class MensajesDeError(val mensaje: String) {
     NOMBRE_INVALIDO("El nombre no puede estar vacío"),
@@ -7,13 +8,17 @@ private enum class MensajesDeError(val mensaje: String) {
     FECHA_LANZAMIENTO_INVALIDA("La fecha de lanzamiento debe ser posterior a hoy")
 }
 
+const val PRESUPUESTO_GRANDE = 1000000
+const val MAIL_FINANCIAMIENTO = "financiamiento@xpace.com"
+
 class Mision(
     val nombre: String,
     val descripcion: String,
     val fechaLanzamiento: LocalDate,
     val nave: Nave,
     val destino: Planeta,
-    val cargaEnKg: Double = 0.0
+    val cargaEnKg: Double = 0.0,
+    private val smtp: MailSender? = null
 ) : Entidad {
 
     override var id: Int? = null
@@ -22,10 +27,10 @@ class Mision(
         return nombre.equals(criterio, ignoreCase = true) ||
                 destino.nombre.equals(criterio, ignoreCase = true)
     }
+
     var subvencionAplicada: Subvencion? = null
         private set
 
-    val presupuesto: Presupuesto = Presupuesto(this)
     var tripulantes: List<Tripulante> = emptyList()
     var estado: EstadoMision = EstadoMision.BORRADOR
         private set
@@ -40,15 +45,24 @@ class Mision(
     init {
         validarConstruccion()
     }
-    // Lista de observadores para los comportamientos dinámicos
+
+    private var sistemaContable: SistemaContable? = null
     private val accionesLanzamiento: MutableList<AccionLanzamiento> = mutableListOf()
+    private fun notificarSiEsCaro(presupuesto: Double) {
+        if (presupuesto < PRESUPUESTO_GRANDE) return
+        sistemaContable?.informarMisionCara("", presupuesto, LocalDate.now())
+    }
+
+    fun asignarSistemaContable(sistemaContable: SistemaContable) { this.sistemaContable = sistemaContable }
 
     fun nombreDestino(): String {
         return destino.nombre
     }
+
     fun esPionera(): Boolean {
         return destino.esHabitable() && !destino.fueAterrizado
     }
+
     fun agregarAccion(accion: AccionLanzamiento) {
         accionesLanzamiento.add(accion)
     }
@@ -56,6 +70,7 @@ class Mision(
     fun removerAccion(accion: AccionLanzamiento) {
         accionesLanzamiento.remove(accion)
     }
+
     fun provocaMantenimientoNave(): Boolean {
         // Usamos nave() en lugar de la propiedad directa para mantener tu regla de diseño
         return esDesgastante() && !nave.esModerna()
@@ -66,11 +81,10 @@ class Mision(
 
         prepararNave()
         prepararTripulantes()
-        presupuesto.calcularPresupuesto()
+        notificarSiEsCaro(calcularPresupuesto())
 
         this.estado = EstadoMision.EN_CURSO
-
-        if(altoRiesgo() && tripulantes.isNotEmpty()) tripulantes.forEach { tripulant -> tripulant.hacerVeterano(300) }
+        if (altoRiesgo() && tripulantes.isNotEmpty()) tripulantes.forEach { it.hacerVeterano(300) }
         accionesLanzamiento.forEach { it.ejecutar(this) }
     }
 
@@ -145,8 +159,10 @@ class Mision(
             throw ErrorDeMision("Hay tripulantes que no son aptos para esta misión")
         }
     }
+
     fun asignarSubvencion(subvencion: Subvencion) {
         this.subvencionAplicada = subvencion
+        this.smtp?.enviarMail(MAIL_FINANCIAMIENTO, this.nombre, "Se uso subvencion")
     }
 
     private fun calcularCostoCombustible(): Double {
@@ -164,6 +180,7 @@ class Mision(
         if (!nave.esModerna()) montoFinal *= 1.10
         return montoFinal
     }
+
     fun calcularPresupuestoFijo(): Double {
         val costoBase = calcularCostoCombustible() + calcularCostoSalarial()
         return aplicarRecargos(costoBase)
