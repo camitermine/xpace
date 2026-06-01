@@ -70,7 +70,6 @@ class Mision(
 
         this.estado = EstadoMision.EN_CURSO
 
-        if(altoRiesgo() && tripulantes.isNotEmpty()) tripulantes.forEach { tripulant -> tripulant.hacerVeterano(300) }
         accionesLanzamiento.forEach { it.ejecutar(this) }
     }
 
@@ -99,6 +98,10 @@ class Mision(
         val excesoCargaYTripulacion = this.tripulantes.size > 5 && this.cargaEnKg > 5000.0
         val distanciaExcesiva = this.destino.distanciaATierra > 4.0
         return excesoCargaYTripulacion || distanciaExcesiva
+    }
+
+    fun tuvoComoTripulanteDespuesDe(tripulante: Tripulante, fechaLimite: LocalDate): Boolean {
+        return tripulante in this.tripulantes && this.fechaLanzamiento.isAfter(fechaLimite)
     }
 
     fun sumarTripulacion(tripulacion: List<Tripulante>) {
