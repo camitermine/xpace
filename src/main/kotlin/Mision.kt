@@ -1,5 +1,4 @@
 import java.time.LocalDate
-import kotlin.collections.forEach
 
 private enum class MensajesDeError(val mensaje: String) {
     NOMBRE_INVALIDO("El nombre no puede estar vacío"),
@@ -8,8 +7,6 @@ private enum class MensajesDeError(val mensaje: String) {
     FECHA_LANZAMIENTO_INVALIDA("La fecha de lanzamiento debe ser posterior a hoy")
 }
 
-const val PRESUPUESTO_GRANDE = 1000000
-const val MAIL_FINANCIAMIENTO = "financiamiento@xpace.com"
 
 class Mision(
     val nombre: String,
@@ -18,7 +15,6 @@ class Mision(
     val nave: Nave,
     val destino: Planeta,
     val cargaEnKg: Double = 0.0,
-    private val smtp: MailSender? = null
 ) : Entidad {
 
     override var id: Int? = null
@@ -46,14 +42,7 @@ class Mision(
         validarConstruccion()
     }
 
-    private var sistemaContable: SistemaContable? = null
     private val accionesLanzamiento: MutableList<AccionLanzamiento> = mutableListOf()
-    private fun notificarSiEsCaro(presupuesto: Double) {
-        if (presupuesto < PRESUPUESTO_GRANDE) return
-        sistemaContable?.informarMisionCara("", presupuesto, LocalDate.now())
-    }
-
-    fun asignarSistemaContable(sistemaContable: SistemaContable) { this.sistemaContable = sistemaContable }
 
     fun nombreDestino(): String {
         return destino.nombre
@@ -81,7 +70,6 @@ class Mision(
 
         prepararNave()
         prepararTripulantes()
-        notificarSiEsCaro(calcularPresupuesto())
 
         this.estado = EstadoMision.EN_CURSO
 
@@ -166,7 +154,6 @@ class Mision(
 
     fun asignarSubvencion(subvencion: Subvencion) {
         this.subvencionAplicada = subvencion
-        this.smtp?.enviarMail(MAIL_FINANCIAMIENTO, this.nombre, "Se uso subvencion")
     }
 
     private fun calcularCostoCombustible(): Double {

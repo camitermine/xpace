@@ -110,6 +110,19 @@ class Entrega3Test : DescribeSpec({
                 tripulanteReal.recibirMensaje(match { it.prioridad == Prioridad.ALTA && it.asunto.contains("Pionera") })
             }
         }
+        it("NotificarMisionPionera NO envía mensaje si la misión no es pionera") {
+            val tripulanteReal = mockk<Tripulante>(relaxed = true)
+
+            val misionMock = mockk<Mision> {
+                every { esPionera() } returns false
+                every { tripulantes } returns listOf(tripulanteReal)
+            }
+
+            NotificarMisionPionera().ejecutar(misionMock)
+
+            verify(exactly = 0) { tripulanteReal.recibirMensaje(any()) }
+        }
+
         it("EvaluarMantenimientoNave solicita mantenimiento a la nave si la misión lo provoca") {
             val naveMock = mockk<Nave>(relaxed = true)
 
@@ -126,6 +139,19 @@ class Entrega3Test : DescribeSpec({
 
             // Verificamos que se le mandó el mensaje de solicitar mantenimiento a la nave
             verify(exactly = 1) { naveMock.solicitarMantenimiento() }
+        }
+
+        it("EvaluarMantenimientoNave NO solicita mantenimiento si la misión no lo provoca") {
+            val naveMock = mockk<Nave>(relaxed = true)
+
+            val misionMock = mockk<Mision> {
+                every { provocaMantenimientoNave() } returns false
+                every { nave } returns naveMock
+            }
+
+            EvaluarMantenimientoNave().ejecutar(misionMock)
+
+            verify(exactly = 0) { naveMock.solicitarMantenimiento() }
         }
 
         // --- TESTS FALTANTES PARA PromoverAVeterano ---
@@ -212,7 +238,7 @@ class Entrega3Test : DescribeSpec({
                 proceso.ejecutar()
 
                 // Verificamos que se calculó la fecha de corte correcta (hace 30 días)
-                val fechaCorteEsperada = LocalDate.now().minusDays(30)
+                val fechaCorteEsperada = LocalDate.now().minusDays(Config.CANT_DIAS_ANTIGUEDAD_MAIL)
                 verify(exactly = 1) { tripulanteMock.limpiarMensajesObsoletos(fechaCorteEsperada) }
 
                 // Verificamos la notificación al admin (propia del Template Method)
