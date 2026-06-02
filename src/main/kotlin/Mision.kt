@@ -1,6 +1,5 @@
-
-
 import java.time.LocalDate
+import kotlin.collections.forEach
 
 private enum class MensajesDeError(val mensaje: String) {
     NOMBRE_INVALIDO("El nombre no puede estar vacío"),
@@ -9,13 +8,17 @@ private enum class MensajesDeError(val mensaje: String) {
     FECHA_LANZAMIENTO_INVALIDA("La fecha de lanzamiento debe ser posterior a hoy")
 }
 
+const val PRESUPUESTO_GRANDE = 1000000
+const val MAIL_FINANCIAMIENTO = "financiamiento@xpace.com"
+
 class Mision(
     val nombre: String,
     val descripcion: String,
     val fechaLanzamiento: LocalDate,
     val nave: Nave,
     val destino: Planeta,
-    val cargaEnKg: Double = 0.0 // Atributo nuevo requerido para la Entrega 3
+    val cargaEnKg: Double = 0.0,
+    private val smtp: MailSender? = null
 ) : Entidad {
 
     override var id: Int? = null
@@ -42,8 +45,23 @@ class Mision(
     init {
         validarConstruccion()
     }
-    // Lista de observadores para los comportamientos dinámicos
+
+    private var sistemaContable: SistemaContable? = null
     private val accionesLanzamiento: MutableList<AccionLanzamiento> = mutableListOf()
+    private fun notificarSiEsCaro(presupuesto: Double) {
+        if (presupuesto < PRESUPUESTO_GRANDE) return
+        sistemaContable?.informarMisionCara("", presupuesto, LocalDate.now())
+    }
+
+    fun asignarSistemaContable(sistemaContable: SistemaContable) { this.sistemaContable = sistemaContable }
+
+    fun nombreDestino(): String {
+        return destino.nombre
+    }
+
+    fun esPionera(): Boolean {
+        return destino.esHabitable() && !destino.fueAterrizado
+    }
 
     fun agregarAccion(accion: AccionLanzamiento) {
         accionesLanzamiento.add(accion)
@@ -53,12 +71,20 @@ class Mision(
         accionesLanzamiento.remove(accion)
     }
 
+    fun provocaMantenimientoNave(): Boolean {
+        // Usamos nave() en lugar de la propiedad directa para mantener tu regla de diseño
+        return esDesgastante() && !nave.esModerna()
+    }
+
     fun lanzar() {
         if (this.estado !== EstadoMision.BORRADOR) throw ErrorDeMision("La mision ya fue lanzada")
+
         prepararNave()
         prepararTripulantes()
+        notificarSiEsCaro(calcularPresupuesto())
+
         this.estado = EstadoMision.EN_CURSO
-        // DISPARO DEL OBSERVER: Notifica a cada comportamiento dinámico configurado
+
         accionesLanzamiento.forEach { it.ejecutar(this) }
     }
 
@@ -83,11 +109,14 @@ class Mision(
 
     fun altoRiesgo(): Boolean = !destino.esHabitable() && duracion() > Config.DURACION_DE_ALTO_RIESGO
 
-    // Lógica para evaluar si la misión genera desgaste en la nave
     fun esDesgastante(): Boolean {
         val excesoCargaYTripulacion = this.tripulantes.size > 5 && this.cargaEnKg > 5000.0
         val distanciaExcesiva = this.destino.distanciaATierra > 4.0
         return excesoCargaYTripulacion || distanciaExcesiva
+    }
+
+    fun tuvoComoTripulanteDespuesDe(tripulante: Tripulante, fechaLimite: LocalDate): Boolean {
+        return tripulante in this.tripulantes && this.fechaLanzamiento.isAfter(fechaLimite)
     }
 
     fun sumarTripulacion(tripulacion: List<Tripulante>) {
@@ -137,6 +166,7 @@ class Mision(
 
     fun asignarSubvencion(subvencion: Subvencion) {
         this.subvencionAplicada = subvencion
+        this.smtp?.enviarMail(MAIL_FINANCIAMIENTO, this.nombre, "Se uso subvencion")
     }
 
     private fun calcularCostoCombustible(): Double {
@@ -154,6 +184,7 @@ class Mision(
         if (!nave.esModerna()) montoFinal *= 1.10
         return montoFinal
     }
+
     fun calcularPresupuestoFijo(): Double {
         val costoBase = calcularCostoCombustible() + calcularCostoSalarial()
         return aplicarRecargos(costoBase)
@@ -165,9 +196,3 @@ class Mision(
         return presupuestoFijo - montoSubvencion
     }
 }
-
-
-
-
-
-

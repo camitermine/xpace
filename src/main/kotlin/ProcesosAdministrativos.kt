@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.LocalDate
 
 // TEMPLATE METHOD + COMMAND
@@ -38,18 +37,12 @@ class BorrarMensajesAntiguos(
     override fun nombreProceso() = "Borrar Mensajes antiguos y leídos"
 
     override fun ejecutarProceso() {
-        val limiteFecha = LocalDate.now().minusDays(30)
+        val limiteFecha = LocalDate.now().minusDays(Config.CANT_DIAS_ANTIGUEDAD_MAIL)
 
-        tripulantes.forEach { tripulante ->
-            val mensajesParaBorrar = tripulante.inbox().filter {
-                it.leido && it.fechaEmision.isBefore(limiteFecha)
-            }
-            tripulante.eliminarMensajes(mensajesParaBorrar)
-        }
+        tripulantes.forEach { it.limpiarMensajesObsoletos(limiteFecha) }
     }
 }
 
-// 2. Reparar Naves con requerimiento de mantenimiento (si no están en misión)
 class RepararNaves(
     private val baseLanzamiento: BaseLanzamiento,
     mailSender: MailSender
@@ -58,9 +51,8 @@ class RepararNaves(
     override fun nombreProceso() = "Reparar Naves con requerimiento de mantenimiento"
 
     override fun ejecutarProceso() {
-        baseLanzamiento.navesEstacionadas
-            .filter { it.requiereMantenimiento && it.misionAsignada == null }
-            .forEach { it.reparar() }
+
+        baseLanzamiento.repararNavesDisponibles()
     }
 }
 
@@ -74,14 +66,7 @@ class ActualizacionPlanetas(
     override fun nombreProceso() = "Actualización de Planetas"
 
     override fun ejecutarProceso() {
-        val jsonPlanetas = servicePlaneta.getPlanetas()
-
-        // convertimos los datos usando el mapper que ya esta configurado en el RepositorioPlaneta
-        val planetasNuevos: List<Planeta> = repositorioPlaneta.mapper.readValue(jsonPlanetas)
-
-        planetasNuevos.forEach { planeta ->
-            repositorioPlaneta.guardarPlaneta(planeta)
-        }
+        repositorioPlaneta.importarPlanetas(servicePlaneta)
     }
 }
 
@@ -93,9 +78,7 @@ class BorrarSubvencionesVencidas(
     override fun nombreProceso() = "Borrar Subvenciones vencidas sin aplicar"
 
     override fun ejecutarProceso() {
-        val subvencionesABorrar = repositorioSubvencion.getAll().filter {
-            !it.estaVigente() && !it.estaAplicada
-        }
+        val subvencionesABorrar = repositorioSubvencion.getAll().filter { it.esBorrable() }
         subvencionesABorrar.forEach { repositorioSubvencion.delete(it) }
     }
 }
@@ -113,9 +96,7 @@ class RetirarTripulantesInactivos(
         val todasLasMisiones = repositorioMision.getAll()
 
         val tripulantesInactivos = repositorioTripulante.getAll().filter { tripulante ->
-            todasLasMisiones.none { mision ->
-                tripulante in mision.tripulantes && mision.fechaLanzamiento.isAfter(dosAniosAtras)
-            }
+            todasLasMisiones.none { mision -> mision.tuvoComoTripulanteDespuesDe(tripulante, dosAniosAtras) }
         }
 
         tripulantesInactivos.forEach { repositorioTripulante.delete(it) }
@@ -134,4 +115,6 @@ class AgregarNavesMasivas(
         naves.forEach { repositorioNave.create(it) }
     }
 }
+
+
 

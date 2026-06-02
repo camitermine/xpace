@@ -1,4 +1,3 @@
-
 import java.time.LocalDate
 import java.time.Period
 
@@ -37,6 +36,13 @@ abstract class Nave(
 
     fun reparar() {
         this.requiereMantenimiento = false
+    }
+    fun tieneMisionAsignada(): Boolean {
+        return misionAsignada != null
+    }
+    fun puedeSerReparada(): Boolean {
+        // Usamos los métodos que consultan el estado interno
+        return requiereMantenimiento && !tieneMisionAsignada()
     }
     // ------------------------------------------------
 

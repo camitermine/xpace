@@ -12,8 +12,20 @@ class BaseLanzamiento(
         return nombre.contains(criterio, ignoreCase = true) ||
                 direccion.pais.equals(criterio, ignoreCase = true)
     }
-
     val navesEstacionadas: MutableList<Nave> = mutableListOf()
+
+    //Protego la coleccion interna
+    private val _navesEstacionadas: MutableList<Nave> = mutableListOf()
+
+    fun navesEstacionadas(): List<Nave> {
+        return _navesEstacionadas.toList()
+    }
+
+    fun repararNavesDisponibles() {
+        _navesEstacionadas
+            .filter { it.puedeSerReparada() }
+            .forEach { it.reparar() }
+    }
 
     val ubicacionGeografica: Point
         get() = direccion.ubicacion
