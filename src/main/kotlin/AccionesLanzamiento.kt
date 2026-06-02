@@ -38,8 +38,7 @@ class NotificarMisionPionera : AccionLanzamiento {
         val cuerpo = "Atención tripulante: la misión ${mision.nombre} se dirige al planeta habitable ${mision.nombreDestino()} " +
                 "por primera vez en la historia de la agencia."
 
-        val mensajePionero = Mensaje(LocalDate.now(), asunto, cuerpo, Prioridad.ALTA)
-        mision.tripulantes.forEach { it.recibirMensaje(mensajePionero) }
+        mision.tripulantes.forEach { it.recibirMensaje(Mensaje(LocalDate.now(), asunto, cuerpo, Prioridad.ALTA)) }
     }
 }
 class EvaluarMantenimientoNave : AccionLanzamiento {

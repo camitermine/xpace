@@ -50,7 +50,7 @@ interface ServicePlaneta {
 }
 class RepositorioPlaneta : Repositorio<Planeta>() {
 
-    val mapper = jacksonObjectMapper()
+    private val mapper = jacksonObjectMapper()
 
     fun guardarPlaneta(planeta: Planeta) {
         val idExterno = planeta.id
