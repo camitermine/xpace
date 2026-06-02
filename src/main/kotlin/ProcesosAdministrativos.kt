@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.LocalDate
 
 // TEMPLATE METHOD + COMMAND
@@ -38,7 +37,7 @@ class BorrarMensajesAntiguos(
     override fun nombreProceso() = "Borrar Mensajes antiguos y leídos"
 
     override fun ejecutarProceso() {
-        val limiteFecha = LocalDate.now().minusDays(30)
+        val limiteFecha = LocalDate.now().minusDays(Config.CANT_DIAS_ANTIGUEDAD_MAIL)
 
         tripulantes.forEach { it.limpiarMensajesObsoletos(limiteFecha) }
     }
@@ -67,14 +66,7 @@ class ActualizacionPlanetas(
     override fun nombreProceso() = "Actualización de Planetas"
 
     override fun ejecutarProceso() {
-        val jsonPlanetas = servicePlaneta.getPlanetas()
-
-        // convertimos los datos usando el mapper que ya esta configurado en el RepositorioPlaneta
-        val planetasNuevos: List<Planeta> = repositorioPlaneta.mapper.readValue(jsonPlanetas)
-
-        planetasNuevos.forEach { planeta ->
-            repositorioPlaneta.guardarPlaneta(planeta)
-        }
+        repositorioPlaneta.importarPlanetas(servicePlaneta)
     }
 }
 

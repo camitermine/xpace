@@ -17,6 +17,7 @@ object Config {
     const val CONDICION_BASE_EXPERIENCIA = 3
     const val FACTOR_ANTIGUEDAD_CARGUERO = 1.2
     const val FACTOR_MODERNO_CARGUERO = 1.0
+    const val CANT_DIAS_ANTIGUEDAD_MAIL = 30L
 
 
 }
