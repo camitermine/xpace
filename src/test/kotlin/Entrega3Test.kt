@@ -1,4 +1,6 @@
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.*
 import java.time.LocalDate
@@ -442,6 +444,50 @@ class Entrega3Test : DescribeSpec({
 
                 verify(exactly = 0) { repoNave.create(any()) }
             }
+            it("ActualizacionPlanetas mapea 7 planetas desde el JSON, pero solo guarda 5 al descartar duplicados") {
+                // 1. Arrange: Usamos un repositorio real para comprobar cómo guarda la información
+                val repoPlanetaReal = RepositorioPlaneta()
+
+                // Simulamos un JSON con 7 elementos. "Planeta 1" y "Planeta 2" están duplicados al final.
+                val jsonMock = """
+[
+  { "id": 1, "nombre": "Planeta 1", "temperaturaMedia": 25.0, "gravedad": 9.8, "nivelRadiacion": 10, "hayAguaLiquida": true, "toxicidadAtmosferica": 5, "actividadTectonica": 2, "tamanio": 6000.0 },
+  { "id": 2, "nombre": "Planeta 2", "temperaturaMedia": 15.0, "gravedad": 8.0, "nivelRadiacion": 5, "hayAguaLiquida": false, "toxicidadAtmosferica": 2, "actividadTectonica": 1, "tamanio": 4000.0 },
+  { "id": 3, "nombre": "Planeta 3", "temperaturaMedia": 35.0, "gravedad": 10.5, "nivelRadiacion": 20, "hayAguaLiquida": true, "toxicidadAtmosferica": 8, "actividadTectonica": 5, "tamanio": 7000.0 },
+  { "id": 4, "nombre": "Planeta 4", "temperaturaMedia": -10.0, "gravedad": 12.0, "nivelRadiacion": 50, "hayAguaLiquida": false, "toxicidadAtmosferica": 10, "actividadTectonica": 0, "tamanio": 8000.0 },
+  { "id": 5, "nombre": "Planeta 5", "temperaturaMedia": 50.0, "gravedad": 5.0, "nivelRadiacion": 2, "hayAguaLiquida": true, "toxicidadAtmosferica": 1, "actividadTectonica": 8, "tamanio": 3000.0 },
+  { "id": 1, "nombre": "Planeta 1", "temperaturaMedia": 25.0, "gravedad": 9.8, "nivelRadiacion": 10, "hayAguaLiquida": true, "toxicidadAtmosferica": 5, "actividadTectonica": 2, "tamanio": 6000.0 },
+  { "id": 2, "nombre": "Planeta 2", "temperaturaMedia": 15.0, "gravedad": 8.0, "nivelRadiacion": 5, "hayAguaLiquida": false, "toxicidadAtmosferica": 2, "actividadTectonica": 1, "tamanio": 4000.0 }
+]
+""".trimIndent()
+
+                every { servicePlanetaMock.getPlanetas() } returns jsonMock
+
+                val proceso = ActualizacionPlanetas(repoPlanetaReal, servicePlanetaMock, mailSenderMock)
+
+                // 2. Act
+                proceso.ejecutar()
+
+                // 3. Assert
+                // Obtenemos todos los planetas guardados en el repositorio
+                val planetasGuardados = repoPlanetaReal.getAll()
+
+                // Verificamos que el repositorio solo contenga 5 elementos
+                planetasGuardados shouldHaveSize 5
+
+                // Opcional: Verificamos que los nombres que quedaron sean exactamente los 5 únicos
+                val nombresGuardados = planetasGuardados.map { it.nombre }
+                nombresGuardados shouldContainExactlyInAnyOrder listOf(
+                    "Planeta 1", "Planeta 2", "Planeta 3", "Planeta 4", "Planeta 5"
+                )
+
+                // Verificamos la notificación propia del Template Method
+                verify(exactly = 1) {
+                    mailSenderMock.enviarMail("admin@xpace.com", match { it.contains("Actualización") }, any())
+                }
+            }
+
+
         }
     }
 })
