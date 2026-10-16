@@ -26,6 +26,26 @@ abstract class Nave(
     var misionAsignada: Mision? = null
         private set
 
+    // --- NUEVO ESTADO Y COMPORTAMIENTOS ENTREGA 3 ---
+    var requiereMantenimiento: Boolean = false
+        private set
+
+    fun solicitarMantenimiento() {
+        this.requiereMantenimiento = true
+    }
+
+    fun reparar() {
+        this.requiereMantenimiento = false
+    }
+    fun tieneMisionAsignada(): Boolean {
+        return misionAsignada != null
+    }
+    fun puedeSerReparada(): Boolean {
+        // Usamos los métodos que consultan el estado interno
+        return requiereMantenimiento && !tieneMisionAsignada()
+    }
+    // ------------------------------------------------
+
     private fun validarConstruccion() {
 
         Validaciones.validarNoVacio(nombre, MensajesDeErrorNave.NOMBRE_INVALIDO.mensaje)
@@ -48,6 +68,11 @@ abstract class Nave(
     abstract fun consumoPorAnioLuz(cantTripulantes: Int): Double
 
     fun asignar(mision: Mision) {
+        // Validación clave para impedir que naves que requieren mantenimiento hagan misiones
+        Validaciones.validarReglaNegocio(
+            !this.requiereMantenimiento,
+            "La nave requiere mantenimiento y no puede ser asignada a futuras misiones"
+        )
         this.misionAsignada = mision
     }
 

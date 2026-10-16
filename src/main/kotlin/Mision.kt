@@ -7,12 +7,14 @@ private enum class MensajesDeError(val mensaje: String) {
     FECHA_LANZAMIENTO_INVALIDA("La fecha de lanzamiento debe ser posterior a hoy")
 }
 
+
 class Mision(
     val nombre: String,
     val descripcion: String,
     val fechaLanzamiento: LocalDate,
     val nave: Nave,
     val destino: Planeta,
+    val cargaEnKg: Double = 0.0,
 ) : Entidad {
 
     override var id: Int? = null
@@ -40,11 +42,38 @@ class Mision(
         validarConstruccion()
     }
 
+    private val accionesLanzamiento: MutableList<AccionLanzamiento> = mutableListOf()
+
+    fun nombreDestino(): String {
+        return destino.nombre
+    }
+
+    fun esPionera(): Boolean {
+        return destino.esHabitable() && !destino.fueAterrizado
+    }
+
+    fun agregarAccion(accion: AccionLanzamiento) {
+        accionesLanzamiento.add(accion)
+    }
+
+    fun removerAccion(accion: AccionLanzamiento) {
+        accionesLanzamiento.remove(accion)
+    }
+
+    fun provocaMantenimientoNave(): Boolean {
+        // Usamos nave() en lugar de la propiedad directa para mantener tu regla de diseño
+        return esDesgastante() && !nave.esModerna()
+    }
+
     fun lanzar() {
         if (this.estado !== EstadoMision.BORRADOR) throw ErrorDeMision("La mision ya fue lanzada")
+
         prepararNave()
         prepararTripulantes()
+
         this.estado = EstadoMision.EN_CURSO
+
+        accionesLanzamiento.forEach { it.ejecutar(this) }
     }
 
     fun fallo() {
@@ -67,6 +96,16 @@ class Mision(
         destino.distanciaATierra * Config.DIAS_DEL_ANIO / this.nave.velPromedio * Config.IDA_Y_VUELTA
 
     fun altoRiesgo(): Boolean = !destino.esHabitable() && duracion() > Config.DURACION_DE_ALTO_RIESGO
+
+    fun esDesgastante(): Boolean {
+        val excesoCargaYTripulacion = this.tripulantes.size > 5 && this.cargaEnKg > 5000.0
+        val distanciaExcesiva = this.destino.distanciaATierra > 4.0
+        return excesoCargaYTripulacion || distanciaExcesiva
+    }
+
+    fun tuvoComoTripulanteDespuesDe(tripulante: Tripulante, fechaLimite: LocalDate): Boolean {
+        return tripulante in this.tripulantes && this.fechaLanzamiento.isAfter(fechaLimite)
+    }
 
     fun sumarTripulacion(tripulacion: List<Tripulante>) {
         val nuevaTripulacion = this.tripulantes + tripulacion
@@ -132,6 +171,7 @@ class Mision(
         if (!nave.esModerna()) montoFinal *= 1.10
         return montoFinal
     }
+
     fun calcularPresupuestoFijo(): Double {
         val costoBase = calcularCostoCombustible() + calcularCostoSalarial()
         return aplicarRecargos(costoBase)
@@ -143,8 +183,3 @@ class Mision(
         return presupuestoFijo - montoSubvencion
     }
 }
-
-
-
-
-

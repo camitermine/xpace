@@ -18,6 +18,8 @@ abstract class Subvencion(
 
     fun estaVigente(): Boolean = LocalDate.now().isBefore(fechaEmision.plusDays(duracionDias.toLong()))
 
+    fun esBorrable(): Boolean = !estaVigente() && !estaAplicada
+
     fun puedeAplicarseA(mision: Mision): Boolean {
         return estaVigente() &&
                 !estaAplicada &&
